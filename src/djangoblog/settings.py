@@ -110,7 +110,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get('DJANGO_MYSQL_DATABASE') or 'djangoblog',
         'USER': os.environ.get('DJANGO_MYSQL_USER') or 'root',
-        'PASSWORD': os.environ.get('DJANGO_MYSQL_PASSWORD') or '123456',
+        'PASSWORD': os.environ.get('DJANGO_MYSQL_PASSWORD') or 'Admin123git --version',
         'HOST': os.environ.get('DJANGO_MYSQL_HOST') or '127.0.0.1',
         'PORT': int(
             os.environ.get('DJANGO_MYSQL_PORT') or 3306),
@@ -258,12 +258,12 @@ AUTHENTICATION_BACKENDS = [
 STATIC_ROOT = os.path.join(BASE_DIR, 'collectedstatic')
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # 新增：项目根目录static文件夹
-    os.path.join(BASE_DIR, 'plugins'), # 插件静态文件目录
-    os.path.join(BASE_DIR, 'blog/static/blog/dist'),
-]
+STATICFILES = os.path.join(BASE_DIR, 'static')
 
+# 添加插件静态文件目录
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'plugins'),  # 让Django能找到插件的静态文件
+]
 
 # Vite开发服务器URL（开发模式）
 VITE_DEV_SERVER_URL = 'http://localhost:5173'
