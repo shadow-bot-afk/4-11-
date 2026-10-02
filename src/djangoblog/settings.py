@@ -12,9 +12,15 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import sys
 from pathlib import Path
+import mimetypes
+"""
+Django settings for djangoblog project.
+"""
+import os
+import sys
+from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
-
 
 def env_to_bool(env, default):
     str_val = os.environ.get(env)
@@ -108,15 +114,16 @@ WSGI_APPLICATION = 'djangoblog.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DJANGO_MYSQL_DATABASE') or 'djangoblog',
-        'USER': os.environ.get('DJANGO_MYSQL_USER') or 'root',
-        'PASSWORD': os.environ.get('DJANGO_MYSQL_PASSWORD') or 'Admin123git --version',
-        'HOST': os.environ.get('DJANGO_MYSQL_HOST') or '127.0.0.1',
-        'PORT': int(
-            os.environ.get('DJANGO_MYSQL_PORT') or 3306),
+        'NAME': 'django_blog',
+        'USER': 'root',
+        'PASSWORD': '18261350686sW',   # 你的本地密码
+        'HOST': '127.0.0.1',           # 写 127.0.0.1
+        'PORT': '3306',
         'OPTIONS': {
-            'charset': 'utf8mb4'},
-    }}
+            'charset': 'utf8mb4',
+        },
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -266,7 +273,7 @@ STATICFILES_DIRS = [
 ]
 
 # Vite开发服务器URL（开发模式）
-VITE_DEV_SERVER_URL = 'http://localhost:5173'
+# VITE_DEV_SERVER_URL = 'http://localhost:5173'
 
 AUTH_USER_MODEL = 'accounts.BlogUser'
 LOGIN_URL = '/login/'

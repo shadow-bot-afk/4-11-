@@ -127,10 +127,12 @@ def model_post_save_callback(
             cache.delete(article_cache_key)
 
             # 清理分类相关缓存
-            if instance.category:
-                category_name = instance.category.name
-                cache.delete(f'category_list_{category_name}_1')
-
+            try:  # <--- 新增这一行
+                if instance.category:
+                    category_name = instance.category.name
+                    cache.delete(f'category_list_{category_name}_1')
+            except Exception:  # <--- 新增这一行
+                pass  # <--- 新增这一行
             # 清理标签相关缓存
             try:
                 for tag in instance.tags.all():
