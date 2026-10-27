@@ -99,7 +99,7 @@ def model_post_save_callback(
                 notify_url = instance.get_full_url()
                 SpiderNotify.baidu_notify([notify_url])
             except Exception as ex:
-                logger.error("notify sipder", ex)
+                logger.exception("notify spider: %s", ex)
 
     # 评论相关的缓存清理
     # zhang: 已启用评论更新后失效详情页和侧边栏缓存，并触发通知邮件。

@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 # zhang: 类职责：统一搜索引擎通知入口。
-class SpiderNotify():
+class SpiderNotify:
     # zhang: 方法职责：封装 baidu notify 对应的处理步骤。
     @staticmethod
     def baidu_notify(urls):

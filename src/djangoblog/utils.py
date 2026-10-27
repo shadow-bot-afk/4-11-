@@ -92,7 +92,7 @@ def expire_view_cache(path, servername, serverport, key_prefix=None):
 
     key = get_cache_key(request, key_prefix=key_prefix, cache=cache)
     if key:
-        logger.info('expire_view_cache:get key:{path}'.format(path=path))
+        logger.info(f'expire_view_cache:get key:{path}')
         if cache.get(key):
             cache.delete(key)
         return True
