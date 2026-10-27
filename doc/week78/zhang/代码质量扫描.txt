@@ -1,0 +1,3005 @@
+I001 [*] Import block is un-sorted or un-formatted
+ --> djangoblog\apps.py:2:1
+  |
+1 | # zhang: DjangoBlog 应用配置，负责在应用初始化完成后加载项目插件。
+2 | from django.apps import AppConfig
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+3 |
+4 | # zhang: 定义 djangoblog 应用的配置及启动时的初始化行为。
+  |
+help: Organize imports
+  |
+3 |
+4 +
+5 | # zhang: 定义 djangoblog 应用的配置及启动时的初始化行为。
+  |
+
+UP009 [*] UTF-8 encoding declaration is unnecessary
+ --> djangoblog\base_views.py:2:1
+  |
+1 | #!/usr/bin/env python
+2 | # encoding: utf-8
+  | ^^^^^^^^^^^^^^^^^
+3 |
+4 | """
+  |
+help: Remove unnecessary coding comment
+  |
+1 | #!/usr/bin/env python
+  - # encoding: utf-8
+2 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> djangoblog\blog_signals.py:2:1
+   |
+ 1 |   # zhang: 本模块集中处理邮件发送、OAuth 登录、模型保存和用户认证等 Django 信号。
+ 2 | / import _thread
+ 3 | | import logging
+ 4 | |
+ 5 | | import django.dispatch
+ 6 | | from django.conf import settings
+ 7 | | from django.contrib.admin.models import LogEntry
+ 8 | | from django.contrib.auth.signals import user_logged_in, user_logged_out
+ 9 | | from django.core.mail import EmailMultiAlternatives
+10 | | from django.db.models.signals import post_save
+11 | | from django.dispatch import receiver
+12 | |
+13 | | from comments.models import Comment
+14 | | from comments.utils import send_comment_email
+15 | | from djangoblog.spider_notify import SpiderNotify
+16 | | from djangoblog.utils import cache, expire_view_cache, delete_sidebar_cache, delete_view_cache
+17 | | from djangoblog.utils import get_current_site
+18 | | from oauth.models import OAuthUser
+   | |__________________________________^
+19 |
+20 |   logger = logging.getLogger(__name__)
+   |
+help: Organize imports
+   |
+15 | from djangoblog.spider_notify import SpiderNotify
+   - from djangoblog.utils import cache, expire_view_cache, delete_sidebar_cache, delete_view_cache
+   - from djangoblog.utils import get_current_site
+16 + from djangoblog.utils import (
+17 +     cache,
+18 +     delete_sidebar_cache,
+19 +     delete_view_cache,
+20 +     expire_view_cache,
+21 +     get_current_site,
+22 + )
+23 | from oauth.models import OAuthUser
+   |
+
+BLE001 Do not catch blind exception: `Exception`
+  --> djangoblog\blog_signals.py:53:12
+   |
+51 |         result = msg.send()
+52 |         log.send_result = result > 0
+53 |     except Exception as e:
+   |            ^^^^^^^^^
+54 |         logger.error(f"失败邮箱号: {emailto}, {e}")
+55 |         log.send_result = False
+   |
+
+SIM102 Use a single `if` statement instead of nested `if` statements
+  --> djangoblog\blog_signals.py:96:5
+   |
+94 |       # 搜索引擎通知
+95 |       # zhang: 为具有公开地址的模型尝试通知搜索引擎，测试环境不执行该请求。
+96 | /     if 'get_full_url' in dir(instance):
+97 | |         if not settings.TESTING:
+   | |________________________________^
+98 |               try:
+99 |                   notify_url = instance.get_full_url()
+   |
+help: Combine `if` statements using `and`
+    |
+95  |     # zhang: 为具有公开地址的模型尝试通知搜索引擎，测试环境不执行该请求。
+    -     if 'get_full_url' in dir(instance):
+    -         if not settings.TESTING:
+    -             try:
+    -                 notify_url = instance.get_full_url()
+    -                 SpiderNotify.baidu_notify([notify_url])
+    -             except Exception as ex:
+    -                 logger.error("notify sipder", ex)
+96  +     if 'get_full_url' in dir(instance) and not settings.TESTING:
+97  +         try:
+98  +             notify_url = instance.get_full_url()
+99  +             SpiderNotify.baidu_notify([notify_url])
+100 +         except Exception as ex:
+101 +             logger.error("notify sipder", ex)
+102 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> djangoblog\blog_signals.py:101:20
+    |
+ 99 |                 notify_url = instance.get_full_url()
+100 |                 SpiderNotify.baidu_notify([notify_url])
+101 |             except Exception as ex:
+    |                    ^^^^^^^^^
+102 |                 logger.error("notify sipder", ex)
+    |
+
+PLE1205 Too many arguments for `logging` format string
+   --> djangoblog\blog_signals.py:102:17
+    |
+100 |                 SpiderNotify.baidu_notify([notify_url])
+101 |             except Exception as ex:
+102 |                 logger.error("notify sipder", ex)
+    |                 ^^^^^^^^^^^^
+103 |
+104 |     # 评论相关的缓存清理
+    |
+
+UP032 [*] Use f-string instead of `format` call
+   --> djangoblog\blog_signals.py:120:33
+    |
+119 |               # 清理评论相关缓存
+120 |               comment_cache_key = 'article_comments_{id}'.format(
+    |  _________________________________^
+121 | |                 id=instance.article.id)
+    | |_______________________________________^
+122 |               cache.delete(comment_cache_key)
+123 |               delete_view_cache('article_comments', [str(instance.article.pk)])
+    |
+help: Convert to f-string
+    |
+119 |             # 清理评论相关缓存
+    -             comment_cache_key = 'article_comments_{id}'.format(
+    -                 id=instance.article.id)
+120 +             comment_cache_key = f'article_comments_{instance.article.id}'
+121 |             cache.delete(comment_cache_key)
+    |
+
+S110 `try`-`except`-`pass` detected, consider logging the exception
+   --> djangoblog\blog_signals.py:152:13
+    |
+150 |                   for tag in instance.tags.all():
+151 |                       cache.delete(f'tag_{tag.name}_1')
+152 | /             except Exception:
+153 | |                 pass  # 可能在创建时tags还未关联
+    | |____________________^
+154 |
+155 |               # 清理作者相关缓存
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> djangoblog\blog_signals.py:152:20
+    |
+150 |                 for tag in instance.tags.all():
+151 |                     cache.delete(f'tag_{tag.name}_1')
+152 |             except Exception:
+    |                    ^^^^^^^^^
+153 |                 pass  # 可能在创建时tags还未关联
+    |
+
+UP009 [*] UTF-8 encoding declaration is unnecessary
+ --> djangoblog\constants.py:2:1
+  |
+1 | #!/usr/bin/env python
+2 | # encoding: utf-8
+  | ^^^^^^^^^^^^^^^^^
+3 |
+4 | # zhang: 模块职责：集中定义缓存、HTTP 状态与分页配置常量。
+  |
+help: Remove unnecessary coding comment
+  |
+1 | #!/usr/bin/env python
+  - # encoding: utf-8
+2 |
+  |
+
+UP008 [*] Use `super()` instead of `super(__class__, self)`
+  --> djangoblog\elasticsearch_backend.py:19:14
+   |
+17 |       # zhang: 方法职责：提供内部辅助处理逻辑：init。
+18 |       def __init__(self, connection_alias, **connection_options):
+19 |           super(
+   |  ______________^
+20 | |             ElasticSearchBackend,
+21 | |             self).__init__(
+   | |_________________^
+22 |               connection_alias,
+23 |               **connection_options)
+   |
+help: Remove `super()` parameters
+   |
+18 |     def __init__(self, connection_alias, **connection_options):
+   -         super(
+   -             ElasticSearchBackend,
+   -             self).__init__(
+19 +         super().__init__(
+20 |             connection_alias,
+   |
+
+UP031 Use format specifiers instead of percent format
+   --> djangoblog\elasticsearch_backend.py:188:28
+    |
+186 |             for char in self.backend.RESERVED_CHARACTERS:
+187 |                 if char in word:
+188 |                     word = "'%s'" % word
+    |                            ^^^^^^^^^^^^^
+189 |                     break
+    |
+help: Replace with format specifiers
+    |
+187 |                 if char in word:
+    -                     word = "'%s'" % word
+188 +                     word = "'{}'".format(word)
+189 |                     break
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+UP008 [*] Use `super()` instead of `super(__class__, self)`
+   --> djangoblog\elasticsearch_backend.py:210:23
+    |
+208 |     # zhang: 方法职责：整理搜索参数。
+209 |     def build_params(self, spelling_query=None):
+210 |         kwargs = super(ElasticSearchQuery, self).build_params(spelling_query=spelling_query)
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+211 |         return kwargs
+    |
+help: Remove `super()` parameters
+    |
+209 |     def build_params(self, spelling_query=None):
+    -         kwargs = super(ElasticSearchQuery, self).build_params(spelling_query=spelling_query)
+210 +         kwargs = super().build_params(spelling_query=spelling_query)
+211 |         return kwargs
+    |
+
+UP009 [*] UTF-8 encoding declaration is unnecessary
+ --> djangoblog\error_views.py:2:1
+  |
+1 | #!/usr/bin/env python
+2 | # encoding: utf-8
+  | ^^^^^^^^^^^^^^^^^
+3 |
+4 | """
+  |
+help: Remove unnecessary coding comment
+  |
+1 | #!/usr/bin/env python
+  - # encoding: utf-8
+2 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> djangoblog\error_views.py:9:1
+   |
+ 7 |   """
+ 8 |
+ 9 | / import logging
+10 | | from django.shortcuts import render
+11 | | from django.utils.translation import gettext_lazy as _
+   | |______________________________________________________^
+12 |
+13 |   # zhang: 使用模块级日志记录器，统一记录错误处理时的异常信息。
+   |
+help: Organize imports
+   |
+9  | import logging
+10 +
+11 | from django.shortcuts import render
+   |
+
+LOG014 `exc_info=` outside exception handlers
+  --> djangoblog\error_views.py:41:13
+   |
+39 |         logger.error(
+40 |             f'HTTP {status_code} Error: {exception}',
+41 |             exc_info=True,
+   |             ^^^^^^^^^^^^^
+42 |             extra={
+43 |                 'request': request,
+   |
+help: Remove `exc_info=`
+   |
+40 |             f'HTTP {status_code} Error: {exception}',
+   -             exc_info=True,
+41 |             extra={
+   |
+note: This is an unsafe fix and may change runtime behavior
+
+UP032 [*] Use f-string instead of `format` call
+  --> djangoblog\feeds.py:42:16
+   |
+40 |     def feed_copyright(self):
+41 |         now = timezone.now()
+42 |         return "Copyright© {year} 且听风吟".format(year=now.year)
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+43 |
+44 |     # zhang: 方法职责：生成订阅条目链接。
+   |
+help: Convert to f-string
+   |
+41 |         now = timezone.now()
+   -         return "Copyright© {year} 且听风吟".format(year=now.year)
+42 +         return f"Copyright© {now.year} 且听风吟"
+43 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> djangoblog\logentryadmin.py:2:1
+  |
+1 |   # zhang: 模块职责：定义后台操作日志的管理页面展示规则。
+2 | / from django.contrib import admin
+3 | | from django.contrib.admin.models import DELETION
+4 | | from django.contrib.contenttypes.models import ContentType
+5 | | from django.urls import reverse, NoReverseMatch
+6 | | from django.utils.encoding import force_str
+7 | | from django.utils.html import escape
+8 | | from django.utils.safestring import mark_safe
+9 | | from django.utils.translation import gettext_lazy as _
+  | |______________________________________________________^
+help: Organize imports
+  |
+4 | from django.contrib.contenttypes.models import ContentType
+  - from django.urls import reverse, NoReverseMatch
+5 + from django.urls import NoReverseMatch, reverse
+6 | from django.utils.encoding import force_str
+  |
+
+RUF012 Mutable default value for class attribute
+  --> djangoblog\logentryadmin.py:14:19
+   |
+12 |   # zhang: 类职责：控制管理日志查询及展示。
+13 |   class LogEntryAdmin(admin.ModelAdmin):
+14 |       list_filter = [
+   |  ___________________^
+15 | |         'content_type'
+16 | |     ]
+   | |_____^
+17 |
+18 |       search_fields = [
+   |
+help: Consider initializing in `__init__` or annotating with `typing.ClassVar`
+
+RUF012 Mutable default value for class attribute
+  --> djangoblog\logentryadmin.py:18:21
+   |
+16 |       ]
+17 |
+18 |       search_fields = [
+   |  _____________________^
+19 | |         'object_repr',
+20 | |         'change_message'
+21 | |     ]
+   | |_____^
+22 |
+23 |       list_display_links = [
+   |
+help: Consider initializing in `__init__` or annotating with `typing.ClassVar`
+
+RUF012 Mutable default value for class attribute
+  --> djangoblog\logentryadmin.py:23:26
+   |
+21 |       ]
+22 |
+23 |       list_display_links = [
+   |  __________________________^
+24 | |         'action_time',
+25 | |         'get_change_message',
+26 | |     ]
+   | |_____^
+27 |       list_display = [
+28 |           'action_time',
+   |
+help: Consider initializing in `__init__` or annotating with `typing.ClassVar`
+
+RUF012 Mutable default value for class attribute
+  --> djangoblog\logentryadmin.py:27:20
+   |
+25 |           'get_change_message',
+26 |       ]
+27 |       list_display = [
+   |  ____________________^
+28 | |         'action_time',
+29 | |         'user_link',
+30 | |         'content_type',
+31 | |         'object_link',
+32 | |         'get_change_message',
+33 | |     ]
+   | |_____^
+34 |
+35 |       # zhang: 方法职责：封装 has add permission 对应的处理步骤。
+   |
+help: Consider initializing in `__init__` or annotating with `typing.ClassVar`
+
+UP032 [*] Use f-string instead of `format` call
+  --> djangoblog\logentryadmin.py:59:21
+   |
+57 |               try:
+58 |                   url = reverse(
+59 | /                     'admin:{}_{}_change'.format(content_type.app_label,
+60 | |                                                 content_type.model),
+   | |___________________________________________________________________^
+61 |                       args=[obj.object_id]
+62 |                   )
+   |
+help: Convert to f-string
+   |
+58 |                 url = reverse(
+   -                     'admin:{}_{}_change'.format(content_type.app_label,
+   -                                                 content_type.model),
+59 +                     f'admin:{content_type.app_label}_{content_type.model}_change',
+60 |                     args=[obj.object_id]
+   |
+
+UP032 [*] Use f-string instead of `format` call
+  --> djangoblog\logentryadmin.py:63:31
+   |
+61 |                     args=[obj.object_id]
+62 |                 )
+63 |                 object_link = '<a href="{}">{}</a>'.format(url, object_link)
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+64 |             except NoReverseMatch:
+65 |                 pass
+   |
+help: Convert to f-string
+   |
+62 |                 )
+   -                 object_link = '<a href="{}">{}</a>'.format(url, object_link)
+63 +                 object_link = f'<a href="{url}">{object_link}</a>'
+64 |             except NoReverseMatch:
+   |
+
+UP032 [*] Use f-string instead of `format` call
+  --> djangoblog\logentryadmin.py:78:17
+   |
+76 |               # try returning an actual link instead of object repr string
+77 |               url = reverse(
+78 | /                 'admin:{}_{}_change'.format(content_type.app_label,
+79 | |                                             content_type.model),
+   | |_______________________________________________________________^
+80 |                   args=[obj.user.pk]
+81 |               )
+   |
+help: Convert to f-string
+   |
+77 |             url = reverse(
+   -                 'admin:{}_{}_change'.format(content_type.app_label,
+   -                                             content_type.model),
+78 +                 f'admin:{content_type.app_label}_{content_type.model}_change',
+79 |                 args=[obj.user.pk]
+   |
+
+UP032 [*] Use f-string instead of `format` call
+  --> djangoblog\logentryadmin.py:82:25
+   |
+80 |                 args=[obj.user.pk]
+81 |             )
+82 |             user_link = '<a href="{}">{}</a>'.format(url, user_link)
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+83 |         except NoReverseMatch:
+84 |             pass
+   |
+help: Convert to f-string
+   |
+81 |             )
+   -             user_link = '<a href="{}">{}</a>'.format(url, user_link)
+82 +             user_link = f'<a href="{url}">{user_link}</a>'
+83 |         except NoReverseMatch:
+   |
+
+UP008 [*] Use `super()` instead of `super(__class__, self)`
+  --> djangoblog\logentryadmin.py:92:25
+   |
+90 |     # zhang: 方法职责：构建视图或管理页面的查询集。
+91 |     def get_queryset(self, request):
+92 |         queryset = super(LogEntryAdmin, self).get_queryset(request)
+   |                         ^^^^^^^^^^^^^^^^^^^^^
+93 |         return queryset.prefetch_related('content_type')
+   |
+help: Remove `super()` parameters
+   |
+91 |     def get_queryset(self, request):
+   -         queryset = super(LogEntryAdmin, self).get_queryset(request)
+92 +         queryset = super().get_queryset(request)
+93 |         return queryset.prefetch_related('content_type')
+   |
+
+UP008 [*] Use `super()` instead of `super(__class__, self)`
+  --> djangoblog\logentryadmin.py:97:24
+   |
+95 |     # zhang: 方法职责：读取或生成 actions 相关数据。
+96 |     def get_actions(self, request):
+97 |         actions = super(LogEntryAdmin, self).get_actions(request)
+   |                        ^^^^^^^^^^^^^^^^^^^^^
+98 |         if 'delete_selected' in actions:
+99 |             del actions['delete_selected']
+   |
+help: Remove `super()` parameters
+   |
+96 |     def get_actions(self, request):
+   -         actions = super(LogEntryAdmin, self).get_actions(request)
+97 +         actions = super().get_actions(request)
+98 |         if 'delete_selected' in actions:
+   |
+
+UP009 [*] UTF-8 encoding declaration is unnecessary
+ --> djangoblog\mixins.py:2:1
+  |
+1 | #!/usr/bin/env python
+2 | # encoding: utf-8
+  | ^^^^^^^^^^^^^^^^^
+3 |
+4 | # zhang: 模块职责：提供模型时间戳、缓存及文章列表等可复用混入类。
+  |
+help: Remove unnecessary coding comment
+  |
+1 | #!/usr/bin/env python
+  - # encoding: utf-8
+2 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> djangoblog\mixins.py:10:1
+   |
+ 8 |   """
+ 9 |
+10 | / import logging
+11 | | from django.db import models
+12 | | from django.shortcuts import get_object_or_404
+13 | | from django.utils.timezone import now
+14 | | from django.utils.translation import gettext_lazy as _
+   | |______________________________________________________^
+15 |
+16 |   logger = logging.getLogger(__name__)
+   |
+help: Organize imports
+   |
+10 | import logging
+11 +
+12 | from django.db import models
+   |
+
+RUF012 Mutable default value for class attribute
+  --> djangoblog\mixins.py:48:20
+   |
+46 |     class Meta:
+47 |         abstract = True
+48 |         ordering = ['-created_at']
+   |                    ^^^^^^^^^^^^^^^
+49 |         get_latest_by = 'created_at'
+   |
+help: Consider initializing in `__init__` or annotating with `typing.ClassVar`
+
+SIM102 Use a single `if` statement instead of nested `if` statements
+  --> djangoblog\mixins.py:60:9
+   |
+58 |           # 检查是否是部分更新（指定了 update_fields）
+59 |           update_fields = kwargs.get('update_fields')
+60 | /         if update_fields:
+61 | |             # 如果指定了 update_fields 但不包含 updated_at，则添加它
+62 | |             if 'updated_at' not in update_fields:
+   | |_________________________________________________^
+63 |                   update_fields = list(update_fields) + ['updated_at']
+64 |                   kwargs['update_fields'] = update_fields
+   |
+help: Combine `if` statements using `and`
+
+PIE790 [*] Unnecessary `pass` statement
+   --> djangoblog\mixins.py:301:5
+    |
+299 |                 return f'my_list_{self.page_number}'
+300 |     """
+301 |     pass
+    |     ^^^^
+help: Remove unnecessary `pass`
+    |
+300 |     """
+    -     pass
+    |
+
+RUF012 Mutable default value for class attribute
+  --> djangoblog\plugin_manage\base_plugin.py:18:27
+   |
+17 |     # 插件配置
+18 |     SUPPORTED_POSITIONS = []  # 支持的显示位置
+   |                           ^^
+19 |     DEFAULT_PRIORITY = 100  # 默认优先级（数字越小优先级越高）
+20 |     POSITION_PRIORITIES = {}  # 各位置的优先级 {'sidebar': 50, 'article_bottom': 80}
+   |
+help: Consider initializing in `__init__` or annotating with `typing.ClassVar`
+
+RUF012 Mutable default value for class attribute
+  --> djangoblog\plugin_manage\base_plugin.py:20:27
+   |
+18 |     SUPPORTED_POSITIONS = []  # 支持的显示位置
+19 |     DEFAULT_PRIORITY = 100  # 默认优先级（数字越小优先级越高）
+20 |     POSITION_PRIORITIES = {}  # 各位置的优先级 {'sidebar': 50, 'article_bottom': 80}
+   |                           ^^
+21 |
+22 |     def __init__(self):
+   |
+help: Consider initializing in `__init__` or annotating with `typing.ClassVar`
+
+PIE790 [*] Unnecessary `pass` statement
+  --> djangoblog\plugin_manage\base_plugin.py:55:9
+   |
+53 |         子类可以重写此方法来注册特定的钩子
+54 |         """
+55 |         pass
+   |         ^^^^
+56 |
+57 |     # === 位置渲染系统 ===
+   |
+help: Remove unnecessary `pass`
+   |
+54 |         """
+   -         pass
+55 |
+   |
+
+RET501 [*] Do not explicitly `return None` in function if it is the only possible return value
+   --> djangoblog\plugin_manage\base_plugin.py:109:9
+    |
+107 |     def render_sidebar_widget(self, context, **kwargs):
+108 |         """渲染侧边栏组件"""
+109 |         return None
+    |         ^^^^^^^^^^^
+110 |
+111 |     def render_article_bottom_widget(self, context, **kwargs):
+    |
+help: Remove explicit `return None`
+    |
+108 |         """渲染侧边栏组件"""
+    -         return None
+109 +         return
+110 |
+    |
+
+RET501 [*] Do not explicitly `return None` in function if it is the only possible return value
+   --> djangoblog\plugin_manage\base_plugin.py:113:9
+    |
+111 |     def render_article_bottom_widget(self, context, **kwargs):
+112 |         """渲染文章底部组件"""
+113 |         return None
+    |         ^^^^^^^^^^^
+114 |
+115 |     def render_article_top_widget(self, context, **kwargs):
+    |
+help: Remove explicit `return None`
+    |
+112 |         """渲染文章底部组件"""
+    -         return None
+113 +         return
+114 |
+    |
+
+RET501 [*] Do not explicitly `return None` in function if it is the only possible return value
+   --> djangoblog\plugin_manage\base_plugin.py:117:9
+    |
+115 |     def render_article_top_widget(self, context, **kwargs):
+116 |         """渲染文章顶部组件"""
+117 |         return None
+    |         ^^^^^^^^^^^
+118 |
+119 |     def render_header_widget(self, context, **kwargs):
+    |
+help: Remove explicit `return None`
+    |
+116 |         """渲染文章顶部组件"""
+    -         return None
+117 +         return
+118 |
+    |
+
+RET501 [*] Do not explicitly `return None` in function if it is the only possible return value
+   --> djangoblog\plugin_manage\base_plugin.py:121:9
+    |
+119 |     def render_header_widget(self, context, **kwargs):
+120 |         """渲染页头组件"""
+121 |         return None
+    |         ^^^^^^^^^^^
+122 |
+123 |     def render_footer_widget(self, context, **kwargs):
+    |
+help: Remove explicit `return None`
+    |
+120 |         """渲染页头组件"""
+    -         return None
+121 +         return
+122 |
+    |
+
+RET501 [*] Do not explicitly `return None` in function if it is the only possible return value
+   --> djangoblog\plugin_manage\base_plugin.py:125:9
+    |
+123 |     def render_footer_widget(self, context, **kwargs):
+124 |         """渲染页脚组件"""
+125 |         return None
+    |         ^^^^^^^^^^^
+126 |
+127 |     def render_comment_before_widget(self, context, **kwargs):
+    |
+help: Remove explicit `return None`
+    |
+124 |         """渲染页脚组件"""
+    -         return None
+125 +         return
+126 |
+    |
+
+RET501 [*] Do not explicitly `return None` in function if it is the only possible return value
+   --> djangoblog\plugin_manage\base_plugin.py:129:9
+    |
+127 |     def render_comment_before_widget(self, context, **kwargs):
+128 |         """渲染评论前组件"""
+129 |         return None
+    |         ^^^^^^^^^^^
+130 |
+131 |     def render_comment_after_widget(self, context, **kwargs):
+    |
+help: Remove explicit `return None`
+    |
+128 |         """渲染评论前组件"""
+    -         return None
+129 +         return
+130 |
+    |
+
+RET501 [*] Do not explicitly `return None` in function if it is the only possible return value
+   --> djangoblog\plugin_manage\base_plugin.py:133:9
+    |
+131 |     def render_comment_after_widget(self, context, **kwargs):
+132 |         """渲染评论后组件"""
+133 |         return None
+    |         ^^^^^^^^^^^
+134 |
+135 |     # === 模板系统 ===
+    |
+help: Remove explicit `return None`
+    |
+132 |         """渲染评论后组件"""
+    -         return None
+133 +         return
+134 |
+    |
+
+G201 Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`
+  --> djangoblog\plugin_manage\hooks.py:29:24
+   |
+27 |                 callback(*args, **kwargs)
+28 |             except Exception as e:
+29 |                 logger.error(f"Error running action hook '{hook_name}' callback '{callback.__name__}': {e}", exc_info=True)
+   |                        ^^^^^
+
+G201 Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`
+  --> djangoblog\plugin_manage\hooks.py:43:24
+   |
+41 |                 value = callback(value, *args, **kwargs)
+42 |             except Exception as e:
+43 |                 logger.error(f"Error applying filter hook '{hook_name}' callback '{callback.__name__}': {e}", exc_info=True)
+   |                        ^^^^^
+44 |     return value
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> djangoblog\plugin_manage\loader.py:1:1
+  |
+1 | / import os
+2 | | import logging
+3 | | from django.conf import settings
+  | |________________________________^
+4 |
+5 |   logger = logging.getLogger(__name__)
+  |
+help: Organize imports
+  |
+1 + import logging
+2 | import os
+  - import logging
+3 +
+4 | from django.conf import settings
+  |
+
+C417 Unnecessary `map()` usage (rewrite using a set comprehension)
+  --> djangoblog\sitemap.py:71:21
+   |
+69 |     # zhang: 方法职责：获取站点地图或订阅记录。
+70 |     def items(self):
+71 |         return list(set(map(lambda x: x.author, Article.objects.all())))
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+72 |
+73 |     # zhang: 方法职责：获取站点地图条目修改时间。
+   |
+help: Replace `map()` with a set comprehension
+   |
+70 |     def items(self):
+   -         return list(set(map(lambda x: x.author, Article.objects.all())))
+71 +         return list({x.author for x in Article.objects.all()})
+72 |
+   |
+note: This is an unsafe fix and may change runtime behavior
+
+UP039 [*] Unnecessary parentheses after class definition
+  --> djangoblog\spider_notify.py:11:19
+   |
+10 | # zhang: 类职责：统一搜索引擎通知入口。
+11 | class SpiderNotify():
+   |                   ^^
+12 |     # zhang: 方法职责：封装 baidu notify 对应的处理步骤。
+13 |     @staticmethod
+   |
+help: Remove parentheses
+   |
+10 | # zhang: 类职责：统一搜索引擎通知入口。
+   - class SpiderNotify():
+11 + class SpiderNotify:
+12 |     # zhang: 方法职责：封装 baidu notify 对应的处理步骤。
+   |
+
+BLE001 Do not catch blind exception: `Exception`
+  --> djangoblog\spider_notify.py:19:16
+   |
+17 |             result = requests.post(settings.BAIDU_NOTIFY_URL, data=data)
+18 |             logger.info(result.text)
+19 |         except Exception as e:
+   |                ^^^^^^^^^
+20 |             logger.error(e)
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> djangoblog\test_base.py:6:1
+   |
+ 4 |   提供通用的测试数据创建和断言方法
+ 5 |   """
+ 6 | / from django.contrib.auth.models import Permission
+ 7 | | from django.test import TestCase, Client, RequestFactory
+ 8 | | from django.utils import timezone
+ 9 | |
+10 | | from accounts.models import BlogUser
+11 | | from blog.models import Article, Category, Tag, BlogSettings
+12 | | from comments.models import Comment
+   | |___________________________________^
+help: Organize imports
+   |
+6  | from django.contrib.auth.models import Permission
+   - from django.test import TestCase, Client, RequestFactory
+7  + from django.test import Client, RequestFactory, TestCase
+8  | from django.utils import timezone
+9  |
+10 | from accounts.models import BlogUser
+   - from blog.models import Article, Category, Tag, BlogSettings
+11 + from blog.models import Article, BlogSettings, Category, Tag
+12 | from comments.models import Comment
+   |
+
+F401 [*] `django.contrib.auth.models.Permission` imported but unused
+ --> djangoblog\test_base.py:6:40
+  |
+4 | 提供通用的测试数据创建和断言方法
+5 | """
+6 | from django.contrib.auth.models import Permission
+  |                                        ^^^^^^^^^^
+7 | from django.test import TestCase, Client, RequestFactory
+8 | from django.utils import timezone
+  |
+help: Remove unused import: `django.contrib.auth.models.Permission`
+  |
+5 | """
+  - from django.contrib.auth.models import Permission
+6 | from django.test import TestCase, Client, RequestFactory
+  |
+
+RUF059 Unpacked variable `created` is never used
+   --> djangoblog\test_base.py:110:19
+    |
+108 |     def create_blog_settings(self):
+109 |         """创建博客设置"""
+110 |         settings, created = BlogSettings.objects.get_or_create(
+    |                   ^^^^^^^
+111 |             id=1,
+112 |             defaults={
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+    |
+109 |         """创建博客设置"""
+    -         settings, created = BlogSettings.objects.get_or_create(
+110 +         settings, _created = BlogSettings.objects.get_or_create(
+111 |             id=1,
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> djangoblog\test_email_integration.py:6:1
+   |
+ 4 |   完整的邮件集成测试 - 端到端测试完整业务流程
+ 5 |   """
+ 6 | / import re
+ 7 | | from django.test import TestCase, Client, override_settings
+ 8 | | from django.core import mail
+ 9 | | from django.urls import reverse
+10 | | from django.contrib.auth import authenticate
+11 | |
+12 | | from accounts.models import BlogUser
+13 | | from accounts.utils import get_code, verify
+14 | | from blog.models import Article, Category, BlogSettings
+15 | | from comments.models import Comment
+   | |___________________________________^
+help: Organize imports
+   |
+6  | import re
+   - from django.test import TestCase, Client, override_settings
+7  +
+8  + from django.contrib.auth import authenticate
+9  | from django.core import mail
+10 + from django.test import Client, TestCase, override_settings
+11 | from django.urls import reverse
+   - from django.contrib.auth import authenticate
+12 |
+13 | from accounts.models import BlogUser
+14 | from accounts.utils import get_code, verify
+   - from blog.models import Article, Category, BlogSettings
+15 + from blog.models import Article, BlogSettings, Category
+16 | from comments.models import Comment
+   |
+
+F401 [*] `accounts.utils.get_code` imported but unused
+  --> djangoblog\test_email_integration.py:13:28
+   |
+12 | from accounts.models import BlogUser
+13 | from accounts.utils import get_code, verify
+   |                            ^^^^^^^^
+14 | from blog.models import Article, Category, BlogSettings
+15 | from comments.models import Comment
+   |
+help: Remove unused import: `accounts.utils.get_code`
+   |
+12 | from accounts.models import BlogUser
+   - from accounts.utils import get_code, verify
+13 + from accounts.utils import verify
+14 | from blog.models import Article, Category, BlogSettings
+   |
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration.py:149:9
+    |
+147 |         }
+148 |
+149 |         response = self.client.post(
+    |         ^^^^^^^^
+150 |             reverse('account:register'),
+151 |             second_registration,
+    |
+help: Remove assignment to unused variable `response`
+    |
+148 |
+    -         response = self.client.post(
+149 +         self.client.post(
+150 |             reverse('account:register'),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `user_count` is assigned to but never used
+   --> djangoblog\test_email_integration.py:156:9
+    |
+155 |         # 应该只有一个用户
+156 |         user_count = BlogUser.objects.filter(email='duplicate@example.com').count()
+    |         ^^^^^^^^^^
+157 |         # 根据业务逻辑，可能允许或不允许重复邮箱
+158 |         # 这里验证逻辑是否正确处理
+    |
+help: Remove assignment to unused variable `user_count`
+    |
+155 |         # 应该只有一个用户
+    -         user_count = BlogUser.objects.filter(email='duplicate@example.com').count()
+156 +         BlogUser.objects.filter(email='duplicate@example.com').count()
+157 |         # 根据业务逻辑，可能允许或不允许重复邮箱
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `reset_response` is assigned to but never used
+   --> djangoblog\test_email_integration.py:216:17
+    |
+214 |                 new_password = 'NewPassword456!'
+215 |
+216 |                 reset_response = self.client.post(
+    |                 ^^^^^^^^^^^^^^
+217 |                     reverse('account:forget_password'),
+218 |                     {
+    |
+help: Remove assignment to unused variable `reset_response`
+    |
+215 |
+    -                 reset_response = self.client.post(
+216 +                 self.client.post(
+217 |                     reverse('account:forget_password'),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `old_password_works` is assigned to but never used
+   --> djangoblog\test_email_integration.py:229:17
+    |
+227 |                 # ============ 步骤5: 验证可以用新密码登录 ============
+228 |                 # 首先验证旧密码不能用了
+229 |                 old_password_works = authenticate(
+    |                 ^^^^^^^^^^^^^^^^^^
+230 |                     username='resetuser',
+231 |                     password='OldPassword123!'
+    |
+help: Remove assignment to unused variable `old_password_works`
+    |
+228 |                 # 首先验证旧密码不能用了
+    -                 old_password_works = authenticate(
+229 +                 authenticate(
+230 |                     username='resetuser',
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration.py:263:9
+    |
+262 |         # 使用错误的验证码尝试重置
+263 |         response = self.client.post(
+    |         ^^^^^^^^
+264 |             reverse('account:forget_password'),
+265 |             {
+    |
+help: Remove assignment to unused variable `response`
+    |
+262 |         # 使用错误的验证码尝试重置
+    -         response = self.client.post(
+263 +         self.client.post(
+264 |             reverse('account:forget_password'),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration.py:345:9
+    |
+343 |         comment_text = '这是一条测试评论，期待作者的回复！'
+344 |
+345 |         response = self.client.post(
+    |         ^^^^^^^^
+346 |             reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
+347 |             {
+    |
+help: Remove assignment to unused variable `response`
+    |
+344 |
+    -         response = self.client.post(
+345 +         self.client.post(
+346 |             reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `article_link_match` is assigned to but never used
+   --> djangoblog\test_email_integration.py:385:17
+    |
+384 |                 # ============ 步骤3: 从邮件中提取文章链接 ============
+385 |                 article_link_match = re.search(r'https?://[^\s]+', email_body)
+    |                 ^^^^^^^^^^^^^^^^^^
+386 |
+387 |                 # ============ 步骤4: 作者查看评论 ============
+    |
+help: Remove assignment to unused variable `article_link_match`
+    |
+384 |                 # ============ 步骤3: 从邮件中提取文章链接 ============
+    -                 article_link_match = re.search(r'https?://[^\s]+', email_body)
+385 +                 re.search(r'https?://[^\s]+', email_body)
+386 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `reply_response` is assigned to but never used
+   --> djangoblog\test_email_integration.py:406:17
+    |
+404 |                 reply_text = '感谢你的评论！这是我的回复。'
+405 |
+406 |                 reply_response = self.client.post(
+    |                 ^^^^^^^^^^^^^^
+407 |                     reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
+408 |                     {
+    |
+help: Remove assignment to unused variable `reply_response`
+    |
+405 |
+    -                 reply_response = self.client.post(
+406 +                 self.client.post(
+407 |                     reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+SIM102 Use a single `if` statement instead of nested `if` statements
+   --> djangoblog\test_email_integration.py:424:17
+    |
+422 |                   ).first()
+423 |
+424 | /                 if reply:
+425 | |                     # ============ 步骤6: 验证回复通知发送给原评论者 ============
+426 | |                     if len(mail.outbox) > 0:
+    | |____________________________________________^
+427 |                           commenter_email = None
+428 |                           for email in mail.outbox:
+    |
+help: Combine `if` statements using `and`
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration.py:455:9
+    |
+453 |         mail.outbox = []  # 清空邮件
+454 |
+455 |         response = self.client.post(
+    |         ^^^^^^^^
+456 |             reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
+457 |             {
+    |
+help: Remove assignment to unused variable `response`
+    |
+454 |
+    -         response = self.client.post(
+455 +         self.client.post(
+456 |             reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `admin` is assigned to but never used
+   --> djangoblog\test_email_integration.py:481:13
+    |
+479 |             # ============ 步骤5: 管理员审核通过 ============
+480 |             self.client.logout()
+481 |             admin = BlogUser.objects.create_superuser(
+    |             ^^^^^
+482 |                 username='admin',
+483 |                 email='admin@example.com',
+    |
+help: Remove assignment to unused variable `admin`
+    |
+480 |             self.client.logout()
+    -             admin = BlogUser.objects.create_superuser(
+481 +             BlogUser.objects.create_superuser(
+482 |                 username='admin',
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `register_response` is assigned to but never used
+   --> djangoblog\test_email_integration.py:533:9
+    |
+531 |         }
+532 |
+533 |         register_response = self.client.post(
+    |         ^^^^^^^^^^^^^^^^^
+534 |             reverse('account:register'),
+535 |             registration_data,
+    |
+help: Remove assignment to unused variable `register_response`
+    |
+532 |
+    -         register_response = self.client.post(
+533 +         self.client.post(
+534 |             reverse('account:register'),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `commenter` is assigned to but never used
+   --> djangoblog\test_email_integration.py:579:9
+    |
+577 |         self.client.logout()
+578 |
+579 |         commenter = BlogUser.objects.create_user(
+    |         ^^^^^^^^^
+580 |             username='commenter',
+581 |             email='commenter@example.com',
+    |
+help: Remove assignment to unused variable `commenter`
+    |
+578 |
+    -         commenter = BlogUser.objects.create_user(
+579 +         BlogUser.objects.create_user(
+580 |             username='commenter',
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `author_notified` is assigned to but never used
+   --> djangoblog\test_email_integration.py:602:13
+    |
+600 |         # 验证作者收到评论通知（如果实现了）
+601 |         if len(mail.outbox) > 0:
+602 |             author_notified = any(
+    |             ^^^^^^^^^^^^^^^
+603 |                 'journey@example.com' in email.to
+604 |                 for email in mail.outbox
+    |
+help: Remove assignment to unused variable `author_notified`
+    |
+601 |         if len(mail.outbox) > 0:
+    -             author_notified = any(
+602 +             any(
+603 |                 'journey@example.com' in email.to
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> djangoblog\test_email_integration_complete.py:7:1
+   |
+ 5 |   包括：注册验证、密码重置、评论通知等
+ 6 |   """
+ 7 | / import re
+ 8 | | from django.test import TestCase, Client, override_settings
+ 9 | | from django.core import mail
+10 | | from django.urls import reverse
+11 | | from django.utils import timezone
+12 | |
+13 | | from accounts.models import BlogUser
+14 | | from blog.models import Article, Category, BlogSettings
+15 | | from comments.models import Comment
+   | |___________________________________^
+help: Organize imports
+   |
+7  | import re
+   - from django.test import TestCase, Client, override_settings
+8  +
+9  | from django.core import mail
+10 + from django.test import Client, TestCase, override_settings
+11 | from django.urls import reverse
+12 | from django.utils import timezone
+13 |
+14 | from accounts.models import BlogUser
+   - from blog.models import Article, Category, BlogSettings
+15 + from blog.models import Article, BlogSettings, Category
+16 | from comments.models import Comment
+   |
+
+F841 Local variable `response` is assigned to but never used
+  --> djangoblog\test_email_integration_complete.py:82:9
+   |
+80 |         }
+81 |
+82 |         response = self.client.post(
+   |         ^^^^^^^^
+83 |             reverse('account:register'),
+84 |             registration_data,
+   |
+help: Remove assignment to unused variable `response`
+   |
+81 |
+   -         response = self.client.post(
+82 +         self.client.post(
+83 |             reverse('account:register'),
+   |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:197:9
+    |
+195 |     def test_reset_email_contains_verification_code(self):
+196 |         """测试重置邮件包含验证码"""
+197 |         response = self.client.post(
+    |         ^^^^^^^^
+198 |             reverse('account:forget_password'),
+199 |             {'email': 'test@example.com'},
+    |
+help: Remove assignment to unused variable `response`
+    |
+196 |         """测试重置邮件包含验证码"""
+    -         response = self.client.post(
+197 +         self.client.post(
+198 |             reverse('account:forget_password'),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:218:9
+    |
+216 |     def test_reset_email_not_sent_for_nonexistent_email(self):
+217 |         """测试不存在的邮箱不发送重置邮件"""
+218 |         response = self.client.post(
+    |         ^^^^^^^^
+219 |             reverse('account:forget_password'),
+220 |             {'email': 'nonexistent@example.com'},
+    |
+help: Remove assignment to unused variable `response`
+    |
+217 |         """测试不存在的邮箱不发送重置邮件"""
+    -         response = self.client.post(
+218 +         self.client.post(
+219 |             reverse('account:forget_password'),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `sent_to_nonexistent` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:227:9
+    |
+225 |         # 或者返回错误信息
+226 |         # 这里我们检查是否发送了邮件到不存在的地址
+227 |         sent_to_nonexistent = any(
+    |         ^^^^^^^^^^^^^^^^^^^
+228 |             'nonexistent@example.com' in email.to
+229 |             for email in mail.outbox
+    |
+help: Remove assignment to unused variable `sent_to_nonexistent`
+    |
+226 |         # 这里我们检查是否发送了邮件到不存在的地址
+    -         sent_to_nonexistent = any(
+227 +         any(
+228 |             'nonexistent@example.com' in email.to
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:298:9
+    |
+297 |         # 发表评论
+298 |         response = self.client.post(
+    |         ^^^^^^^^
+299 |             reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
+300 |             {
+    |
+help: Remove assignment to unused variable `response`
+    |
+297 |         # 发表评论
+    -         response = self.client.post(
+298 +         self.client.post(
+299 |             reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `author_notified` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:319:13
+    |
+317 |         # 如果发送了邮件，应该有作者的邮箱
+318 |         if len(mail.outbox) > 0:
+319 |             author_notified = any(
+    |             ^^^^^^^^^^^^^^^
+320 |                 'author@example.com' in email.to
+321 |                 for email in mail.outbox
+    |
+help: Remove assignment to unused variable `author_notified`
+    |
+318 |         if len(mail.outbox) > 0:
+    -             author_notified = any(
+319 +             any(
+320 |                 'author@example.com' in email.to
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `replier` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:338:9
+    |
+337 |         # 创建另一个用户来回复
+338 |         replier = BlogUser.objects.create_user(
+    |         ^^^^^^^
+339 |             username='replier',
+340 |             email='replier@example.com',
+    |
+help: Remove assignment to unused variable `replier`
+    |
+337 |         # 创建另一个用户来回复
+    -         replier = BlogUser.objects.create_user(
+338 +         BlogUser.objects.create_user(
+339 |             username='replier',
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:351:9
+    |
+350 |         # 回复评论
+351 |         response = self.client.post(
+    |         ^^^^^^^^
+352 |             reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
+353 |             {
+    |
+help: Remove assignment to unused variable `response`
+    |
+350 |         # 回复评论
+    -         response = self.client.post(
+351 +         self.client.post(
+352 |             reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+SIM102 Use a single `if` statement instead of nested `if` statements
+   --> djangoblog\test_email_integration_complete.py:369:9
+    |
+367 |           ).first()
+368 |
+369 | /         if reply:
+370 | |             # 如果有邮件通知功能，应该通知被回复者
+371 | |             if len(mail.outbox) > 0:
+    | |____________________________________^
+372 |                   commenter_notified = any(
+373 |                       'commenter@example.com' in email.to
+    |
+help: Combine `if` statements using `and`
+
+F841 Local variable `commenter_notified` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:372:17
+    |
+370 |             # 如果有邮件通知功能，应该通知被回复者
+371 |             if len(mail.outbox) > 0:
+372 |                 commenter_notified = any(
+    |                 ^^^^^^^^^^^^^^^^^^
+373 |                     'commenter@example.com' in email.to
+374 |                     for email in mail.outbox
+    |
+help: Remove assignment to unused variable `commenter_notified`
+    |
+371 |             if len(mail.outbox) > 0:
+    -                 commenter_notified = any(
+372 +                 any(
+373 |                     'commenter@example.com' in email.to
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:392:9
+    |
+391 |         # 发表评论
+392 |         response = self.client.post(
+    |         ^^^^^^^^
+393 |             reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
+394 |             {
+    |
+help: Remove assignment to unused variable `response`
+    |
+391 |         # 发表评论
+    -         response = self.client.post(
+392 +         self.client.post(
+393 |             reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `commenter` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:484:9
+    |
+483 |         # 4. 发表评论（作为另一个用户）
+484 |         commenter = BlogUser.objects.create_user(
+    |         ^^^^^^^^^
+485 |             username='journeycommenter',
+486 |             email='journeycommenter@example.com',
+    |
+help: Remove assignment to unused variable `commenter`
+    |
+483 |         # 4. 发表评论（作为另一个用户）
+    -         commenter = BlogUser.objects.create_user(
+484 +         BlogUser.objects.create_user(
+485 |             username='journeycommenter',
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:496:9
+    |
+494 |         mail.outbox = []
+495 |
+496 |         response = self.client.post(
+    |         ^^^^^^^^
+497 |             reverse('comments:postcomment', kwargs={'article_id': article.id}),
+498 |             {
+    |
+help: Remove assignment to unused variable `response`
+    |
+495 |
+    -         response = self.client.post(
+496 +         self.client.post(
+497 |             reverse('comments:postcomment', kwargs={'article_id': article.id}),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `comment` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:507:9
+    |
+506 |         # 验证整个流程执行成功
+507 |         comment = Comment.objects.filter(article=article).first()
+    |         ^^^^^^^
+508 |         # 根据实际实现，可能会或不会发送评论通知邮件
+    |
+help: Remove assignment to unused variable `comment`
+    |
+506 |         # 验证整个流程执行成功
+    -         comment = Comment.objects.filter(article=article).first()
+507 +         Comment.objects.filter(article=article).first()
+508 |         # 根据实际实现，可能会或不会发送评论通知邮件
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:523:9
+    |
+521 |         }
+522 |
+523 |         response = self.client.post(
+    |         ^^^^^^^^
+524 |             reverse('account:register'),
+525 |             registration_data,
+    |
+help: Remove assignment to unused variable `response`
+    |
+522 |
+    -         response = self.client.post(
+523 +         self.client.post(
+524 |             reverse('account:register'),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:569:9
+    |
+567 |         }
+568 |
+569 |         response = self.client.post(
+    |         ^^^^^^^^
+570 |             reverse('account:register'),
+571 |             registration_data,
+    |
+help: Remove assignment to unused variable `response`
+    |
+568 |
+    -         response = self.client.post(
+569 +         self.client.post(
+570 |             reverse('account:register'),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:597:9
+    |
+595 |         }
+596 |
+597 |         response = self.client.post(
+    |         ^^^^^^^^
+598 |             reverse('account:register'),
+599 |             registration_data,
+    |
+help: Remove assignment to unused variable `response`
+    |
+596 |
+    -         response = self.client.post(
+597 +         self.client.post(
+598 |             reverse('account:register'),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:619:9
+    |
+617 |         }
+618 |
+619 |         response = self.client.post(
+    |         ^^^^^^^^
+620 |             reverse('account:register'),
+621 |             registration_data,
+    |
+help: Remove assignment to unused variable `response`
+    |
+618 |
+    -         response = self.client.post(
+619 +         self.client.post(
+620 |             reverse('account:register'),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `response` is assigned to but never used
+   --> djangoblog\test_email_integration_complete.py:642:9
+    |
+640 |         }
+641 |
+642 |         response = self.client.post(
+    |         ^^^^^^^^
+643 |             reverse('account:register'),
+644 |             registration_data,
+    |
+help: Remove assignment to unused variable `response`
+    |
+641 |
+    -         response = self.client.post(
+642 +         self.client.post(
+643 |             reverse('account:register'),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> djangoblog\test_plugins.py:6:1
+   |
+ 4 |   测试插件加载、钩子注册和执行
+ 5 |   """
+ 6 | / import os
+ 7 | | from unittest.mock import Mock, patch
+ 8 | |
+ 9 | | from django.test import TestCase
+10 | |
+11 | | from djangoblog.plugin_manage.base_plugin import BasePlugin
+12 | | from djangoblog.plugin_manage.hook_constants import *
+13 | | from djangoblog.plugin_manage import hooks
+14 | | from djangoblog.plugin_manage.loader import load_plugins
+15 | | from djangoblog.test_base import BaseTestCase, PluginTestMixin
+16 | |
+17 | | # 导入钩子常量
+18 | | from djangoblog.plugin_manage.hook_constants import HEAD_RESOURCES_HOOK, BODY_RESOURCES_HOOK
+   | |____________________________________________________________________________________________^
+help: Organize imports
+   |
+10 |
+11 + from djangoblog.plugin_manage import hooks
+12 | from djangoblog.plugin_manage.base_plugin import BasePlugin
+13 | from djangoblog.plugin_manage.hook_constants import *
+   - from djangoblog.plugin_manage import hooks
+   - from djangoblog.plugin_manage.loader import load_plugins
+   - from djangoblog.test_base import BaseTestCase, PluginTestMixin
+14 |
+15 | # 导入钩子常量
+   - from djangoblog.plugin_manage.hook_constants import HEAD_RESOURCES_HOOK, BODY_RESOURCES_HOOK
+16 + from djangoblog.plugin_manage.hook_constants import (
+17 +     BODY_RESOURCES_HOOK,
+18 +     HEAD_RESOURCES_HOOK,
+19 + )
+20 + from djangoblog.plugin_manage.loader import load_plugins
+21 + from djangoblog.test_base import BaseTestCase, PluginTestMixin
+22 |
+   |
+
+F401 [*] `os` imported but unused
+ --> djangoblog\test_plugins.py:6:8
+  |
+4 | 测试插件加载、钩子注册和执行
+5 | """
+6 | import os
+  |        ^^
+7 | from unittest.mock import Mock, patch
+  |
+help: Remove unused import: `os`
+  |
+5 | """
+  - import os
+6 | from unittest.mock import Mock, patch
+  |
+
+F401 [*] `unittest.mock.Mock` imported but unused
+ --> djangoblog\test_plugins.py:7:27
+  |
+5 | """
+6 | import os
+7 | from unittest.mock import Mock, patch
+  |                           ^^^^
+8 |
+9 | from django.test import TestCase
+  |
+help: Remove unused import: `unittest.mock.Mock`
+  |
+6 | import os
+  - from unittest.mock import Mock, patch
+7 + from unittest.mock import patch
+8 |
+  |
+
+F401 [*] `djangoblog.plugin_manage.hook_constants.HEAD_RESOURCES_HOOK` imported but unused
+  --> djangoblog\test_plugins.py:18:53
+   |
+17 | # 导入钩子常量
+18 | from djangoblog.plugin_manage.hook_constants import HEAD_RESOURCES_HOOK, BODY_RESOURCES_HOOK
+   |                                                     ^^^^^^^^^^^^^^^^^^^
+help: Remove unused import
+   |
+17 | # 导入钩子常量
+   - from djangoblog.plugin_manage.hook_constants import HEAD_RESOURCES_HOOK, BODY_RESOURCES_HOOK
+18 |
+   |
+
+F401 [*] `djangoblog.plugin_manage.hook_constants.BODY_RESOURCES_HOOK` imported but unused
+  --> djangoblog\test_plugins.py:18:74
+   |
+17 | # 导入钩子常量
+18 | from djangoblog.plugin_manage.hook_constants import HEAD_RESOURCES_HOOK, BODY_RESOURCES_HOOK
+   |                                                                          ^^^^^^^^^^^^^^^^^^^
+help: Remove unused import
+   |
+17 | # 导入钩子常量
+   - from djangoblog.plugin_manage.hook_constants import HEAD_RESOURCES_HOOK, BODY_RESOURCES_HOOK
+18 |
+   |
+
+TRY002 Create your own exception
+  --> djangoblog\test_plugins.py:89:19
+   |
+87 |         """测试钩子错误处理"""
+88 |         def error_hook(value):
+89 |             raise Exception("Hook error")
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^
+90 |
+91 |         def normal_hook(value):
+   |
+
+F841 Local variable `plugin` is assigned to but never used
+   --> djangoblog\test_plugins.py:237:9
+    |
+235 |         """测试 SEO meta 标签"""
+236 |         from plugins.seo_optimizer.plugin import SeoOptimizerPlugin
+237 |         plugin = SeoOptimizerPlugin()
+    |         ^^^^^^
+238 |
+239 |         response = self.client.get(self.article.get_absolute_url())
+    |
+help: Remove assignment to unused variable `plugin`
+    |
+236 |         from plugins.seo_optimizer.plugin import SeoOptimizerPlugin
+    -         plugin = SeoOptimizerPlugin()
+237 +         SeoOptimizerPlugin()
+238 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `content` is assigned to but never used
+   --> djangoblog\test_plugins.py:282:9
+    |
+280 |         plugin = ExternalLinksPlugin()
+281 |
+282 |         content = '<a href="https://example.com">外部链接</a>'
+    |         ^^^^^^^
+283 |         # 测试插件已加载即可，具体处理逻辑在运行时应用
+284 |         self.assertIsNotNone(plugin.PLUGIN_NAME)
+    |
+help: Remove assignment to unused variable `content`
+    |
+281 |
+    -         content = '<a href="https://example.com">外部链接</a>'
+282 |         # 测试插件已加载即可，具体处理逻辑在运行时应用
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> djangoblog\urls.py:17:1
+   |
+15 |   """
+16 |   # zhang: 导入项目配置及路由相关组件，集中管理博客的全局URL入口。
+17 | / from django.conf import settings
+18 | | from django.conf.urls.i18n import i18n_patterns
+19 | | from django.conf.urls.static import static
+20 | | from django.contrib.sitemaps.views import sitemap
+21 | | from django.urls import path, include
+22 | | from django.urls import re_path
+23 | | from haystack.views import search_view_factory
+24 | | from django.http import JsonResponse
+25 | | import time
+26 | |
+27 | | # zhang: 引入各业务模块的视图、管理后台、搜索表单、订阅和站点地图组件。
+28 | | from blog.views import EsSearchView
+29 | | from djangoblog.admin_site import admin_site
+30 | | from djangoblog.elasticsearch_backend import ElasticSearchModelSearchForm
+31 | | from djangoblog.feeds import DjangoBlogFeed
+32 | | from djangoblog.sitemap import ArticleSiteMap, CategorySiteMap, StaticViewSitemap, TagSiteMap, UserSiteMap
+   | |__________________________________________________________________________________________________________^
+33 |
+34 |   # zhang: 汇总文章、分类、标签、用户和静态页面站点地图，供搜索引擎索引。
+   |
+help: Organize imports
+   |
+16 | # zhang: 导入项目配置及路由相关组件，集中管理博客的全局URL入口。
+17 + import time
+18 +
+19 | from django.conf import settings
+20 | from django.conf.urls.i18n import i18n_patterns
+21 | from django.conf.urls.static import static
+22 | from django.contrib.sitemaps.views import sitemap
+   - from django.urls import path, include
+   - from django.urls import re_path
+23 + from django.http import JsonResponse
+24 + from django.urls import include, path, re_path
+25 | from haystack.views import search_view_factory
+   - from django.http import JsonResponse
+   - import time
+26 |
+--------------------------------------------------------------------------------
+31 | from djangoblog.feeds import DjangoBlogFeed
+   - from djangoblog.sitemap import ArticleSiteMap, CategorySiteMap, StaticViewSitemap, TagSiteMap, UserSiteMap
+32 + from djangoblog.sitemap import (
+33 +     ArticleSiteMap,
+34 +     CategorySiteMap,
+35 +     StaticViewSitemap,
+36 +     TagSiteMap,
+37 +     UserSiteMap,
+38 + )
+39 |
+   |
+
+UP009 [*] UTF-8 encoding declaration is unnecessary
+ --> djangoblog\utils.py:2:1
+  |
+1 | #!/usr/bin/env python
+2 | # encoding: utf-8
+  | ^^^^^^^^^^^^^^^^^
+help: Remove unnecessary coding comment
+  |
+1 | #!/usr/bin/env python
+  - # encoding: utf-8
+2 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> djangoblog\utils.py:5:1
+   |
+ 5 | / import logging
+ 6 | | import os
+ 7 | | import random
+ 8 | | import string
+ 9 | | import uuid
+10 | | import hashlib
+11 | | import hmac
+12 | |
+13 | | import bleach
+14 | | import markdown
+15 | | import requests
+16 | | from django.conf import settings
+17 | | from django.contrib.sites.models import Site
+18 | | from django.core.cache import cache
+19 | | from django.templatetags.static import static
+   | |_____________________________________________^
+20 |
+21 |   logger = logging.getLogger(__name__)
+   |
+help: Organize imports
+   |
+4  |
+5  + import hashlib
+6  + import hmac
+7  | import logging
+--------------------------------------------------------------------------------
+11 | import uuid
+   - import hashlib
+   - import hmac
+12 |
+   |
+
+E722 Do not use bare `except`
+  --> djangoblog\utils.py:46:13
+   |
+44 |                 view = args[0]
+45 |                 key = view.get_cache_key()
+46 |             except:
+   |             ^^^^^^
+47 |                 key = None
+48 |             if not key:
+   |
+
+UP031 Use format specifiers instead of percent format
+  --> djangoblog\utils.py:62:21
+   |
+60 |               else:
+61 |                   logger.debug(
+62 | /                     'cache_decorator set cache:%s key:%s' %
+63 | |                     (func.__name__, key))
+   | |________________________________________^
+64 |                   value = func(*args, **kwargs)
+65 |                   if value is None:
+   |
+help: Replace with format specifiers
+   |
+61 |                 logger.debug(
+   -                     'cache_decorator set cache:%s key:%s' %
+   -                     (func.__name__, key))
+62 +                     'cache_decorator set cache:{} key:{}'.format(func.__name__, key))
+63 |                 value = func(*args, **kwargs)
+   |
+note: This is an unsafe fix and may change runtime behavior
+
+UP032 [*] Use f-string instead of `format` call
+  --> djangoblog\utils.py:95:21
+   |
+93 |     key = get_cache_key(request, key_prefix=key_prefix, cache=cache)
+94 |     if key:
+95 |         logger.info('expire_view_cache:get key:{path}'.format(path=path))
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+96 |         if cache.get(key):
+97 |             cache.delete(key)
+   |
+help: Convert to f-string
+   |
+94 |     if key:
+   -         logger.info('expire_view_cache:get key:{path}'.format(path=path))
+95 +         logger.info(f'expire_view_cache:get key:{path}')
+96 |         if cache.get(key):
+   |
+
+RUF059 Unpacked variable `toc` is never used
+   --> djangoblog\utils.py:133:15
+    |
+131 |     @staticmethod
+132 |     def get_markdown(value):
+133 |         body, toc = CommonMarkdown._convert_markdown(value)
+    |               ^^^
+134 |         return body
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+    |
+132 |     def get_markdown(value):
+    -         body, toc = CommonMarkdown._convert_markdown(value)
+133 +         body, _toc = CommonMarkdown._convert_markdown(value)
+134 |         return body
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> djangoblog\utils.py:214:12
+    |
+212 |                 file.write(rsp.content)
+213 |             return static('avatar/' + save_filename)
+214 |     except Exception as e:
+    |            ^^^^^^^^^
+215 |         logger.error(e)
+216 |         return static('blog/img/avatar.png')
+    |
+
+UP009 [*] UTF-8 encoding declaration is unnecessary
+ --> djangoblog\whoosh_cn_backend.py:1:1
+  |
+1 | # encoding: utf-8
+  | ^^^^^^^^^^^^^^^^^
+2 |
+3 | # zhang: 模块职责：实现 Whoosh 搜索引擎后端、查询解析及高亮格式化。
+  |
+help: Remove unnecessary coding comment
+  |
+  - # encoding: utf-8
+1 |
+  |
+
+UP010 [*] Unnecessary `__future__` imports `absolute_import`, `division`, `print_function`, `unicode_literals` for target Python version
+ --> djangoblog\whoosh_cn_backend.py:4:1
+  |
+3 | # zhang: 模块职责：实现 Whoosh 搜索引擎后端、查询解析及高亮格式化。
+4 | from __future__ import absolute_import, division, print_function, unicode_literals
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5 |
+6 | import json
+  |
+help: Remove unnecessary `__future__` import
+  |
+3 | # zhang: 模块职责：实现 Whoosh 搜索引擎后端、查询解析及高亮格式化。
+  - from __future__ import absolute_import, division, print_function, unicode_literals
+4 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> djangoblog\whoosh_cn_backend.py:4:1
+   |
+ 3 |   # zhang: 模块职责：实现 Whoosh 搜索引擎后端、查询解析及高亮格式化。
+ 4 | / from __future__ import absolute_import, division, print_function, unicode_literals
+ 5 | |
+ 6 | | import json
+ 7 | | import os
+ 8 | | import re
+ 9 | | import shutil
+10 | | import threading
+11 | | import warnings
+12 | |
+13 | | import six
+14 | | from django.conf import settings
+15 | | from django.core.exceptions import ImproperlyConfigured
+16 | | from datetime import datetime
+17 | | from django.utils.encoding import force_str
+18 | | from haystack.backends import BaseEngine, BaseSearchBackend, BaseSearchQuery, EmptyResults, log_query
+19 | | from haystack.constants import DJANGO_CT, DJANGO_ID, ID
+20 | | from haystack.exceptions import MissingDependency, SearchBackendError, SkipDocument
+21 | | from haystack.inputs import Clean, Exact, PythonData, Raw
+22 | | from haystack.models import SearchResult
+23 | | from haystack.utils import get_identifier, get_model_ct
+24 | | from haystack.utils import log as logging
+25 | | from haystack.utils.app_loading import haystack_get_model
+26 | | from jieba.analyse import ChineseAnalyzer
+27 | | from whoosh import index
+28 | | from whoosh.analysis import StemmingAnalyzer
+29 | | from whoosh.fields import BOOLEAN, DATETIME, IDLIST, KEYWORD, NGRAM, NGRAMWORDS, NUMERIC, Schema, TEXT
+30 | | from whoosh.fields import ID as WHOOSH_ID
+31 | | from whoosh.filedb.filestore import FileStorage, RamStorage
+32 | | from whoosh.highlight import ContextFragmenter, HtmlFormatter
+33 | | from whoosh.highlight import highlight as whoosh_highlight
+34 | | from whoosh.qparser import QueryParser
+35 | | from whoosh.searching import ResultsPage
+36 | | from whoosh.writing import AsyncWriter
+   | |______________________________________^
+37 |
+38 |   try:
+   |
+help: Organize imports
+   |
+11 | import warnings
+12 + from datetime import datetime
+13 |
+14 | import six
+15 | from django.conf import settings
+16 | from django.core.exceptions import ImproperlyConfigured
+   - from datetime import datetime
+17 | from django.utils.encoding import force_str
+   - from haystack.backends import BaseEngine, BaseSearchBackend, BaseSearchQuery, EmptyResults, log_query
+18 + from haystack.backends import (
+19 +     BaseEngine,
+20 +     BaseSearchBackend,
+21 +     BaseSearchQuery,
+22 +     EmptyResults,
+23 +     log_query,
+24 + )
+25 | from haystack.constants import DJANGO_CT, DJANGO_ID, ID
+--------------------------------------------------------------------------------
+34 | from whoosh.analysis import StemmingAnalyzer
+   - from whoosh.fields import BOOLEAN, DATETIME, IDLIST, KEYWORD, NGRAM, NGRAMWORDS, NUMERIC, Schema, TEXT
+35 + from whoosh.fields import (
+36 +     BOOLEAN,
+37 +     DATETIME,
+38 +     IDLIST,
+39 +     KEYWORD,
+40 +     NGRAM,
+41 +     NGRAMWORDS,
+42 +     NUMERIC,
+43 +     TEXT,
+44 +     Schema,
+45 + )
+46 | from whoosh.fields import ID as WHOOSH_ID
+   |
+
+F401 [*] `whoosh.analysis.StemmingAnalyzer` imported but unused
+  --> djangoblog\whoosh_cn_backend.py:28:29
+   |
+26 | from jieba.analyse import ChineseAnalyzer
+27 | from whoosh import index
+28 | from whoosh.analysis import StemmingAnalyzer
+   |                             ^^^^^^^^^^^^^^^^
+29 | from whoosh.fields import BOOLEAN, DATETIME, IDLIST, KEYWORD, NGRAM, NGRAMWORDS, NUMERIC, Schema, TEXT
+30 | from whoosh.fields import ID as WHOOSH_ID
+   |
+help: Remove unused import: `whoosh.analysis.StemmingAnalyzer`
+   |
+27 | from whoosh import index
+   - from whoosh.analysis import StemmingAnalyzer
+28 | from whoosh.fields import BOOLEAN, DATETIME, IDLIST, KEYWORD, NGRAM, NGRAMWORDS, NUMERIC, Schema, TEXT
+   |
+
+F401 [*] `whoosh.highlight.ContextFragmenter` imported but unused
+  --> djangoblog\whoosh_cn_backend.py:32:30
+   |
+30 | from whoosh.fields import ID as WHOOSH_ID
+31 | from whoosh.filedb.filestore import FileStorage, RamStorage
+32 | from whoosh.highlight import ContextFragmenter, HtmlFormatter
+   |                              ^^^^^^^^^^^^^^^^^
+33 | from whoosh.highlight import highlight as whoosh_highlight
+34 | from whoosh.qparser import QueryParser
+   |
+help: Remove unused import: `whoosh.highlight.ContextFragmenter`
+   |
+31 | from whoosh.filedb.filestore import FileStorage, RamStorage
+   - from whoosh.highlight import ContextFragmenter, HtmlFormatter
+32 + from whoosh.highlight import HtmlFormatter
+33 | from whoosh.highlight import highlight as whoosh_highlight
+   |
+
+F401 [*] `whoosh.highlight.highlight` imported but unused
+  --> djangoblog\whoosh_cn_backend.py:33:43
+   |
+31 | from whoosh.filedb.filestore import FileStorage, RamStorage
+32 | from whoosh.highlight import ContextFragmenter, HtmlFormatter
+33 | from whoosh.highlight import highlight as whoosh_highlight
+   |                                           ^^^^^^^^^^^^^^^^
+34 | from whoosh.qparser import QueryParser
+35 | from whoosh.searching import ResultsPage
+   |
+help: Remove unused import: `whoosh.highlight.highlight`
+   |
+32 | from whoosh.highlight import ContextFragmenter, HtmlFormatter
+   - from whoosh.highlight import highlight as whoosh_highlight
+33 | from whoosh.qparser import QueryParser
+   |
+
+W605 [*] Invalid escape sequence: `\d`
+  --> djangoblog\whoosh_cn_backend.py:52:16
+   |
+51 | DATETIME_REGEX = re.compile(
+52 |     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+   |                ^^
+53 | LOCALS = threading.local()
+54 | LOCALS.RAM_STORE = None
+   |
+help: Use a raw string literal
+   |
+51 | DATETIME_REGEX = re.compile(
+   -     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+52 +     r'^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+53 | LOCALS = threading.local()
+   |
+
+W605 [*] Invalid escape sequence: `\d`
+  --> djangoblog\whoosh_cn_backend.py:52:33
+   |
+51 | DATETIME_REGEX = re.compile(
+52 |     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+   |                                 ^^
+53 | LOCALS = threading.local()
+54 | LOCALS.RAM_STORE = None
+   |
+help: Use a raw string literal
+   |
+51 | DATETIME_REGEX = re.compile(
+   -     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+52 +     r'^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+53 | LOCALS = threading.local()
+   |
+
+W605 [*] Invalid escape sequence: `\d`
+  --> djangoblog\whoosh_cn_backend.py:52:48
+   |
+51 | DATETIME_REGEX = re.compile(
+52 |     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+   |                                                ^^
+53 | LOCALS = threading.local()
+54 | LOCALS.RAM_STORE = None
+   |
+help: Use a raw string literal
+   |
+51 | DATETIME_REGEX = re.compile(
+   -     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+52 +     r'^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+53 | LOCALS = threading.local()
+   |
+
+W605 [*] Invalid escape sequence: `\d`
+  --> djangoblog\whoosh_cn_backend.py:52:64
+   |
+51 | DATETIME_REGEX = re.compile(
+52 |     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+   |                                                                ^^
+53 | LOCALS = threading.local()
+54 | LOCALS.RAM_STORE = None
+   |
+help: Use a raw string literal
+   |
+51 | DATETIME_REGEX = re.compile(
+   -     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+52 +     r'^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+53 | LOCALS = threading.local()
+   |
+
+W605 [*] Invalid escape sequence: `\d`
+  --> djangoblog\whoosh_cn_backend.py:52:82
+   |
+51 | DATETIME_REGEX = re.compile(
+52 |     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+   |                                                                                  ^^
+53 | LOCALS = threading.local()
+54 | LOCALS.RAM_STORE = None
+   |
+help: Use a raw string literal
+   |
+51 | DATETIME_REGEX = re.compile(
+   -     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+52 +     r'^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+53 | LOCALS = threading.local()
+   |
+
+W605 [*] Invalid escape sequence: `\d`
+  --> djangoblog\whoosh_cn_backend.py:52:100
+   |
+51 | DATETIME_REGEX = re.compile(
+52 |     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+   |                                                                                                    ^^
+53 | LOCALS = threading.local()
+54 | LOCALS.RAM_STORE = None
+   |
+help: Use a raw string literal
+   |
+51 | DATETIME_REGEX = re.compile(
+   -     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+52 +     r'^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+53 | LOCALS = threading.local()
+   |
+
+W605 [*] Invalid escape sequence: `\.`
+  --> djangoblog\whoosh_cn_backend.py:52:107
+   |
+51 | DATETIME_REGEX = re.compile(
+52 |     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+   |                                                                                                           ^^
+53 | LOCALS = threading.local()
+54 | LOCALS.RAM_STORE = None
+   |
+help: Use a raw string literal
+   |
+51 | DATETIME_REGEX = re.compile(
+   -     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+52 +     r'^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+53 | LOCALS = threading.local()
+   |
+
+W605 [*] Invalid escape sequence: `\d`
+  --> djangoblog\whoosh_cn_backend.py:52:109
+   |
+51 | DATETIME_REGEX = re.compile(
+52 |     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+   |                                                                                                             ^^
+53 | LOCALS = threading.local()
+54 | LOCALS.RAM_STORE = None
+   |
+help: Use a raw string literal
+   |
+51 | DATETIME_REGEX = re.compile(
+   -     '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+52 +     r'^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+53 | LOCALS = threading.local()
+   |
+
+UP008 [*] Use `super()` instead of `super(__class__, self)`
+  --> djangoblog\whoosh_cn_backend.py:87:14
+   |
+85 |       # zhang: 方法职责：提供内部辅助处理逻辑：init。
+86 |       def __init__(self, connection_alias, **connection_options):
+87 |           super(
+   |  ______________^
+88 | |             WhooshSearchBackend,
+89 | |             self).__init__(
+   | |_________________^
+90 |               connection_alias,
+91 |               **connection_options)
+   |
+help: Remove `super()` parameters
+   |
+86 |     def __init__(self, connection_alias, **connection_options):
+   -         super(
+   -             WhooshSearchBackend,
+   -             self).__init__(
+87 +         super().__init__(
+88 |             connection_alias,
+   |
+
+UP031 Use format specifiers instead of percent format
+   --> djangoblog\whoosh_cn_backend.py:105:17
+    |
+103 |           if self.use_file_storage and not self.path:
+104 |               raise ImproperlyConfigured(
+105 | /                 "You must specify a 'PATH' in your settings for connection '%s'." %
+106 | |                 connection_alias)
+    | |________________________________^
+107 |
+108 |           self.log = logging.getLogger('haystack')
+    |
+help: Replace with format specifiers
+    |
+104 |             raise ImproperlyConfigured(
+    -                 "You must specify a 'PATH' in your settings for connection '%s'." %
+    -                 connection_alias)
+105 +                 "You must specify a 'PATH' in your settings for connection '{}'.".format(connection_alias))
+106 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+UP024 [*] Replace aliased errors with `OSError`
+   --> djangoblog\whoosh_cn_backend.py:124:19
+    |
+123 |         if self.use_file_storage and not os.access(self.path, os.W_OK):
+124 |             raise IOError(
+    |                   ^^^^^^^
+125 |                 "The path to your Whoosh index '%s' is not writable for the current user/group." %
+126 |                 self.path)
+    |
+help: Replace `IOError` with builtin `OSError`
+    |
+123 |         if self.use_file_storage and not os.access(self.path, os.W_OK):
+    -             raise IOError(
+124 +             raise OSError(
+125 |                 "The path to your Whoosh index '%s' is not writable for the current user/group." %
+    |
+
+UP031 Use format specifiers instead of percent format
+   --> djangoblog\whoosh_cn_backend.py:125:17
+    |
+123 |           if self.use_file_storage and not os.access(self.path, os.W_OK):
+124 |               raise IOError(
+125 | /                 "The path to your Whoosh index '%s' is not writable for the current user/group." %
+126 | |                 self.path)
+    | |_________________________^
+127 |
+128 |           if self.use_file_storage:
+    |
+help: Replace with format specifiers
+    |
+124 |             raise IOError(
+    -                 "The path to your Whoosh index '%s' is not writable for the current user/group." %
+    -                 self.path)
+125 +                 "The path to your Whoosh index '{}' is not writable for the current user/group.".format(self.path))
+126 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+PLW0602 Using global for `LOCALS` but no assignment is done
+   --> djangoblog\whoosh_cn_backend.py:131:20
+    |
+129 |             self.storage = FileStorage(self.path)
+130 |         else:
+131 |             global LOCALS
+    |                    ^^^^^^
+132 |
+133 |             if getattr(LOCALS, 'RAM_STORE', None) is None:
+    |
+
+PERF102 When using only the values of a dict use the `values()` method
+   --> djangoblog\whoosh_cn_backend.py:164:40
+    |
+162 |         content_field_name = ''
+163 |
+164 |         for field_name, field_class in fields.items():
+    |                                        ^^^^^^^^^^^^
+165 |             if field_class.is_multivalued:
+166 |                 if field_class.indexed is False:
+    |
+help: Replace `.items()` with `.values()`
+    |
+163 |
+    -         for field_name, field_class in fields.items():
+164 +         for field_class in fields.values():
+165 |             if field_class.is_multivalued:
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+UP025 [*] Remove unicode literals from strings
+   --> djangoblog\whoosh_cn_backend.py:220:32
+    |
+218 |                 doc = index.full_prepare(obj)
+219 |             except SkipDocument:
+220 |                 self.log.debug(u"Indexing for object `%s` skipped", obj)
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+221 |             else:
+222 |                 # Really make sure it's unicode, because Whoosh won't have it any
+    |
+help: Remove unicode prefix
+    |
+219 |             except SkipDocument:
+    -                 self.log.debug(u"Indexing for object `%s` skipped", obj)
+220 +                 self.log.debug("Indexing for object `%s` skipped", obj)
+221 |             else:
+    |
+
+G201 Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`
+   --> djangoblog\whoosh_cn_backend.py:240:30
+    |
+238 |                     # to avoid the possibility of that generating encoding errors while
+239 |                     # processing the log message:
+240 |                     self.log.error(
+    |                              ^^^^^
+241 |                         u"%s while preparing object for update" %
+242 |                         e.__class__.__name__,
+    |
+
+UP025 [*] Remove unicode literals from strings
+   --> djangoblog\whoosh_cn_backend.py:241:25
+    |
+239 |                     # processing the log message:
+240 |                     self.log.error(
+241 |                         u"%s while preparing object for update" %
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+242 |                         e.__class__.__name__,
+243 |                         exc_info=True,
+    |
+help: Remove unicode prefix
+    |
+240 |                     self.log.error(
+    -                         u"%s while preparing object for update" %
+241 +                         "%s while preparing object for update" %
+242 |                         e.__class__.__name__,
+    |
+
+UP031 Use format specifiers instead of percent format
+   --> djangoblog\whoosh_cn_backend.py:241:25
+    |
+239 |                       # processing the log message:
+240 |                       self.log.error(
+241 | /                         u"%s while preparing object for update" %
+242 | |                         e.__class__.__name__,
+    | |____________________________________________^
+243 |                           exc_info=True,
+244 |                           extra={
+    |
+help: Replace with format specifiers
+    |
+240 |                     self.log.error(
+    -                         u"%s while preparing object for update" %
+    -                         e.__class__.__name__,
+241 +                         u"{} while preparing object for update".format(e.__class__.__name__),
+242 |                         exc_info=True,
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+UP025 [*] Remove unicode literals from strings
+   --> djangoblog\whoosh_cn_backend.py:265:21
+    |
+263 |             self.index.delete_by_query(
+264 |                 q=self.parser.parse(
+265 |                     u'%s:"%s"' %
+    |                     ^^^^^^^^^^
+266 |                     (ID, whoosh_id)))
+267 |         except Exception as e:
+    |
+help: Remove unicode prefix
+    |
+264 |                 q=self.parser.parse(
+    -                     u'%s:"%s"' %
+265 +                     '%s:"%s"' %
+266 |                     (ID, whoosh_id)))
+    |
+
+UP031 Use format specifiers instead of percent format
+   --> djangoblog\whoosh_cn_backend.py:265:21
+    |
+263 |               self.index.delete_by_query(
+264 |                   q=self.parser.parse(
+265 | /                     u'%s:"%s"' %
+266 | |                     (ID, whoosh_id)))
+    | |___________________________________^
+267 |           except Exception as e:
+268 |               if not self.silently_fail:
+    |
+help: Replace with format specifiers
+    |
+264 |                 q=self.parser.parse(
+    -                     u'%s:"%s"' %
+    -                     (ID, whoosh_id)))
+265 +                     u'{}:"{}"'.format(ID, whoosh_id)))
+266 |         except Exception as e:
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+G201 Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`
+   --> djangoblog\whoosh_cn_backend.py:271:22
+    |
+269 |                 raise
+270 |
+271 |             self.log.error(
+    |                      ^^^^^
+272 |                 "Failed to remove document '%s' from Whoosh: %s",
+273 |                 whoosh_id,
+    |
+
+UP025 [*] Remove unicode literals from strings
+   --> djangoblog\whoosh_cn_backend.py:295:25
+    |
+293 |                 for model in models:
+294 |                     models_to_delete.append(
+295 |                         u"%s:%s" %
+    |                         ^^^^^^^^
+296 |                         (DJANGO_CT, get_model_ct(model)))
+    |
+help: Remove unicode prefix
+    |
+294 |                     models_to_delete.append(
+    -                         u"%s:%s" %
+295 +                         "%s:%s" %
+296 |                         (DJANGO_CT, get_model_ct(model)))
+    |
+
+UP031 Use format specifiers instead of percent format
+   --> djangoblog\whoosh_cn_backend.py:295:25
+    |
+293 |                   for model in models:
+294 |                       models_to_delete.append(
+295 | /                         u"%s:%s" %
+296 | |                         (DJANGO_CT, get_model_ct(model)))
+    | |________________________________________________________^
+297 |
+298 |                   self.index.delete_by_query(
+    |
+help: Replace with format specifiers
+    |
+294 |                     models_to_delete.append(
+    -                         u"%s:%s" %
+    -                         (DJANGO_CT, get_model_ct(model)))
+295 +                         u"{}:{}".format(DJANGO_CT, get_model_ct(model)))
+296 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+UP025 [*] Remove unicode literals from strings
+   --> djangoblog\whoosh_cn_backend.py:300:25
+    |
+298 |                 self.index.delete_by_query(
+299 |                     q=self.parser.parse(
+300 |                         u" OR ".join(models_to_delete)))
+    |                         ^^^^^^^
+301 |         except Exception as e:
+302 |             if not self.silently_fail:
+    |
+help: Remove unicode prefix
+    |
+299 |                     q=self.parser.parse(
+    -                         u" OR ".join(models_to_delete)))
+300 +                         " OR ".join(models_to_delete)))
+301 |         except Exception as e:
+    |
+
+G201 Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`
+   --> djangoblog\whoosh_cn_backend.py:306:26
+    |
+305 |             if models is not None:
+306 |                 self.log.error(
+    |                          ^^^^^
+307 |                     "Failed to clear Whoosh index of models '%s': %s",
+308 |                     ','.join(models_to_delete),
+    |
+
+G201 Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`
+   --> djangoblog\whoosh_cn_backend.py:312:26
+    |
+310 |                     exc_info=True)
+311 |             else:
+312 |                 self.log.error(
+    |                          ^^^^^
+313 |                     "Failed to clear Whoosh index: %s", e, exc_info=True)
+    |
+
+UP025 [*] Remove unicode literals from strings
+   --> djangoblog\whoosh_cn_backend.py:396:55
+    |
+394 |         # A one-character query (non-wildcard) gets nabbed by a stopwords
+395 |         # filter and should yield zero results.
+396 |         if len(query_string) <= 1 and query_string != u'*':
+    |                                                       ^^^^
+397 |             return {
+398 |                 'results': [],
+    |
+help: Remove unicode prefix
+    |
+395 |         # filter and should yield zero results.
+    -         if len(query_string) <= 1 and query_string != u'*':
+396 +         if len(query_string) <= 1 and query_string != '*':
+397 |             return {
+    |
+
+UP031 Use format specifiers instead of percent format
+   --> djangoblog\whoosh_cn_backend.py:472:18
+    |
+471 |             narrow_queries.add(' OR '.join(
+472 |                 ['%s:%s' % (DJANGO_CT, rm) for rm in model_choices]))
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+473 |
+474 |         narrow_searcher = None
+    |
+help: Replace with format specifiers
+    |
+471 |             narrow_queries.add(' OR '.join(
+    -                 ['%s:%s' % (DJANGO_CT, rm) for rm in model_choices]))
+472 +                 ['{}:{}'.format(DJANGO_CT, rm) for rm in model_choices]))
+473 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `model_klass` is assigned to but never used
+   --> djangoblog\whoosh_cn_backend.py:592:9
+    |
+590 |         # Deferred models will have a different class ("RealClass_Deferred_fieldname")
+591 |         # which won't be in our registry:
+592 |         model_klass = model_instance._meta.concrete_model
+    |         ^^^^^^^^^^^
+593 |
+594 |         field_name = self.content_field_name
+    |
+help: Remove assignment to unused variable `model_klass`
+    |
+591 |         # which won't be in our registry:
+    -         model_klass = model_instance._meta.concrete_model
+592 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+UP031 Use format specifiers instead of percent format
+   --> djangoblog\whoosh_cn_backend.py:617:18
+    |
+616 |             narrow_queries.add(' OR '.join(
+617 |                 ['%s:%s' % (DJANGO_CT, rm) for rm in model_choices]))
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+618 |
+619 |         if additional_query_string and additional_query_string != '*':
+    |
+help: Replace with format specifiers
+    |
+616 |             narrow_queries.add(' OR '.join(
+    -                 ['%s:%s' % (DJANGO_CT, rm) for rm in model_choices]))
+617 +                 ['{}:{}'.format(DJANGO_CT, rm) for rm in model_choices]))
+618 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+UP031 Use format specifiers instead of percent format
+   --> djangoblog\whoosh_cn_backend.py:650:21
+    |
+649 |         if self.index.doc_count():
+650 |             query = "%s:%s" % (ID, get_identifier(model_instance))
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+651 |             searcher = self.index.searcher()
+652 |             parsed_query = self.parser.parse(query)
+    |
+help: Replace with format specifiers
+    |
+649 |         if self.index.doc_count():
+    -             query = "%s:%s" % (ID, get_identifier(model_instance))
+650 +             query = "{}:{}".format(ID, get_identifier(model_instance))
+651 |             searcher = self.index.searcher()
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F841 Local variable `ca` is assigned to but never used
+   --> djangoblog\whoosh_cn_backend.py:746:21
+    |
+744 |                 if highlight:
+745 |                     # 使用中文分词器
+746 |                     ca = ChineseAnalyzer()
+    |                     ^^
+747 |
+748 |                     highlighted = {}
+    |
+help: Remove assignment to unused variable `ca`
+    |
+745 |                     # 使用中文分词器
+    -                     ca = ChineseAnalyzer()
+746 +                     ChineseAnalyzer()
+747 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+RUF019 [*] Unnecessary key check before dictionary access
+   --> djangoblog\whoosh_cn_backend.py:751:24
+    |
+750 |                     # 高亮标题（如果存在）
+751 |                     if 'title' in additional_fields and additional_fields['title']:
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+752 |                         import re
+753 |                         title_text = additional_fields['title']
+    |
+help: Replace with `dict.get`
+    |
+750 |                     # 高亮标题（如果存在）
+    -                     if 'title' in additional_fields and additional_fields['title']:
+751 +                     if additional_fields.get('title'):
+752 |                         import re
+    |
+
+RUF019 [*] Unnecessary key check before dictionary access
+   --> djangoblog\whoosh_cn_backend.py:768:24
+    |
+767 |                     # 高亮正文 - 返回markdown片段，让模板处理
+768 |                     if 'body' in additional_fields and additional_fields['body']:
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+769 |                         import re
+770 |                         from djangoblog.utils import CommonMarkdown
+    |
+help: Replace with `dict.get`
+    |
+767 |                     # 高亮正文 - 返回markdown片段，让模板处理
+    -                     if 'body' in additional_fields and additional_fields['body']:
+768 +                     if additional_fields.get('body'):
+769 |                         import re
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> djangoblog\whoosh_cn_backend.py:769:25
+    |
+767 |                       # 高亮正文 - 返回markdown片段，让模板处理
+768 |                       if 'body' in additional_fields and additional_fields['body']:
+769 | /                         import re
+770 | |                         from djangoblog.utils import CommonMarkdown
+    | |___________________________________________________________________^
+771 |
+772 |                           # 先转换为HTML，便于提取摘要
+    |
+help: Organize imports
+    |
+769 |                         import re
+770 +
+771 |                         from djangoblog.utils import CommonMarkdown
+    |
+
+UP025 [*] Remove unicode literals from strings
+   --> djangoblog\whoosh_cn_backend.py:880:21
+    |
+878 |                 value = 'false'
+879 |         elif isinstance(value, (list, tuple)):
+880 |             value = u','.join([force_str(v) for v in value])
+    |                     ^^^^
+881 |         elif isinstance(value, (six.integer_types, float)):
+882 |             # Leave it alone.
+    |
+help: Remove unicode prefix
+    |
+879 |         elif isinstance(value, (list, tuple)):
+    -             value = u','.join([force_str(v) for v in value])
+880 +             value = ','.join([force_str(v) for v in value])
+881 |         elif isinstance(value, (six.integer_types, float)):
+    |
+
+S110 `try`-`except`-`pass` detected, consider logging the exception
+   --> djangoblog\whoosh_cn_backend.py:932:9
+    |
+930 |                        complex)):
+931 |                   return converted_value
+932 | /         except BaseException:
+933 | |             # If it fails (SyntaxError or its ilk) or we don't trust it,
+934 | |             # continue on.
+935 | |             pass
+    | |________________^
+936 |
+937 |           return value
+    |
+
+BLE001 Do not catch blind exception: `BaseException`
+   --> djangoblog\whoosh_cn_backend.py:932:16
+    |
+930 |                      complex)):
+931 |                 return converted_value
+932 |         except BaseException:
+    |                ^^^^^^^^^^^^^
+933 |             # If it fails (SyntaxError or its ilk) or we don't trust it,
+934 |             # continue on.
+    |
+
+UP031 Use format specifiers instead of percent format
+   --> djangoblog\whoosh_cn_backend.py:968:28
+    |
+966 |             for char in self.backend.RESERVED_CHARACTERS:
+967 |                 if char in word:
+968 |                     word = "'%s'" % word
+    |                            ^^^^^^^^^^^^^
+969 |                     break
+    |
+help: Replace with format specifiers
+    |
+967 |                 if char in word:
+    -                     word = "'%s'" % word
+968 +                     word = "'{}'".format(word)
+969 |                     break
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+UP025 [*] Remove unicode literals from strings
+    --> djangoblog\whoosh_cn_backend.py:1007:31
+     |
+1005 |             index_fieldname = ''
+1006 |         else:
+1007 |             index_fieldname = u'%s:' % connections[self._using].get_unified_index(
+     |                               ^^^^^^
+1008 |             ).get_index_fieldname(field)
+     |
+help: Remove unicode prefix
+     |
+1006 |         else:
+     -             index_fieldname = u'%s:' % connections[self._using].get_unified_index(
+1007 +             index_fieldname = '%s:' % connections[self._using].get_unified_index(
+1008 |             ).get_index_fieldname(field)
+     |
+
+UP031 Use format specifiers instead of percent format
+    --> djangoblog\whoosh_cn_backend.py:1007:31
+     |
+1005 |               index_fieldname = ''
+1006 |           else:
+1007 |               index_fieldname = u'%s:' % connections[self._using].get_unified_index(
+     |  _______________________________^
+1008 | |             ).get_index_fieldname(field)
+     | |________________________________________^
+1009 |
+1010 |           filter_types = {
+     |
+help: Replace with format specifiers
+     |
+1006 |         else:
+     -             index_fieldname = u'%s:' % connections[self._using].get_unified_index(
+     -             ).get_index_fieldname(field)
+1007 +             index_fieldname = u'{}:'.format(connections[self._using].get_unified_index(
+1008 +             ).get_index_fieldname(field))
+1009 |
+     |
+note: This is an unsafe fix and may change runtime behavior
+
+UP025 [*] Remove unicode literals from strings
+    --> djangoblog\whoosh_cn_backend.py:1020:22
+     |
+1018 |             'lt': "{to %s}",
+1019 |             'lte': "[to %s]",
+1020 |             'fuzzy': u'%s~',
+     |                      ^^^^^^
+1021 |         }
+     |
+help: Remove unicode prefix
+     |
+1019 |             'lte': "[to %s]",
+     -             'fuzzy': u'%s~',
+1020 +             'fuzzy': '%s~',
+1021 |         }
+     |
+
+UP025 [*] Remove unicode literals from strings
+    --> djangoblog\whoosh_cn_backend.py:1056:38
+     |
+1054 |                         query_frag = terms[0]
+1055 |                     else:
+1056 |                         query_frag = u"(%s)" % " AND ".join(terms)
+     |                                      ^^^^^^^
+1057 |             elif filter_type == 'in':
+1058 |                 in_options = []
+     |
+help: Remove unicode prefix
+     |
+1055 |                     else:
+     -                         query_frag = u"(%s)" % " AND ".join(terms)
+1056 +                         query_frag = "(%s)" % " AND ".join(terms)
+1057 |             elif filter_type == 'in':
+     |
+
+UP031 Use format specifiers instead of percent format
+    --> djangoblog\whoosh_cn_backend.py:1056:38
+     |
+1054 |                         query_frag = terms[0]
+1055 |                     else:
+1056 |                         query_frag = u"(%s)" % " AND ".join(terms)
+     |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1057 |             elif filter_type == 'in':
+1058 |                 in_options = []
+     |
+help: Replace with format specifiers
+     |
+1055 |                     else:
+     -                         query_frag = u"(%s)" % " AND ".join(terms)
+1056 +                         query_frag = u"({})".format(" AND ".join(terms))
+1057 |             elif filter_type == 'in':
+     |
+note: This is an unsafe fix and may change runtime behavior
+
+UP031 Use format specifiers instead of percent format
+    --> djangoblog\whoosh_cn_backend.py:1072:43
+     |
+1071 |                     if isinstance(pv, six.string_types) and not is_datetime:
+1072 |                         in_options.append('"%s"' % pv)
+     |                                           ^^^^^^^^^^^
+1073 |                     else:
+1074 |                         in_options.append('%s' % pv)
+     |
+help: Replace with format specifiers
+     |
+1071 |                     if isinstance(pv, six.string_types) and not is_datetime:
+     -                         in_options.append('"%s"' % pv)
+1072 +                         in_options.append('"{}"'.format(pv))
+1073 |                     else:
+     |
+note: This is an unsafe fix and may change runtime behavior
+
+UP031 Use format specifiers instead of percent format
+    --> djangoblog\whoosh_cn_backend.py:1074:43
+     |
+1072 |                         in_options.append('"%s"' % pv)
+1073 |                     else:
+1074 |                         in_options.append('%s' % pv)
+     |                                           ^^^^^^^^^
+1075 |
+1076 |                 query_frag = "(%s)" % " OR ".join(in_options)
+     |
+help: Replace with format specifiers
+     |
+1073 |                     else:
+     -                         in_options.append('%s' % pv)
+1074 +                         in_options.append('{}'.format(pv))
+1075 |
+     |
+note: This is an unsafe fix and may change runtime behavior
+
+UP031 Use format specifiers instead of percent format
+    --> djangoblog\whoosh_cn_backend.py:1076:30
+     |
+1074 |                         in_options.append('%s' % pv)
+1075 |
+1076 |                 query_frag = "(%s)" % " OR ".join(in_options)
+     |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1077 |             elif filter_type == 'range':
+1078 |                 start = self.backend._from_python(prepared_value[0])
+     |
+help: Replace with format specifiers
+     |
+1075 |
+     -                 query_frag = "(%s)" % " OR ".join(in_options)
+1076 +                 query_frag = "({})".format(" OR ".join(in_options))
+1077 |             elif filter_type == 'range':
+     |
+note: This is an unsafe fix and may change runtime behavior
+
+UP025 [*] Remove unicode literals from strings
+    --> djangoblog\whoosh_cn_backend.py:1087:30
+     |
+1085 |                     end = self._convert_datetime(end)
+1086 |
+1087 |                 query_frag = u"[%s to %s]" % (start, end)
+     |                              ^^^^^^^^^^^^^
+1088 |             elif filter_type == 'exact':
+1089 |                 if value.input_type_name == 'exact':
+     |
+help: Remove unicode prefix
+     |
+1086 |
+     -                 query_frag = u"[%s to %s]" % (start, end)
+1087 +                 query_frag = "[%s to %s]" % (start, end)
+1088 |             elif filter_type == 'exact':
+     |
+
+UP031 Use format specifiers instead of percent format
+    --> djangoblog\whoosh_cn_backend.py:1087:30
+     |
+1085 |                     end = self._convert_datetime(end)
+1086 |
+1087 |                 query_frag = u"[%s to %s]" % (start, end)
+     |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1088 |             elif filter_type == 'exact':
+1089 |                 if value.input_type_name == 'exact':
+     |
+help: Replace with format specifiers
+     |
+1086 |
+     -                 query_frag = u"[%s to %s]" % (start, end)
+1087 +                 query_frag = u"[{} to {}]".format(start, end)
+1088 |             elif filter_type == 'exact':
+     |
+note: This is an unsafe fix and may change runtime behavior
+
+SIM102 Use a single `if` statement instead of nested `if` statements
+    --> djangoblog\whoosh_cn_backend.py:1100:9
+     |
+1098 |                   query_frag = filter_types[filter_type] % prepared_value
+1099 |
+1100 | /         if len(query_frag) and not isinstance(value, Raw):
+1101 | |             if not query_frag.startswith('(') and not query_frag.endswith(')'):
+     | |_______________________________________________________________________________^
+1102 |                   query_frag = "(%s)" % query_frag
+     |
+help: Combine `if` statements using `and`
+
+UP031 Use format specifiers instead of percent format
+    --> djangoblog\whoosh_cn_backend.py:1102:30
+     |
+1100 |         if len(query_frag) and not isinstance(value, Raw):
+1101 |             if not query_frag.startswith('(') and not query_frag.endswith(')'):
+1102 |                 query_frag = "(%s)" % query_frag
+     |                              ^^^^^^^^^^^^^^^^^^^
+1103 |
+1104 |         return u"%s%s" % (index_fieldname, query_frag)
+     |
+help: Replace with format specifiers
+     |
+1101 |             if not query_frag.startswith('(') and not query_frag.endswith(')'):
+     -                 query_frag = "(%s)" % query_frag
+1102 +                 query_frag = "({})".format(query_frag)
+1103 |
+     |
+note: This is an unsafe fix and may change runtime behavior
+
+UP025 [*] Remove unicode literals from strings
+    --> djangoblog\whoosh_cn_backend.py:1104:16
+     |
+1102 |                 query_frag = "(%s)" % query_frag
+1103 |
+1104 |         return u"%s%s" % (index_fieldname, query_frag)
+     |                ^^^^^^^
+1105 |
+1106 |         # if not filter_type in ('in', 'range'):
+     |
+help: Remove unicode prefix
+     |
+1103 |
+     -         return u"%s%s" % (index_fieldname, query_frag)
+1104 +         return "%s%s" % (index_fieldname, query_frag)
+1105 |
+     |
+
+UP031 Use format specifiers instead of percent format
+    --> djangoblog\whoosh_cn_backend.py:1104:16
+     |
+1102 |                 query_frag = "(%s)" % query_frag
+1103 |
+1104 |         return u"%s%s" % (index_fieldname, query_frag)
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1105 |
+1106 |         # if not filter_type in ('in', 'range'):
+     |
+help: Replace with format specifiers
+     |
+1103 |
+     -         return u"%s%s" % (index_fieldname, query_frag)
+1104 +         return u"{}{}".format(index_fieldname, query_frag)
+1105 |
+     |
+note: This is an unsafe fix and may change runtime behavior
+
+Found 164 errors.
+[*] 75 fixable with `--fix` (60 unsafe fixes available with `--fix --unsafe-fixes`).
