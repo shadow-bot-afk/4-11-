@@ -21,20 +21,24 @@ from django.templatetags.static import static
 logger = logging.getLogger(__name__)
 
 
+# zhang: 查询文章与评论的最新主键，供需要同步当前数据位置的逻辑使用。
 def get_max_articleid_commentid():
     from blog.models import Article
     from comments.models import Comment
     return (Article.objects.latest().pk, Comment.objects.latest().pk)
 
 
+# zhang: 使用项目密钥对输入值计算 HMAC-SHA256 摘要。
 def get_sha256(value):
     key = settings.SECRET_KEY.encode('utf-8')
     msg = str(value).encode('utf-8')
     return hmac.new(key, msg, hashlib.sha256).hexdigest()
 
 
+# zhang: 构建带过期时间的函数缓存装饰器，对 None 返回值使用特殊标记。
 def cache_decorator(expiration=3 * 60):
     def wrapper(func):
+        # zhang: 优先取视图提供的缓存键，否则依据函数和调用参数生成散列键。
         def news(*args, **kwargs):
             try:
                 view = args[0]
@@ -69,6 +73,7 @@ def cache_decorator(expiration=3 * 60):
     return wrapper
 
 
+# zhang: 利用模拟请求获得Django视图缓存键，并按需删除缓存记录。
 def expire_view_cache(path, servername, serverport, key_prefix=None):
     '''
     刷新视图缓存
@@ -95,13 +100,16 @@ def expire_view_cache(path, servername, serverport, key_prefix=None):
 
 
 @cache_decorator()
+# zhang: 缓存站点信息，减少重复读取 Sites 框架配置。
 def get_current_site():
     site = Site.objects.get_current()
     return site
 
 
+# zhang: 将 Markdown 转为 HTML，并提供可选的目录提取接口。
 class CommonMarkdown:
     @staticmethod
+    # zhang: 集中配置 Markdown 扩展，返回正文HTML及目录HTML。
     def _convert_markdown(value):
         md = markdown.Markdown(
             extensions=[
@@ -126,6 +134,7 @@ class CommonMarkdown:
         return body
 
 
+# zhang: 通过项目自定义信号传递邮件接收者、标题及内容。
 def send_email(emailto, title, content):
     from djangoblog.blog_signals import send_email_signal
     send_email_signal.send(
@@ -135,11 +144,13 @@ def send_email(emailto, title, content):
         content=content)
 
 
+# zhang: 从数字字符中不重复抽取六位验证码。
 def generate_code() -> str:
     """生成随机数验证码"""
     return ''.join(random.sample(string.digits, 6))
 
 
+# zhang: 将字典编码为URL查询参数字符串。
 def parse_dict_to_url(dict):
     from urllib.parse import quote
     url = '&'.join(['{}={}'.format(quote(k, safe='/'), quote(v, safe='/'))
@@ -147,6 +158,7 @@ def parse_dict_to_url(dict):
     return url
 
 
+# zhang: 优先读取博客设置缓存，未命中时查询或初始化数据库设置。
 def get_blog_setting():
     value = cache.get('get_blog_setting')
     if value:
@@ -175,6 +187,7 @@ def get_blog_setting():
         return value
 
 
+# zhang: 下载远程头像并保存至静态文件目录，出现异常时回退默认头像。
 def save_user_avatar(url):
     '''
     保存用户头像
@@ -203,6 +216,7 @@ def save_user_avatar(url):
         return static('blog/img/avatar.png')
 
 
+# zhang: 按侧边栏展示类型批量清除缓存项。
 def delete_sidebar_cache():
     from blog.models import LinkShowType
     keys = ["sidebar" + x for x in LinkShowType.values]
@@ -211,12 +225,14 @@ def delete_sidebar_cache():
         cache.delete(k)
 
 
+# zhang: 根据片段缓存参数生成键并删除对应缓存。
 def delete_view_cache(prefix, keys):
     from django.core.cache.utils import make_template_fragment_key
     key = make_template_fragment_key(prefix, keys)
     cache.delete(key)
 
 
+# zhang: 优先返回项目静态资源前缀，否则按站点域名生成静态资源地址。
 def get_resource_url():
     if settings.STATIC_URL:
         return settings.STATIC_URL
@@ -226,6 +242,7 @@ def get_resource_url():
 
 
 # 允许的HTML标签白名单 - 支持markdown常用元素
+# zhang: 限制清理后的HTML标签集合，避免原始Markdown引入不允许的元素。
 ALLOWED_TAGS = [
     'a', 'abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'ul', 'pre', 'strong',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',  # 标题
@@ -237,6 +254,7 @@ ALLOWED_TAGS = [
 ]
 
 # 安全的class值白名单 - 只允许代码高亮相关的class
+# zhang: 列出代码高亮允许使用的CSS类名称。
 ALLOWED_CLASSES = [
     'codehilite', 'highlight', 'hll', 'c', 'err', 'k', 'l', 'n', 'o', 'p', 'cm', 'cp', 'c1', 'cs',
     'gd', 'ge', 'gr', 'gh', 'gi', 'go', 'gp', 'gs', 'gu', 'gt', 'kc', 'kd', 'kn', 'kp', 'kr', 'kt',
@@ -245,6 +263,8 @@ ALLOWED_CLASSES = [
     's1', 'ss', 'bp', 'vc', 'vg', 'vi', 'il'
 ]
 
+
+# zhang: 为特定元素的class属性过滤非白名单类名。
 def class_filter(tag, name, value):
     """自定义class属性过滤器"""
     if name == 'class':
@@ -253,10 +273,12 @@ def class_filter(tag, name, value):
         return ' '.join(allowed_classes) if allowed_classes else False
     return value
 
+
 # 安全的属性白名单
+# zhang: 按HTML元素指定允许保留的属性及自定义过滤器。
 ALLOWED_ATTRIBUTES = {
     'a': ['href', 'title', 'rel'],  # rel="nofollow" 用于外部链接
-    'abbr': ['title'], 
+    'abbr': ['title'],
     'acronym': ['title'],
     'img': ['src', 'alt', 'title', 'width', 'height'],  # 图片属性
     'table': ['border', 'cellpadding', 'cellspacing'],
@@ -269,24 +291,27 @@ ALLOWED_ATTRIBUTES = {
 }
 
 # 安全的协议白名单 - 防止javascript:等危险协议
+# zhang: 仅允许常见安全链接协议，阻止javascript伪协议。
 ALLOWED_PROTOCOLS = ['http', 'https', 'mailto']
 
+
+# zhang: 使用Bleach白名单清理HTML，随后移除空style属性。
 def sanitize_html(html):
     """
     安全的HTML清理函数
     使用bleach库进行白名单过滤，防止XSS攻击
     """
     cleaned = bleach.clean(
-        html, 
-        tags=ALLOWED_TAGS, 
+        html,
+        tags=ALLOWED_TAGS,
         attributes=ALLOWED_ATTRIBUTES,
         protocols=ALLOWED_PROTOCOLS,  # 限制允许的协议
         strip=True,  # 移除不允许的标签而不是转义
         strip_comments=True  # 移除HTML注释
     )
-    
+
     # 移除空的 style 属性（bleach 有时会保留 style=""）
     import re
     cleaned = re.sub(r'\s*style\s*=\s*["\'][\s]*["\']', '', cleaned)
-    
+
     return cleaned

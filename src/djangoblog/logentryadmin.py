@@ -1,3 +1,4 @@
+# zhang: 模块职责：定义后台操作日志的管理页面展示规则。
 from django.contrib import admin
 from django.contrib.admin.models import DELETION
 from django.contrib.contenttypes.models import ContentType
@@ -8,6 +9,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 
+# zhang: 类职责：控制管理日志查询及展示。
 class LogEntryAdmin(admin.ModelAdmin):
     list_filter = [
         'content_type'
@@ -30,18 +32,22 @@ class LogEntryAdmin(admin.ModelAdmin):
         'get_change_message',
     ]
 
+    # zhang: 方法职责：封装 has add permission 对应的处理步骤。
     def has_add_permission(self, request):
         return False
 
+    # zhang: 方法职责：封装 has change permission 对应的处理步骤。
     def has_change_permission(self, request, obj=None):
         return (
                 request.user.is_superuser or
                 request.user.has_perm('admin.change_logentry')
         ) and request.method != 'POST'
 
+    # zhang: 方法职责：封装 has delete permission 对应的处理步骤。
     def has_delete_permission(self, request, obj=None):
         return False
 
+    # zhang: 方法职责：封装 object link 对应的处理步骤。
     def object_link(self, obj):
         object_link = escape(obj.object_repr)
         content_type = obj.content_type
@@ -62,6 +68,7 @@ class LogEntryAdmin(admin.ModelAdmin):
     object_link.admin_order_field = 'object_repr'
     object_link.short_description = _('object')
 
+    # zhang: 方法职责：封装 user link 对应的处理步骤。
     def user_link(self, obj):
         content_type = ContentType.objects.get_for_model(type(obj.user))
         user_link = escape(force_str(obj.user))
@@ -80,10 +87,12 @@ class LogEntryAdmin(admin.ModelAdmin):
     user_link.admin_order_field = 'user'
     user_link.short_description = _('user')
 
+    # zhang: 方法职责：构建视图或管理页面的查询集。
     def get_queryset(self, request):
         queryset = super(LogEntryAdmin, self).get_queryset(request)
         return queryset.prefetch_related('content_type')
 
+    # zhang: 方法职责：读取或生成 actions 相关数据。
     def get_actions(self, request):
         actions = super(LogEntryAdmin, self).get_actions(request)
         if 'delete_selected' in actions:

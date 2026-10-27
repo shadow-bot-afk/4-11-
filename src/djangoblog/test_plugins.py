@@ -1,3 +1,4 @@
+# zhang: 模块职责：验证插件生命周期、钩子注册及插件功能的单元测试。
 """
 插件系统测试
 测试插件加载、钩子注册和执行
@@ -17,15 +18,19 @@ from djangoblog.test_base import BaseTestCase, PluginTestMixin
 from djangoblog.plugin_manage.hook_constants import HEAD_RESOURCES_HOOK, BODY_RESOURCES_HOOK
 
 
+# zhang: 类职责：组织 PluginHooksTest 相关功能与状态。
 class PluginHooksTest(TestCase, PluginTestMixin):
     """测试插件钩子系统"""
 
+    # zhang: 方法职责：准备测试数据与依赖。
     def setUp(self):
         # 清空插件钩子
         hooks._hooks = {}
 
+    # zhang: 方法职责：测试 register hook 场景的预期行为。
     def test_register_hook(self):
         """测试注册钩子"""
+        # zhang: 方法职责：测试 hook 场景的预期行为。
         def test_hook(context):
             return "test"
 
@@ -33,8 +38,10 @@ class PluginHooksTest(TestCase, PluginTestMixin):
         self.assertIn(ARTICLE_CONTENT_HOOK_NAME, hooks._hooks)
         self.assertEqual(len(hooks._hooks[ARTICLE_CONTENT_HOOK_NAME]), 1)
 
+    # zhang: 方法职责：测试 apply filters 场景的预期行为。
     def test_apply_filters(self):
         """测试应用过滤器"""
+        # zhang: 方法职责：测试 filter 场景的预期行为。
         def test_filter(value):
             return value + " modified"
 
@@ -42,10 +49,12 @@ class PluginHooksTest(TestCase, PluginTestMixin):
         result = hooks.apply_filters(ARTICLE_CONTENT_HOOK_NAME, "original")
         self.assertEqual(result, "original modified")
 
+    # zhang: 方法职责：测试 run action 场景的预期行为。
     def test_run_action(self):
         """测试运行动作钩子"""
         executed = []
 
+        # zhang: 方法职责：测试 action 场景的预期行为。
         def test_action():
             executed.append(True)
 
@@ -53,6 +62,7 @@ class PluginHooksTest(TestCase, PluginTestMixin):
         hooks.run_action(ARTICLE_CREATE)
         self.assertTrue(len(executed) > 0)
 
+    # zhang: 方法职责：测试 multiple hooks 场景的预期行为。
     def test_multiple_hooks(self):
         """测试多个钩子"""
         results = []
@@ -72,6 +82,7 @@ class PluginHooksTest(TestCase, PluginTestMixin):
         self.assertEqual(result, 'base12')
         self.assertEqual(len(results), 2)
 
+    # zhang: 方法职责：测试 hook error handling 场景的预期行为。
     def test_hook_error_handling(self):
         """测试钩子错误处理"""
         def error_hook(value):
@@ -89,11 +100,13 @@ class PluginHooksTest(TestCase, PluginTestMixin):
         self.assertIn('success', result)
 
 
+# zhang: 类职责：组织 BasePluginTest 相关功能与状态。
 class BasePluginTest(BaseTestCase):
     """测试基础插件类"""
 
     def _create_test_plugin(self):
         """创建一个测试用的插件实例"""
+        # zhang: 类职责：组织 TestPlugin 相关功能与状态。
         class TestPlugin(BasePlugin):
             PLUGIN_NAME = '测试插件'
             PLUGIN_DESCRIPTION = '用于测试的插件'
@@ -102,24 +115,28 @@ class BasePluginTest(BaseTestCase):
 
         return TestPlugin()
 
+    # zhang: 方法职责：测试 plugin initialization 场景的预期行为。
     def test_plugin_initialization(self):
         """测试插件初始化"""
         plugin = self._create_test_plugin()
         self.assertIsNotNone(plugin.PLUGIN_NAME)
         self.assertIsNotNone(plugin.PLUGIN_VERSION)
 
+    # zhang: 方法职责：测试 plugin config 场景的预期行为。
     def test_plugin_config(self):
         """测试插件配置"""
         plugin = self._create_test_plugin()
         # 插件应该有配置属性
         self.assertIsNotNone(plugin.PLUGIN_NAME)
 
+    # zhang: 方法职责：测试 plugin register hooks 场景的预期行为。
     def test_plugin_register_hooks(self):
         """测试插件注册钩子"""
         plugin = self._create_test_plugin()
         # 基类的 register_hooks 应该可以被调用
         plugin.register_hooks()
 
+    # zhang: 方法职责：测试 plugin get context 场景的预期行为。
     def test_plugin_get_context(self):
         """测试获取插件信息"""
         plugin = self._create_test_plugin()
@@ -128,15 +145,18 @@ class BasePluginTest(BaseTestCase):
         self.assertEqual(plugin_info['name'], '测试插件')
 
 
+# zhang: 类职责：组织 PluginLoaderTest 相关功能与状态。
 class PluginLoaderTest(TestCase):
     """测试插件加载器"""
 
+    # zhang: 方法职责：测试 load plugins 场景的预期行为。
     @patch('djangoblog.plugin_manage.loader.logger')
     def test_load_plugins(self, mock_logger):
         """测试加载插件"""
         plugins = load_plugins()
         self.assertIsInstance(plugins, list)
 
+    # zhang: 方法职责：测试 load plugins handles errors 场景的预期行为。
     def test_load_plugins_handles_errors(self):
         """测试插件加载错误处理"""
         # 测试当插件目录不存在或插件有错误时的处理
@@ -146,15 +166,18 @@ class PluginLoaderTest(TestCase):
             self.assertIsInstance(plugins, list)
 
 
+# zhang: 类职责：组织 ReadingTimePluginTest 相关功能与状态。
 class ReadingTimePluginTest(BaseTestCase, PluginTestMixin):
     """测试阅读时间插件"""
 
+    # zhang: 方法职责：测试 reading time plugin loaded 场景的预期行为。
     def test_reading_time_plugin_loaded(self):
         """测试阅读时间插件已加载"""
         from plugins.reading_time.plugin import ReadingTimePlugin
         plugin = ReadingTimePlugin()
         self.assertEqual(plugin.PLUGIN_NAME, '阅读时间预测')
 
+    # zhang: 方法职责：测试 calculate reading time 场景的预期行为。
     def test_calculate_reading_time(self):
         """测试计算阅读时间"""
         from plugins.reading_time.plugin import ReadingTimePlugin
@@ -174,15 +197,18 @@ class ReadingTimePluginTest(BaseTestCase, PluginTestMixin):
         self.assertGreater(len(long_result), len(result))
 
 
+# zhang: 类职责：组织 ViewCountPluginTest 相关功能与状态。
 class ViewCountPluginTest(BaseTestCase, PluginTestMixin):
     """测试浏览次数插件"""
 
+    # zhang: 方法职责：测试 view count plugin loaded 场景的预期行为。
     def test_view_count_plugin_loaded(self):
         """测试浏览次数插件已加载"""
         from plugins.view_count.plugin import ViewCountPlugin
         plugin = ViewCountPlugin()
         self.assertEqual(plugin.PLUGIN_NAME, '文章浏览次数统计')
 
+    # zhang: 方法职责：测试 view count increment 场景的预期行为。
     def test_view_count_increment(self):
         """测试浏览次数增加"""
         initial_views = self.article.views
@@ -193,15 +219,18 @@ class ViewCountPluginTest(BaseTestCase, PluginTestMixin):
         self.assertGreaterEqual(self.article.views, initial_views)
 
 
+# zhang: 类职责：组织 SEOOptimizerPluginTest 相关功能与状态。
 class SEOOptimizerPluginTest(BaseTestCase, PluginTestMixin):
     """测试 SEO 优化插件"""
 
+    # zhang: 方法职责：测试 seo optimizer plugin loaded 场景的预期行为。
     def test_seo_optimizer_plugin_loaded(self):
         """测试 SEO 优化插件已加载"""
         from plugins.seo_optimizer.plugin import SeoOptimizerPlugin
         plugin = SeoOptimizerPlugin()
         self.assertEqual(plugin.PLUGIN_NAME, 'SEO 优化器')
 
+    # zhang: 方法职责：测试 seo meta tags 场景的预期行为。
     def test_seo_meta_tags(self):
         """测试 SEO meta 标签"""
         from plugins.seo_optimizer.plugin import SeoOptimizerPlugin
@@ -213,15 +242,18 @@ class SEOOptimizerPluginTest(BaseTestCase, PluginTestMixin):
         self.assertContains(response, '<meta')
 
 
+# zhang: 类职责：组织 ArticleCopyrightPluginTest 相关功能与状态。
 class ArticleCopyrightPluginTest(BaseTestCase, PluginTestMixin):
     """测试文章版权插件"""
 
+    # zhang: 方法职责：测试 copyright plugin loaded 场景的预期行为。
     def test_copyright_plugin_loaded(self):
         """测试版权插件已加载"""
         from plugins.article_copyright.plugin import ArticleCopyrightPlugin
         plugin = ArticleCopyrightPlugin()
         self.assertEqual(plugin.PLUGIN_NAME, '文章结尾版权声明')
 
+    # zhang: 方法职责：测试 copyright notice added 场景的预期行为。
     def test_copyright_notice_added(self):
         """测试版权声明已添加"""
         response = self.client.get(self.article.get_absolute_url())
@@ -230,15 +262,18 @@ class ArticleCopyrightPluginTest(BaseTestCase, PluginTestMixin):
         # self.assertContains(response, '版权')
 
 
+# zhang: 类职责：组织 ExternalLinksPluginTest 相关功能与状态。
 class ExternalLinksPluginTest(BaseTestCase, PluginTestMixin):
     """测试外部链接插件"""
 
+    # zhang: 方法职责：测试 external links plugin loaded 场景的预期行为。
     def test_external_links_plugin_loaded(self):
         """测试外部链接插件已加载"""
         from plugins.external_links.plugin import ExternalLinksPlugin
         plugin = ExternalLinksPlugin()
         self.assertEqual(plugin.PLUGIN_NAME, '外部链接处理器')
 
+    # zhang: 方法职责：测试 external links processing 场景的预期行为。
     def test_external_links_processing(self):
         """测试外部链接处理"""
         from plugins.external_links.plugin import ExternalLinksPlugin

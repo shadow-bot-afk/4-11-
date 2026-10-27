@@ -6,6 +6,7 @@ Django Blog 基础视图类
 提供带有常用装饰器的视图基类，减少重复的 dispatch 方法定义
 """
 
+# zhang: 集中引入认证、CSRF、缓存及敏感参数保护装饰器，供各视图基类复用。
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
@@ -14,6 +15,7 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import FormView, RedirectView
 
 
+# zhang: 为普通表单视图提供统一的 CSRF 校验入口，避免子类重复声明装饰器。
 class SecureFormView(FormView):
     """
     安全的 FormView 基类
@@ -36,6 +38,7 @@ class SecureFormView(FormView):
         return super().dispatch(*args, **kwargs)
 
 
+# zhang: 表单处理前验证登录状态，同时执行 CSRF 校验，未登录时交由装饰器重定向。
 class AuthenticatedFormView(FormView):
     """
     需要登录的 FormView
@@ -56,6 +59,7 @@ class AuthenticatedFormView(FormView):
         return super().dispatch(*args, **kwargs)
 
 
+# zhang: 登录表单集中处理密码参数脱敏、CSRF 校验与响应禁用缓存。
 class LoginFormView(FormView):
     """
     登录专用 FormView
@@ -83,6 +87,7 @@ class LoginFormView(FormView):
         return super().dispatch(request, *args, **kwargs)
 
 
+# zhang: 登出重定向视图禁用响应缓存；真正的登出操作仍由具体子类实现。
 class LogoutRedirectView(RedirectView):
     """
     登出专用 RedirectView
@@ -104,6 +109,7 @@ class LogoutRedirectView(RedirectView):
         return super().dispatch(request, *args, **kwargs)
 
 
+# zhang: 对动态表单同时启用禁用缓存和 CSRF 保护，适合验证码等场景。
 class NoCacheFormView(FormView):
     """
     禁用缓存的 FormView

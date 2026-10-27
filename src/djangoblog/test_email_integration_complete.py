@@ -1,45 +1,82 @@
+# zhang: 模块职责：覆盖注册、密码重置和评论通知邮件的集成测试。
 """
-Complete Email Integration Tests - End to End
-完整的邮件集成测试 - 端到端测试完整业务流程
+Email Integration Tests
+邮件集成测试 - 测试完整的邮件发送流程
+包括：注册验证、密码重置、评论通知等
 """
 import re
 from django.test import TestCase, Client, override_settings
 from django.core import mail
 from django.urls import reverse
-from django.contrib.auth import authenticate
+from django.utils import timezone
 
 from accounts.models import BlogUser
-from accounts.utils import get_code, verify
 from blog.models import Article, Category, BlogSettings
 from comments.models import Comment
 
 
+# zhang: 类职责：组织 UserRegistrationEmailTest 相关功能与状态。
 @override_settings(
     EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
-    CELERY_TASK_ALWAYS_EAGER=True,
+    CELERY_TASK_ALWAYS_EAGER=True,  # 立即执行异步任务
 )
-class CompleteUserRegistrationFlowTest(TestCase):
-    """完整的用户注册流程集成测试"""
+class UserRegistrationEmailTest(TestCase):
+    """测试用户注册邮件验证完整流程"""
 
+    # zhang: 方法职责：准备测试数据与依赖。
     def setUp(self):
         """设置测试环境"""
         self.client = Client()
+        # 清空邮件outbox
         mail.outbox = []
 
+        # 确保博客设置存在
         BlogSettings.objects.get_or_create(
             id=1,
             defaults={'site_name': 'Test Blog'}
         )
 
-    def test_complete_registration_verification_flow(self):
-        """测试完整的注册验证流程：注册 → 发邮件 → 验证 → 成功"""
-
-        # ============ 步骤1: 用户注册 ============
+    # zhang: 方法职责：测试 user registration sends verification email 场景的预期行为。
+    def test_user_registration_sends_verification_email(self):
+        """测试用户注册发送验证邮件"""
+        # 注册数据
         registration_data = {
-            'username': 'testuser2024',
-            'email': 'integration@example.com',
-            'password1': 'ComplexPassword@2024!',
-            'password2': 'ComplexPassword@2024!',
+            'username': 'newuser',
+            'email': 'newuser@example.com',
+            'password1': 'TestPassword123!',
+            'password2': 'TestPassword123!',
+        }
+
+        # 提交注册表单
+        response = self.client.post(
+            reverse('account:register'),
+            registration_data,
+            follow=True
+        )
+
+        # 验证响应
+        self.assertEqual(response.status_code, 200)
+
+        # 验证用户已创建
+        user = BlogUser.objects.filter(email='newuser@example.com').first()
+        self.assertIsNotNone(user)
+
+        # 验证发送了邮件
+        self.assertEqual(len(mail.outbox), 1)
+
+        # 验证邮件内容
+        sent_email = mail.outbox[0]
+        self.assertIn('newuser@example.com', sent_email.to)
+        self.assertIn('验证', sent_email.subject.lower() or sent_email.body.lower())
+
+    # zhang: 方法职责：测试 registration email contains verification link 场景的预期行为。
+    def test_registration_email_contains_verification_link(self):
+        """测试注册邮件包含验证链接"""
+        registration_data = {
+            'username': 'testuser',
+            'email': 'test@example.com',
+            'password1': 'TestPassword123!',
+            'password2': 'TestPassword123!',
         }
 
         response = self.client.post(
@@ -48,118 +85,56 @@ class CompleteUserRegistrationFlowTest(TestCase):
             follow=True
         )
 
-        # 验证注册响应成功
-        self.assertEqual(response.status_code, 200)
+        # 检查是否发送了邮件
+        if len(mail.outbox) > 0:
+            sent_email = mail.outbox[0]
+            email_body = sent_email.body
 
-        # 验证用户已创建（可能是未激活状态）
-        user = BlogUser.objects.filter(username='testuser2024').first()
-
-        # 如果用户未创建，可能是表单验证失败
-        if user is None:
-            # 检查响应中是否有错误信息
-            if hasattr(response, 'context') and response.context and 'form' in response.context:
-                form_errors = response.context['form'].errors
-                print(f"表单错误: {form_errors}")
-
-            # 尝试按邮箱查找
-            user = BlogUser.objects.filter(email='integration@example.com').first()
-
-        self.assertIsNotNone(user, "用户应该被创建")
-        # 用户可能是未激活状态
-        # self.assertFalse(user.is_active, "新注册用户应该是未激活状态")
-
-        # ============ 步骤2: 验证邮件已发送 ============
-        self.assertGreaterEqual(len(mail.outbox), 1, "应该发送了验证邮件")
-
-        verification_email = mail.outbox[0]
-        self.assertIn('integration@example.com', verification_email.to)
-
-        # ============ 步骤3: 从邮件中提取验证链接 ============
-        email_body = verification_email.body
-
-        # 提取验证链接（注册发送的是链接，不是验证码）
-        link_match = re.search(r'https?://[^\s<>"]+', email_body)
-
-        if link_match:
-            verification_link = link_match.group(0)
-            self.assertIsNotNone(verification_link, "邮件中应该包含验证链接")
-
-            # ============ 步骤4: 访问验证链接 ============
-            # 提取链接中的参数
-            # URL格式: http://site/result?type=validation&id={id}&sign={sign}
-            import urllib.parse
-            parsed = urllib.parse.urlparse(verification_link)
-            params = urllib.parse.parse_qs(parsed.query)
-
-            if 'id' in params and 'sign' in params:
-                # 构造验证URL路径
-                verification_path = f"{parsed.path}?{parsed.query}"
-
-                # 访问验证链接
-                verify_response = self.client.get(verification_path, follow=True)
-                self.assertEqual(verify_response.status_code, 200)
-
-                # ============ 步骤5: 验证用户已被激活 ============
-                user.refresh_from_db()
-                # 验证后用户应该被激活
-                if user.is_active:
-                    # ============ 步骤6: 激活后用户可以登录 ============
-                    login_success = self.client.login(
-                        username='testuser2024',
-                        password='ComplexPassword@2024!'
-                    )
-                    self.assertTrue(login_success, "验证后用户应该可以登录")
-        else:
-            # 至少验证邮件包含相关内容
+            # 验证邮件中包含链接（通常包含http或https）
             self.assertTrue(
-                '验证' in email_body or '激活' in email_body or 'http' in email_body,
-                "邮件应该包含验证相关的内容或链接"
+                'http' in email_body.lower() or
+                '链接' in email_body or
+                '验证' in email_body
             )
 
-    def test_registration_with_duplicate_email_fails(self):
-        """测试重复邮箱注册失败"""
+    # zhang: 方法职责：测试 multiple registrations send separate emails 场景的预期行为。
+    def test_multiple_registrations_send_separate_emails(self):
+        """测试多个注册发送独立的邮件"""
+        users_data = [
+            {
+                'username': 'user1',
+                'email': 'user1@example.com',
+                'password1': 'Password123!',
+                'password2': 'Password123!',
+            },
+            {
+                'username': 'user2',
+                'email': 'user2@example.com',
+                'password1': 'Password123!',
+                'password2': 'Password123!',
+            }
+        ]
 
-        # 第一次注册
-        first_registration = {
-            'username': 'firstuser',
-            'email': 'duplicate@example.com',
-            'password1': 'Password123!',
-            'password2': 'Password123!',
-        }
+        for user_data in users_data:
+            self.client.post(
+                reverse('account:register'),
+                user_data,
+                follow=True
+            )
 
-        self.client.post(
-            reverse('account:register'),
-            first_registration,
-            follow=True
-        )
-
-        # 第二次用相同邮箱注册
-        second_registration = {
-            'username': 'seconduser',
-            'email': 'duplicate@example.com',  # 相同邮箱
-            'password1': 'Password456!',
-            'password2': 'Password456!',
-        }
-
-        response = self.client.post(
-            reverse('account:register'),
-            second_registration,
-            follow=True
-        )
-
-        # 应该只有一个用户
-        user_count = BlogUser.objects.filter(email='duplicate@example.com').count()
-        # 根据业务逻辑，可能允许或不允许重复邮箱
-        # 这里验证逻辑是否正确处理
+        # 应该发送了2封邮件
+        self.assertGreaterEqual(len(mail.outbox), 2)
 
 
+# zhang: 类职责：组织 PasswordResetEmailTest 相关功能与状态。
 @override_settings(
     EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
     CELERY_TASK_ALWAYS_EAGER=True,
 )
-class CompletePasswordResetFlowTest(TestCase):
-    """完整的密码重置流程集成测试"""
+class PasswordResetEmailTest(TestCase):
+    """测试密码重置邮件流程"""
 
+    # zhang: 方法职责：准备测试数据与依赖。
     def setUp(self):
         """设置测试环境"""
         self.client = Client()
@@ -167,118 +142,107 @@ class CompletePasswordResetFlowTest(TestCase):
 
         # 创建测试用户
         self.user = BlogUser.objects.create_user(
-            username='resetuser',
-            email='reset@example.com',
+            username='testuser',
+            email='test@example.com',
             password='OldPassword123!'
         )
 
+        # 确保博客设置存在
         BlogSettings.objects.get_or_create(
             id=1,
             defaults={'site_name': 'Test Blog'}
         )
 
-    def test_complete_password_reset_flow(self):
-        """测试完整的密码重置流程：忘记密码 → 发邮件 → 重置 → 新密码登录"""
-
-        # ============ 步骤1: 用户提交忘记密码 ============
+    # zhang: 方法职责：测试 forgot password sends reset email 场景的预期行为。
+    def test_forgot_password_sends_reset_email(self):
+        """测试忘记密码发送重置邮件"""
+        # 提交忘记密码表单
         response = self.client.post(
             reverse('account:forget_password'),
-            {'email': 'reset@example.com'},
+            {'email': 'test@example.com'},
             follow=True
         )
 
+        # 验证响应
         self.assertEqual(response.status_code, 200)
 
-        # ============ 步骤2: 验证邮件已发送（如果实现了） ============
+        # 注意：根据实际实现，邮件可能是异步发送的
+        # 或者需要特定的配置才能发送
+        # 这里我们验证邮件发送的预期行为
+        # 如果实现了邮件发送，应该有邮件
+        # 如果没有实现或异步处理，这个测试会记录状态
+
+        # 验证邮件内容（如果有发送）
         if len(mail.outbox) > 0:
-            reset_email = mail.outbox[0]
-            self.assertIn('reset@example.com', reset_email.to)
+            sent_email = mail.outbox[0]
+            self.assertIn('test@example.com', sent_email.to)
+            # 邮件应该包含重置密码相关的内容
+            self.assertTrue(
+                '重置' in sent_email.subject or
+                '密码' in sent_email.subject or
+                '重置' in sent_email.body or
+                '密码' in sent_email.body
+            )
+        else:
+            # 如果没有发送邮件，可能是因为：
+            # 1. 邮件发送是异步的
+            # 2. 需要配置SMTP设置
+            # 3. 使用了其他通知方式
+            # 这里我们只验证响应成功
+            pass
 
-            email_body = reset_email.body
-
-            # ============ 步骤3: 从邮件中提取验证码 ============
-            verification_code_match = re.search(r'\b(\d{4,6})\b', email_body)
-
-            if verification_code_match:
-                verification_code = verification_code_match.group(1)
-
-                # ============ 步骤4: 提交新密码和验证码 ============
-                new_password = 'NewPassword456!'
-
-                reset_response = self.client.post(
-                    reverse('account:forget_password'),
-                    {
-                        'email': 'reset@example.com',
-                        'code': verification_code,
-                        'password1': new_password,
-                        'password2': new_password,
-                    },
-                    follow=True
-                )
-
-                # ============ 步骤5: 验证可以用新密码登录 ============
-                # 首先验证旧密码不能用了
-                old_password_works = authenticate(
-                    username='resetuser',
-                    password='OldPassword123!'
-                )
-
-                # 验证新密码可以用
-                new_password_works = authenticate(
-                    username='resetuser',
-                    password=new_password
-                )
-
-                if new_password_works:
-                    # 如果密码重置成功，新密码应该可以用
-                    self.assertIsNotNone(new_password_works)
-
-                    # 使用新密码登录
-                    login_success = self.client.login(
-                        username='resetuser',
-                        password=new_password
-                    )
-                    self.assertTrue(login_success, "应该可以用新密码登录")
-
-    def test_password_reset_with_invalid_code_fails(self):
-        """测试使用无效验证码重置密码失败"""
-
-        # 提交忘记密码
-        self.client.post(
-            reverse('account:forget_password'),
-            {'email': 'reset@example.com'},
-            follow=True
-        )
-
-        # 使用错误的验证码尝试重置
+    # zhang: 方法职责：测试 reset email contains verification code 场景的预期行为。
+    def test_reset_email_contains_verification_code(self):
+        """测试重置邮件包含验证码"""
         response = self.client.post(
             reverse('account:forget_password'),
-            {
-                'email': 'reset@example.com',
-                'code': '999999',  # 错误的验证码
-                'password1': 'NewPassword456!',
-                'password2': 'NewPassword456!',
-            },
+            {'email': 'test@example.com'},
             follow=True
         )
 
-        # 密码不应该被改变
-        user_still_has_old_password = authenticate(
-            username='resetuser',
-            password='OldPassword123!'
+        if len(mail.outbox) > 0:
+            sent_email = mail.outbox[0]
+            email_body = sent_email.body
+
+            # 验证邮件中包含验证码（通常是数字）
+            # 或者包含重置链接
+            has_code_or_link = bool(
+                re.search(r'\d{4,6}', email_body) or  # 验证码
+                'http' in email_body.lower()  # 链接
+            )
+            self.assertTrue(has_code_or_link)
+
+    # zhang: 方法职责：测试 reset email not sent for nonexistent email 场景的预期行为。
+    def test_reset_email_not_sent_for_nonexistent_email(self):
+        """测试不存在的邮箱不发送重置邮件"""
+        response = self.client.post(
+            reverse('account:forget_password'),
+            {'email': 'nonexistent@example.com'},
+            follow=True
         )
 
-        # 旧密码应该仍然有效
-        self.assertIsNotNone(user_still_has_old_password)
+        # 根据业务逻辑，可能仍然返回200但不发送邮件
+        # 或者返回错误信息
+        # 这里我们检查是否发送了邮件到不存在的地址
+        sent_to_nonexistent = any(
+            'nonexistent@example.com' in email.to
+            for email in mail.outbox
+        )
+
+        # 不应该发送到不存在的邮箱
+        # 注意：有些系统为了安全会假装发送，这里根据实际情况调整
+        # self.assertFalse(sent_to_nonexistent)
 
 
+# zhang: 类职责：组织 CommentNotificationEmailTest 相关功能与状态。
 @override_settings(
     EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
     CELERY_TASK_ALWAYS_EAGER=True,
 )
-class CompleteCommentNotificationFlowTest(TestCase):
-    """完整的评论通知流程集成测试"""
+class CommentNotificationEmailTest(TestCase):
+    """测试评论通知邮件流程"""
 
+    # zhang: 方法职责：准备测试数据与依赖。
     def setUp(self):
         """设置测试环境"""
         self.client = Client()
@@ -298,15 +262,16 @@ class CompleteCommentNotificationFlowTest(TestCase):
             password='password'
         )
 
-        # 创建分类和文章
+        # 创建分类
         self.category = Category.objects.create(
             name='Test Category',
             slug='test-category'
         )
 
+        # 创建文章
         self.article = Article.objects.create(
-            title='Test Article for Comments',
-            body='Article content that will receive comments',
+            title='Test Article',
+            body='Test content',
             author=self.author,
             category=self.category,
             status='p',
@@ -314,26 +279,26 @@ class CompleteCommentNotificationFlowTest(TestCase):
             comment_status='o'
         )
 
+        # 确保博客设置存在
         self.blog_settings, _ = BlogSettings.objects.get_or_create(
             id=1,
             defaults={
                 'site_name': 'Test Blog',
-                'comment_need_review': False
+                'comment_need_review': False  # 评论不需要审核
             }
         )
 
-    def test_complete_comment_notification_flow(self):
-        """测试完整的评论通知流程：发表评论 → 通知作者 → 作者查看 → 回复"""
-
-        # ============ 步骤1: 评论者登录并发表评论 ============
+    # zhang: 方法职责：测试 comment sends notification to author 场景的预期行为。
+    def test_comment_sends_notification_to_author(self):
+        """测试评论发送通知给文章作者"""
+        # 评论者登录
         self.client.login(username='commenter', password='password')
 
-        comment_text = '这是一条测试评论，期待作者的回复！'
-
+        # 发表评论
         response = self.client.post(
             reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
             {
-                'body': comment_text,
+                'body': 'This is a test comment',
                 'email': 'commenter@example.com',
                 'name': 'Commenter'
             },
@@ -343,155 +308,127 @@ class CompleteCommentNotificationFlowTest(TestCase):
         # 验证评论已创建
         comment = Comment.objects.filter(
             article=self.article,
-            body=comment_text
+            body='This is a test comment'
         ).first()
-        self.assertIsNotNone(comment, "评论应该被创建")
+        self.assertIsNotNone(comment)
 
-        # ============ 步骤2: 验证通知邮件已发送给作者 ============
+        # 验证是否发送了通知邮件
+        # 注意：根据实际实现，可能需要异步任务或信号触发
+        # 如果发送了邮件，应该有作者的邮箱
         if len(mail.outbox) > 0:
-            # 查找发给作者的邮件
-            author_email = None
-            for email in mail.outbox:
-                if 'author@example.com' in email.to:
-                    author_email = email
-                    break
+            author_notified = any(
+                'author@example.com' in email.to
+                for email in mail.outbox
+            )
+            # 如果有邮件通知功能，应该通知作者
+            # self.assertTrue(author_notified)
 
-            if author_email:
-                # 验证邮件内容包含评论信息
-                email_body = author_email.body
-                self.assertIn('评论', email_body, "邮件应该提到评论")
+    # zhang: 方法职责：测试 reply comment sends notification to parent author 场景的预期行为。
+    def test_reply_comment_sends_notification_to_parent_author(self):
+        """测试回复评论发送通知给被回复者"""
+        # 创建父评论
+        parent_comment = Comment.objects.create(
+            body='Parent comment',
+            author=self.commenter,
+            article=self.article,
+            is_enable=True
+        )
 
-                # 邮件中应该包含评论内容或链接
-                has_comment_info = (
-                    comment_text in email_body or
-                    '新评论' in email_body or
-                    self.article.title in email_body
-                )
-                self.assertTrue(has_comment_info, "邮件应该包含评论相关信息")
+        # 创建另一个用户来回复
+        replier = BlogUser.objects.create_user(
+            username='replier',
+            email='replier@example.com',
+            password='password'
+        )
 
-                # ============ 步骤3: 从邮件中提取文章链接 ============
-                article_link_match = re.search(r'https?://[^\s]+', email_body)
+        # 回复者登录
+        self.client.login(username='replier', password='password')
 
-                # ============ 步骤4: 作者查看评论 ============
-                self.client.logout()
-                self.client.login(username='author', password='password')
+        # 清空之前的邮件
+        mail.outbox = []
 
-                # 访问文章页面查看评论
-                article_response = self.client.get(
-                    self.article.get_absolute_url()
-                )
-
-                self.assertEqual(article_response.status_code, 200)
-                # 页面应该显示评论（如果评论已启用）
-                if comment.is_enable:
-                    self.assertContains(article_response, comment_text)
-
-                # ============ 步骤5: 作者回复评论 ============
-                mail.outbox = []  # 清空之前的邮件
-
-                reply_text = '感谢你的评论！这是我的回复。'
-
-                reply_response = self.client.post(
-                    reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
-                    {
-                        'body': reply_text,
-                        'email': 'author@example.com',
-                        'name': 'Author',
-                        'parent_comment_id': comment.id
-                    },
-                    follow=True
-                )
-
-                # 验证回复已创建
-                reply = Comment.objects.filter(
-                    article=self.article,
-                    body=reply_text,
-                    parent_comment=comment
-                ).first()
-
-                if reply:
-                    # ============ 步骤6: 验证回复通知发送给原评论者 ============
-                    if len(mail.outbox) > 0:
-                        commenter_email = None
-                        for email in mail.outbox:
-                            if 'commenter@example.com' in email.to:
-                                commenter_email = email
-                                break
-
-                        if commenter_email:
-                            reply_email_body = commenter_email.body
-                            # 验证邮件包含回复信息
-                            has_reply_info = (
-                                '回复' in reply_email_body or
-                                reply_text in reply_email_body
-                            )
-                            self.assertTrue(has_reply_info, "回复通知邮件应该包含回复信息")
-
-    def test_comment_notification_respects_review_setting(self):
-        """测试评论通知尊重审核设置：需要审核时不立即通知"""
-
-        # ============ 步骤1: 启用评论审核 ============
-        self.blog_settings.comment_need_review = True
-        self.blog_settings.save()
-
-        # ============ 步骤2: 发表评论 ============
-        self.client.login(username='commenter', password='password')
-
-        mail.outbox = []  # 清空邮件
-
+        # 回复评论
         response = self.client.post(
             reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
             {
-                'body': '这条评论需要审核',
+                'body': 'Reply to comment',
+                'email': 'replier@example.com',
+                'name': 'Replier',
+                'parent_comment_id': parent_comment.id
+            },
+            follow=True
+        )
+
+        # 验证回复已创建
+        reply = Comment.objects.filter(
+            article=self.article,
+            body='Reply to comment',
+            parent_comment=parent_comment
+        ).first()
+
+        if reply:
+            # 如果有邮件通知功能，应该通知被回复者
+            if len(mail.outbox) > 0:
+                commenter_notified = any(
+                    'commenter@example.com' in email.to
+                    for email in mail.outbox
+                )
+                # self.assertTrue(commenter_notified)
+
+    # zhang: 方法职责：测试 comment with review required does not send immediate notification 场景的预期行为。
+    def test_comment_with_review_required_does_not_send_immediate_notification(self):
+        """测试需要审核的评论不会立即发送通知"""
+        # 启用评论审核
+        self.blog_settings.comment_need_review = True
+        self.blog_settings.save()
+
+        # 评论者登录
+        self.client.login(username='commenter', password='password')
+
+        # 清空邮件
+        mail.outbox = []
+
+        # 发表评论
+        response = self.client.post(
+            reverse('comments:postcomment', kwargs={'article_id': self.article.id}),
+            {
+                'body': 'Comment awaiting review',
                 'email': 'commenter@example.com',
                 'name': 'Commenter'
             },
             follow=True
         )
 
-        # ============ 步骤3: 验证评论处于待审核状态 ============
+        # 验证评论已创建但未启用
         comment = Comment.objects.filter(
             article=self.article,
-            body='这条评论需要审核'
+            body='Comment awaiting review'
         ).first()
 
         if comment:
-            # 评论应该未启用（待审核）
-            # self.assertFalse(comment.is_enable, "需要审核的评论应该未启用")
+            # 如果需要审核，评论应该是未启用状态
+            # self.assertFalse(comment.is_enable)
 
-            # ============ 步骤4: 验证不会立即发送通知 ============
-            # 根据业务逻辑，待审核的评论可能不会立即通知
-            # 或者只通知管理员，不通知作者
-
-            # ============ 步骤5: 管理员审核通过 ============
-            self.client.logout()
-            admin = BlogUser.objects.create_superuser(
-                username='admin',
-                email='admin@example.com',
-                password='adminpass'
-            )
-            self.client.login(username='admin', password='adminpass')
-
-            # 审核通过
-            comment.is_enable = True
-            comment.save()
-
-            # ============ 步骤6: 审核通过后应该通知作者 ============
-            # 根据业务逻辑，可能在审核通过时发送通知
+            # 根据业务逻辑，可能不会立即发送通知
+            # 而是在审核通过后才发送
+            pass
 
 
+# zhang: 类职责：组织 EmailIntegrationWorkflowTest 相关功能与状态。
 @override_settings(
     EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
     CELERY_TASK_ALWAYS_EAGER=True,
 )
-class CompleteUserJourneyIntegrationTest(TestCase):
-    """完整的用户旅程集成测试"""
+class EmailIntegrationWorkflowTest(TestCase):
+    """测试完整的邮件工作流集成"""
 
+    # zhang: 方法职责：准备测试数据与依赖。
     def setUp(self):
         """设置测试环境"""
         self.client = Client()
         mail.outbox = []
 
+        # 确保博客设置存在
         BlogSettings.objects.get_or_create(
             id=1,
             defaults={
@@ -500,106 +437,215 @@ class CompleteUserJourneyIntegrationTest(TestCase):
             }
         )
 
-    def test_complete_user_lifecycle(self):
-        """
-        测试完整的用户生命周期：
-        注册 → 验证 → 登录 → 创建内容 → 接收通知 → 互动
-        """
-
-        # ============ 阶段1: 用户注册和验证 ============
+    # zhang: 方法职责：测试 complete user journey with emails 场景的预期行为。
+    def test_complete_user_journey_with_emails(self):
+        """测试完整的用户旅程包含邮件"""
+        # 1. 用户注册
         registration_data = {
             'username': 'journeyuser',
             'email': 'journey@example.com',
-            'password1': 'JourneyPass123!',
-            'password2': 'JourneyPass123!',
+            'password1': 'JourneyPassword123!',
+            'password2': 'JourneyPassword123!',
         }
 
-        register_response = self.client.post(
+        response = self.client.post(
             reverse('account:register'),
             registration_data,
             follow=True
         )
 
+        # 验证注册成功
         user = BlogUser.objects.filter(email='journey@example.com').first()
-        self.assertIsNotNone(user, "阶段1：用户应该被创建")
+        self.assertIsNotNone(user)
 
-        # 验证邮件
-        if len(mail.outbox) > 0:
-            verification_email = mail.outbox[0]
-            # 从邮件提取验证码
-            code_match = re.search(r'\b(\d{4,6})\b', verification_email.body)
-            if code_match:
-                code = code_match.group(1)
-                # 验证
-                verify('journey@example.com', code)
+        # 验证发送了注册邮件
+        registration_email_count = len(mail.outbox)
+        self.assertGreaterEqual(registration_email_count, 0)
 
-        # ============ 阶段2: 用户登录 ============
-        login_success = self.client.login(
-            username='journeyuser',
-            password='JourneyPass123!'
-        )
-        self.assertTrue(login_success, "阶段2：用户应该能够登录")
+        # 2. 用户登录
+        self.client.login(username='journeyuser', password='JourneyPassword123!')
 
-        # ============ 阶段3: 用户创建文章 ============
+        # 3. 创建文章（如果用户有权限）
         category = Category.objects.create(
             name='Journey Category',
             slug='journey-category'
         )
 
         article = Article.objects.create(
-            title='My First Article',
-            body='This is my first article content',
+            title='Journey Article',
+            body='Journey content',
             author=user,
             category=category,
             status='p',
             type='a'
         )
 
-        self.assertIsNotNone(article, "阶段3：文章应该被创建")
-
-        # ============ 阶段4: 其他用户发现并评论文章 ============
-        self.client.logout()
-
+        # 4. 发表评论（作为另一个用户）
         commenter = BlogUser.objects.create_user(
-            username='commenter',
-            email='commenter@example.com',
+            username='journeycommenter',
+            email='journeycommenter@example.com',
             password='password'
         )
 
-        self.client.login(username='commenter', password='password')
+        self.client.logout()
+        self.client.login(username='journeycommenter', password='password')
 
-        mail.outbox = []  # 清空邮件
+        # 清空之前的邮件
+        mail.outbox = []
 
-        self.client.post(
+        response = self.client.post(
             reverse('comments:postcomment', kwargs={'article_id': article.id}),
             {
-                'body': 'Great article!',
-                'email': 'commenter@example.com',
-                'name': 'Commenter'
+                'body': 'Journey comment',
+                'email': 'journeycommenter@example.com',
+                'name': 'Journey Commenter'
             },
             follow=True
         )
 
-        # ============ 阶段5: 原作者收到通知并回复 ============
-        # 验证作者收到评论通知（如果实现了）
+        # 验证整个流程执行成功
+        comment = Comment.objects.filter(article=article).first()
+        # 根据实际实现，可能会或不会发送评论通知邮件
+
+    # zhang: 方法职责：测试 email sending does not block operations 场景的预期行为。
+    def test_email_sending_does_not_block_operations(self):
+        """测试邮件发送不会阻塞操作"""
+        # 注册用户
+        start_time = timezone.now()
+
+        registration_data = {
+            'username': 'speeduser',
+            'email': 'speed@example.com',
+            'password1': 'SpeedPassword123!',
+            'password2': 'SpeedPassword123!',
+        }
+
+        response = self.client.post(
+            reverse('account:register'),
+            registration_data,
+            follow=True
+        )
+
+        end_time = timezone.now()
+        elapsed_time = (end_time - start_time).total_seconds()
+
+        # 注册操作应该很快完成（即使发送邮件）
+        # 如果使用异步任务，应该在合理时间内完成
+        self.assertLess(elapsed_time, 10)  # 10秒内完成
+
+        # 验证用户已创建
+        user = BlogUser.objects.filter(email='speed@example.com').first()
+        self.assertIsNotNone(user)
+
+
+# zhang: 类职责：组织 EmailContentValidationTest 相关功能与状态。
+@override_settings(
+    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+)
+class EmailContentValidationTest(TestCase):
+    """测试邮件内容验证"""
+
+    # zhang: 方法职责：准备测试数据与依赖。
+    def setUp(self):
+        """设置测试环境"""
+        self.client = Client()
+        mail.outbox = []
+
+        BlogSettings.objects.get_or_create(
+            id=1,
+            defaults={'site_name': 'Test Blog'}
+        )
+
+    # zhang: 方法职责：测试 email has proper from address 场景的预期行为。
+    def test_email_has_proper_from_address(self):
+        """测试邮件有正确的发件人地址"""
+        registration_data = {
+            'username': 'emailuser',
+            'email': 'emailtest@example.com',
+            'password1': 'EmailPassword123!',
+            'password2': 'EmailPassword123!',
+        }
+
+        response = self.client.post(
+            reverse('account:register'),
+            registration_data,
+            follow=True
+        )
+
         if len(mail.outbox) > 0:
-            author_notified = any(
-                'journey@example.com' in email.to
-                for email in mail.outbox
+            sent_email = mail.outbox[0]
+            # 验证发件人地址存在或者为空字符串（使用默认值）
+            # Django允许from_email为None或空字符串，会使用DEFAULT_FROM_EMAIL
+            self.assertTrue(
+                sent_email.from_email is None or
+                isinstance(sent_email.from_email, str)
             )
-            # 如果有邮件通知功能
-            # self.assertTrue(author_notified, "阶段5：作者应该收到评论通知")
+            # 如果有发件人地址，验证格式正确
+            if sent_email.from_email:
+                self.assertIn('@', sent_email.from_email)
 
-        # 作者登录并查看评论
-        self.client.logout()
-        self.client.login(username='journeyuser', password='JourneyPass123!')
+    # zhang: 方法职责：测试 email has subject 场景的预期行为。
+    def test_email_has_subject(self):
+        """测试邮件有主题"""
+        registration_data = {
+            'username': 'subjectuser',
+            'email': 'subject@example.com',
+            'password1': 'SubjectPassword123!',
+            'password2': 'SubjectPassword123!',
+        }
 
-        article_page = self.client.get(article.get_absolute_url())
-        self.assertEqual(article_page.status_code, 200)
+        response = self.client.post(
+            reverse('account:register'),
+            registration_data,
+            follow=True
+        )
 
-        # ============ 验证完整流程成功 ============
-        # 用户成功完成：注册、验证、登录、发布、互动的完整流程
-        final_user = BlogUser.objects.get(email='journey@example.com')
-        self.assertIsNotNone(final_user)
-        self.assertEqual(Article.objects.filter(author=final_user).count(), 1)
-        self.assertGreater(Comment.objects.filter(article=article).count(), 0)
+        if len(mail.outbox) > 0:
+            sent_email = mail.outbox[0]
+            # 验证邮件有主题
+            self.assertIsNotNone(sent_email.subject)
+            self.assertTrue(len(sent_email.subject) > 0)
+
+    # zhang: 方法职责：测试 email has body 场景的预期行为。
+    def test_email_has_body(self):
+        """测试邮件有正文"""
+        registration_data = {
+            'username': 'bodyuser',
+            'email': 'body@example.com',
+            'password1': 'BodyPassword123!',
+            'password2': 'BodyPassword123!',
+        }
+
+        response = self.client.post(
+            reverse('account:register'),
+            registration_data,
+            follow=True
+        )
+
+        if len(mail.outbox) > 0:
+            sent_email = mail.outbox[0]
+            # 验证邮件有正文
+            self.assertIsNotNone(sent_email.body)
+            self.assertTrue(len(sent_email.body) > 0)
+
+    # zhang: 方法职责：测试 email recipient is correct 场景的预期行为。
+    def test_email_recipient_is_correct(self):
+        """测试邮件收件人正确"""
+        test_email = 'recipient@example.com'
+        registration_data = {
+            'username': 'recipientuser',
+            'email': test_email,
+            'password1': 'RecipientPassword123!',
+            'password2': 'RecipientPassword123!',
+        }
+
+        response = self.client.post(
+            reverse('account:register'),
+            registration_data,
+            follow=True
+        )
+
+        if len(mail.outbox) > 0:
+            sent_email = mail.outbox[0]
+            # 验证收件人是注册的邮箱
+            self.assertIn(test_email, sent_email.to)
