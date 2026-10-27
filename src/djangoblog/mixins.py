@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+# zhang: 模块职责：提供模型时间戳、缓存及文章列表等可复用混入类。
 """
 Django Blog 混入类 (Mixins)
 提供可复用的功能模块，减少代码重复
@@ -17,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 # ===== 模型层 Mixin =====
 
+# zhang: 类职责：封装模型创建与更新时间字段。
 class TimeStampedModel(models.Model):
     """
     抽象模型：为所有模型提供统一的时间戳字段
@@ -40,11 +42,13 @@ class TimeStampedModel(models.Model):
         help_text=_('The date and time when this object was last modified')
     )
 
+    # zhang: 类职责：组织 Meta 相关功能与状态。
     class Meta:
         abstract = True
         ordering = ['-created_at']
         get_latest_by = 'created_at'
 
+    # zhang: 方法职责：持久化当前模型记录。
     def save(self, *args, **kwargs):
         """
         重写 save 方法，自动更新 updated_at 字段
@@ -67,6 +71,7 @@ class TimeStampedModel(models.Model):
 
 # ===== 视图层 Mixin =====
 
+# zhang: 类职责：封装 slug 相关缓存行为。
 class SlugCachedMixin:
     """
     Mixin: 缓存 slug 查询结果，避免重复数据库查询
@@ -90,6 +95,7 @@ class SlugCachedMixin:
     slug_url_kwarg = 'slug'
     slug_model = None
 
+    # zhang: 方法职责：读取或生成 slug object 相关数据。
     def get_slug_object(self):
         """
         获取并缓存 slug 对应的对象
@@ -115,6 +121,7 @@ class SlugCachedMixin:
         return self._slug_object
 
 
+# zhang: 类职责：集中优化文章查询。
 class OptimizedArticleQueryMixin:
     """
     Mixin: 优化文章查询（预加载关联对象）
@@ -128,6 +135,7 @@ class OptimizedArticleQueryMixin:
                 return self.get_optimized_article_queryset().filter(status='p')
     """
 
+    # zhang: 方法职责：读取或生成 optimized article queryset 相关数据。
     def get_optimized_article_queryset(self):
         """
         返回优化后的 Article queryset
@@ -152,6 +160,7 @@ class OptimizedArticleQueryMixin:
         )
 
 
+# zhang: 类职责：为列表视图提供缓存策略。
 class CachedListViewMixin:
     """
     Mixin: 为 ListView 提供统一的缓存逻辑
@@ -168,6 +177,7 @@ class CachedListViewMixin:
                 return Article.objects.filter(status='p')
     """
 
+    # zhang: 方法职责：读取或生成 queryset cache key 相关数据。
     def get_queryset_cache_key(self):
         """
         子类实现：返回缓存 key
@@ -182,6 +192,7 @@ class CachedListViewMixin:
             f'{self.__class__.__name__} must implement get_queryset_cache_key()'
         )
 
+    # zhang: 方法职责：读取或生成 queryset data 相关数据。
     def get_queryset_data(self):
         """
         子类实现：返回实际数据
@@ -196,6 +207,7 @@ class CachedListViewMixin:
             f'{self.__class__.__name__} must implement get_queryset_data()'
         )
 
+    # zhang: 方法职责：读取或生成 queryset from cache 相关数据。
     def get_queryset_from_cache(self, cache_key):
         """
         从缓存获取 queryset，如果缓存不存在则查询并缓存
@@ -218,6 +230,7 @@ class CachedListViewMixin:
         logger.info(f'Cache MISS: {cache_key}')
         return queryset
 
+    # zhang: 方法职责：构建视图或管理页面的查询集。
     def get_queryset(self):
         """
         重写 get_queryset，使用缓存
@@ -229,6 +242,7 @@ class CachedListViewMixin:
         return self.get_queryset_from_cache(key)
 
 
+# zhang: 类职责：统一分页参数处理。
 class PageNumberMixin:
     """
     Mixin: 提供页码获取功能
@@ -242,6 +256,7 @@ class PageNumberMixin:
     """
     page_kwarg = 'page'
 
+    # zhang: 方法职责：封装 page number 对应的处理步骤。
     @property
     def page_number(self):
         """
@@ -261,6 +276,7 @@ class PageNumberMixin:
             return 1
 
 
+# zhang: 类职责：复用文章列表查询与展示逻辑。
 class ArticleListMixin(
     OptimizedArticleQueryMixin,
     CachedListViewMixin,

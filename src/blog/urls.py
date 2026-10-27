@@ -3,7 +3,9 @@ from django.views.decorators.cache import cache_page
 
 from . import views
 
+# GJ: 定义 blog 应用的路由命名空间，防止不同应用间的 URL 名称冲突
 app_name = "blog"
+# GJ: 核心路由映射列表，将前端请求的 URL 路径分发给对应的视图类处理
 urlpatterns = [
     path(
         r'',

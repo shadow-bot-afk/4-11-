@@ -1,3 +1,4 @@
+# zhang: 模块职责：定制 Django 管理站点的界面与操作入口。
 from django.contrib.admin import AdminSite
 from django.contrib.admin.models import LogEntry
 from django.contrib.sites.admin import SiteAdmin
@@ -15,13 +16,16 @@ from servermanager.admin import *
 from servermanager.models import *
 
 
+# zhang: 类职责：自定义后台管理站点行为。
 class DjangoBlogAdminSite(AdminSite):
     site_header = 'djangoblog administration'
     site_title = 'djangoblog site admin'
 
+    # zhang: 方法职责：提供内部辅助处理逻辑：init。
     def __init__(self, name='admin'):
         super().__init__(name)
 
+    # zhang: 方法职责：封装 has permission 对应的处理步骤。
     def has_permission(self, request):
         return request.user.is_superuser
 

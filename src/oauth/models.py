@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class OAuthUser(models.Model):
+    # sw: 第三方登录用户信息模型，保存第三方登录获取到的用户数据
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name=_('author'),
@@ -24,6 +25,7 @@ class OAuthUser(models.Model):
     last_modify_time = models.DateTimeField(_('last modify time'), default=now)
 
     def __str__(self):
+        # sw: 返回对象的字符串展示名称，后台管理页面展示昵称
         return self.nickname
 
     class Meta:
@@ -33,6 +35,7 @@ class OAuthUser(models.Model):
 
 
 class OAuthConfig(models.Model):
+    # sw: 第三方OAuth配置模型，保存各个平台的AppKey、AppSecret等启用配置
     TYPE = (
         ('weibo', _('weibo')),
         ('google', _('google')),
@@ -54,11 +57,13 @@ class OAuthConfig(models.Model):
     last_modify_time = models.DateTimeField(_('last modify time'), default=now)
 
     def clean(self):
+        # sw: 数据校验方法，保证同一个类型的第三方配置只能存在一条
         if OAuthConfig.objects.filter(
                 type=self.type).exclude(id=self.id).count():
             raise ValidationError(_(self.type + _('already exists')))
 
     def __str__(self):
+        # sw: 返回配置类型作为后台展示名称
         return self.type
 
     class Meta:

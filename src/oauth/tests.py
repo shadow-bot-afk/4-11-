@@ -22,6 +22,7 @@ class OAuthConfigTest(TestCase):
         cache.clear()
 
     def test_oauth_login_test(self):
+        # sw: 测试微博OAuth配置，访问登录跳转接口，校验重定向状态码与跳转地址
         c = OAuthConfig()
         c.type = 'weibo'
         c.appkey = 'appkey'
@@ -38,6 +39,7 @@ class OAuthConfigTest(TestCase):
 
 
 class OauthLoginTest(TestCase):
+    # sw: 测试前置初始化，初始化测试客户端、请求工厂，清空缓存
     def setUp(self) -> None:
         self.client = Client()
         self.factory = RequestFactory()
@@ -47,6 +49,7 @@ class OauthLoginTest(TestCase):
         self.apps = self.init_apps()
 
     def init_apps(self):
+        # sw: 遍历所有OAuth管理器子类，批量创建OAuth配置存入数据库
         applications = [p() for p in BaseOauthManager.__subclasses__()]
         for application in applications:
             c = OAuthConfig()
@@ -57,6 +60,7 @@ class OauthLoginTest(TestCase):
         return applications
 
     def get_app_by_type(self, type):
+        # sw: 根据传入的平台类型，找到对应的OAuth管理器实例
         for app in self.apps:
             if app.ICON_NAME.lower() == type:
                 return app
@@ -64,6 +68,7 @@ class OauthLoginTest(TestCase):
     @patch("oauth.oauthmanager.WBOauthManager.do_post")
     @patch("oauth.oauthmanager.WBOauthManager.do_get")
     def test_weibo_login(self, mock_do_get, mock_do_post):
+        # sw: 微博OAuth登录流程测试，mock掉网络请求，模拟第三方返回数据
         weibo_app = self.get_app_by_type('weibo')
         assert weibo_app
         url = weibo_app.get_authorization_url()
@@ -83,9 +88,11 @@ class OauthLoginTest(TestCase):
     @patch("oauth.oauthmanager.GoogleOauthManager.do_post")
     @patch("oauth.oauthmanager.GoogleOauthManager.do_get")
     def test_google_login(self, mock_do_get, mock_do_post):
+        # sw: Google OAuth登录流程测试，mock网络请求，模拟Google返回token和用户信息
         google_app = self.get_app_by_type('google')
         assert google_app
         url = google_app.get_authorization_url()
+        # sw: mock POST请求，模拟Google返回access_token与id_token
         mock_do_post.return_value = json.dumps({
             "access_token": "access_token",
             "id_token": "id_token",
@@ -104,6 +111,7 @@ class OauthLoginTest(TestCase):
     @patch("oauth.oauthmanager.GitHubOauthManager.do_post")
     @patch("oauth.oauthmanager.GitHubOauthManager.do_get")
     def test_github_login(self, mock_do_get, mock_do_post):
+        # sw: GitHub OAuth登录流程测试，校验跳转链接，mock返回token和用户信息
         github_app = self.get_app_by_type('github')
         assert github_app
         url = github_app.get_authorization_url()
@@ -121,10 +129,10 @@ class OauthLoginTest(TestCase):
         self.assertEqual(userinfo.token, 'gho_16C7e42F292c6912E7710c838347Ae178B4a')
         self.assertEqual(userinfo.openid, 'id')
 
-
     @patch("oauth.oauthmanager.GitHubOauthManager.do_post")
     @patch("oauth.oauthmanager.GitHubOauthManager.do_get")
     def test_github_login_private_email(self, mock_do_get, mock_do_post):
+        # sw: 测试GitHub OAuth，用户邮箱设为私有时的登录逻辑
         """Test GitHub OAuth login when user's email is private"""
         github_app = self.get_app_by_type('github')
         assert github_app
@@ -134,9 +142,9 @@ class OauthLoginTest(TestCase):
         self.assertTrue("client_id" in url)
         # Check that the scope parameter includes user:email (URL-encoded form)
         self.assertIn("user:email", unquote(url))
-        
+
         mock_do_post.return_value = "access_token=gho_test_token&scope=user:email&token_type=bearer"
-        
+
         # First call returns user info without email (private email)
         # Second call returns emails from /user/emails endpoint
         mock_do_get.side_effect = [
@@ -155,7 +163,7 @@ class OauthLoginTest(TestCase):
                 }
             ])
         ]
-        
+
         token = github_app.get_access_token_by_code('code')
         userinfo = github_app.get_oauth_userinfo()
         self.assertEqual(userinfo.token, 'gho_test_token')
@@ -167,7 +175,9 @@ class OauthLoginTest(TestCase):
     @patch("oauth.oauthmanager.FaceBookOauthManager.do_post")
     @patch("oauth.oauthmanager.FaceBookOauthManager.do_get")
     def test_facebook_login(self, mock_do_get, mock_do_post):
+        # sw: Facebook OAuth登录测试，mock网络请求，模拟返回token与用户信息
         facebook_app = self.get_app_by_type('facebook')
+
         assert facebook_app
         url = facebook_app.get_authorization_url()
         self.assertTrue("facebook.com" in url)
@@ -199,6 +209,7 @@ class OauthLoginTest(TestCase):
         })
     ])
     def test_qq_login(self, mock_do_get):
+        # sw: QQ OAuth登录测试，side_effect依次模拟多次接口返回结果
         qq_app = self.get_app_by_type('qq')
         assert qq_app
         url = qq_app.get_authorization_url()
@@ -210,7 +221,6 @@ class OauthLoginTest(TestCase):
     @patch("oauth.oauthmanager.WBOauthManager.do_post")
     @patch("oauth.oauthmanager.WBOauthManager.do_get")
     def test_weibo_authoriz_login_with_email(self, mock_do_get, mock_do_post):
-
         mock_do_post.return_value = json.dumps({"access_token": "access_token",
                                                 "uid": "uid"
                                                 })

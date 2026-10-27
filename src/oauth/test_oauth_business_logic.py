@@ -9,9 +9,11 @@ from oauth.models import OAuthConfig, OAuthUser
 
 
 class OAuthConfigTest(TestCase):
+    # sw: OAuth配置相关单元测试类
     """测试OAuth配置业务逻辑"""
 
     def test_oauth_config_can_be_created(self):
+        # sw: 测试正常创建一条OAuth平台配置记录
         """测试OAuth配置可以被创建"""
         config = OAuthConfig.objects.create(
             type='weibo',
@@ -25,6 +27,7 @@ class OAuthConfigTest(TestCase):
         self.assertEqual(config.appkey, 'test_app_key')
 
     def test_oauth_config_has_required_fields(self):
+        # sw: 校验OAuth配置的必填字段是否可以正常存储
         """测试OAuth配置有必需字段"""
         config = OAuthConfig.objects.create(
             type='github',
@@ -39,6 +42,7 @@ class OAuthConfigTest(TestCase):
         self.assertIsNotNone(config.callback_url)
 
     def test_oauth_config_type_uniqueness(self):
+        # sw: 测试同一个平台类型只能存在一条配置（唯一性约束）
         """测试OAuth配置类型唯一性"""
         OAuthConfig.objects.create(
             type='google',
@@ -62,6 +66,7 @@ class OAuthConfigTest(TestCase):
             pass
 
     def test_oauth_config_query_by_type(self):
+        # sw: 测试根据平台类型筛选查询OAuth配置
         """测试按类型查询OAuth配置"""
         OAuthConfig.objects.create(
             type='weibo',
@@ -83,6 +88,7 @@ class OAuthConfigTest(TestCase):
         self.assertEqual(weibo_config.type, 'weibo')
 
     def test_oauth_config_is_enable_field(self):
+        # sw: 测试OAuth配置启用状态字段
         """测试OAuth配置的启用字段"""
         config = OAuthConfig.objects.create(
             type='facebook',
@@ -103,9 +109,11 @@ class OAuthConfigTest(TestCase):
 
 
 class OAuthUserTest(TestCase):
+    # sw: OAuth用户相关单元测试类
     """测试OAuth用户业务逻辑"""
 
     def setUp(self):
+        # sw: 前置准备，创建一个博客系统用户，供测试使用
         """设置测试环境"""
         self.blog_user = BlogUser.objects.create_user(
             username='testuser',
@@ -114,6 +122,7 @@ class OAuthUserTest(TestCase):
         )
 
     def test_oauth_user_can_be_created(self):
+        # sw: 测试正常创建OAuth第三方用户记录
         """测试OAuth用户可以被创建"""
         oauth_user = OAuthUser.objects.create(
             author=self.blog_user,
@@ -128,6 +137,7 @@ class OAuthUserTest(TestCase):
         self.assertEqual(oauth_user.openid, 'test_openid_123')
 
     def test_oauth_user_links_to_blog_user(self):
+        # sw: 测试OAuth用户成功关联到博客系统用户
         """测试OAuth用户关联到博客用户"""
         oauth_user = OAuthUser.objects.create(
             author=self.blog_user,
@@ -142,8 +152,10 @@ class OAuthUserTest(TestCase):
         # 验证可以从博客用户查询OAuth用户
         oauth_users = OAuthUser.objects.filter(author=self.blog_user)
         self.assertIn(oauth_user, oauth_users)
+        # 验证可以从博客用户查询OAuth用户
 
     def test_oauth_user_has_openid(self):
+        # sw: 测试OAuth用户openid字段存储
         """测试OAuth用户有openid"""
         oauth_user = OAuthUser.objects.create(
             author=self.blog_user,
@@ -156,6 +168,7 @@ class OAuthUserTest(TestCase):
         self.assertEqual(oauth_user.openid, 'unique_openid')
 
     def test_oauth_user_has_type(self):
+        # sw: 测试OAuth平台类型字段存储
         """测试OAuth用户有类型"""
         oauth_user = OAuthUser.objects.create(
             author=self.blog_user,
@@ -168,6 +181,7 @@ class OAuthUserTest(TestCase):
         self.assertEqual(oauth_user.type, 'facebook')
 
     def test_oauth_user_token_storage(self):
+        # sw: 测试OAuth令牌token正常保存
         """测试OAuth用户token存储"""
         token = 'test_access_token_12345'
         oauth_user = OAuthUser.objects.create(
@@ -181,6 +195,7 @@ class OAuthUserTest(TestCase):
         self.assertEqual(oauth_user.token, token)
 
     def test_oauth_user_nickname_storage(self):
+        # sw: 测试OAuth用户昵称字段存储
         """测试OAuth用户昵称存储"""
         nickname = 'OAuth Nickname'
         oauth_user = OAuthUser.objects.create(
@@ -195,9 +210,11 @@ class OAuthUserTest(TestCase):
 
 
 class OAuthUserQueryTest(TestCase):
+    # sw: OAuth用户查询相关单元测试类
     """测试OAuth用户查询业务逻辑"""
 
     def setUp(self):
+        # sw: 准备两个博客用户，用于后续OAuth用户查询测试
         """设置测试环境"""
         self.user1 = BlogUser.objects.create_user(
             username='user1',
@@ -212,6 +229,7 @@ class OAuthUserQueryTest(TestCase):
         )
 
     def test_query_oauth_user_by_openid(self):
+        # sw: 测试通过openid查询OAuth用户
         """测试按openid查询OAuth用户"""
         oauth_user = OAuthUser.objects.create(
             author=self.user1,
@@ -226,6 +244,7 @@ class OAuthUserQueryTest(TestCase):
         self.assertEqual(found_user, oauth_user)
 
     def test_query_oauth_user_by_type(self):
+        # sw: 测试按照平台类型筛选OAuth用户
         """测试按类型查询OAuth用户"""
         weibo_user = OAuthUser.objects.create(
             author=self.user1,
@@ -254,6 +273,7 @@ class OAuthUserQueryTest(TestCase):
         self.assertIn(github_user, github_users)
 
     def test_query_oauth_users_by_blog_user(self):
+        # sw: 测试根据博客主用户查询绑定的OAuth第三方账号
         """测试按博客用户查询OAuth用户"""
         # 为user1创建多个OAuth关联
         weibo = OAuthUser.objects.create(
@@ -279,6 +299,7 @@ class OAuthUserQueryTest(TestCase):
         self.assertIn(github, oauth_users)
 
     def test_user_can_have_multiple_oauth_accounts(self):
+        # sw: 测试同一个博客用户可以绑定多个不同平台的OAuth账号
         """测试用户可以关联多个OAuth账号"""
         oauth_types = ['weibo', 'github', 'google', 'facebook']
 
@@ -297,9 +318,11 @@ class OAuthUserQueryTest(TestCase):
 
 
 class OAuthUserBindingTest(TestCase):
+    # sw: OAuth账号绑定相关单元测试类
     """测试OAuth用户绑定业务逻辑"""
 
     def setUp(self):
+        # sw: 预先创建一个博客用户，用于OAuth绑定测试
         """设置测试环境"""
         self.blog_user = BlogUser.objects.create_user(
             username='user',
@@ -308,6 +331,7 @@ class OAuthUserBindingTest(TestCase):
         )
 
     def test_bind_oauth_to_existing_user(self):
+        # sw: 测试将OAuth第三方账号绑定到已经存在的博客用户
         """测试将OAuth绑定到现有用户"""
         oauth_user = OAuthUser.objects.create(
             author=self.blog_user,
@@ -325,6 +349,7 @@ class OAuthUserBindingTest(TestCase):
         self.assertIn(oauth_user, oauth_accounts)
 
     def test_unbind_oauth_from_user(self):
+        # sw: 测试解绑OAuth账号，删除绑定记录，主用户保留
         """测试解绑OAuth账号"""
         oauth_user = OAuthUser.objects.create(
             author=self.blog_user,
@@ -347,6 +372,7 @@ class OAuthUserBindingTest(TestCase):
         self.assertTrue(BlogUser.objects.filter(id=self.blog_user.id).exists())
 
     def test_change_oauth_binding(self):
+        # sw: 测试更改OAuth账号的绑定对象，绑定到另一个博客用户
         """测试更改OAuth绑定"""
         new_user = BlogUser.objects.create_user(
             username='newuser',
@@ -371,9 +397,11 @@ class OAuthUserBindingTest(TestCase):
 
 
 class OAuthTokenManagementTest(TestCase):
+    # sw: OAuth令牌token管理相关单元测试类
     """测试OAuth token管理业务逻辑"""
 
     def setUp(self):
+        # sw: 初始化博客用户，用于token测试
         """设置测试环境"""
         self.blog_user = BlogUser.objects.create_user(
             username='user',
@@ -382,6 +410,7 @@ class OAuthTokenManagementTest(TestCase):
         )
 
     def test_oauth_token_can_be_updated(self):
+        # sw: 测试OAuth的access token刷新更新
         """测试OAuth token可以更新"""
         oauth_user = OAuthUser.objects.create(
             author=self.blog_user,
@@ -400,6 +429,7 @@ class OAuthTokenManagementTest(TestCase):
         self.assertEqual(oauth_user.token, new_token)
 
     def test_oauth_user_token_storage(self):
+        # sw: 测试token字段存储长字符串，验证字段长度约束
         """测试OAuth token存储"""
         # token字段最大150字符
         long_token = 'a' * 140  # 安全的长度
@@ -416,9 +446,11 @@ class OAuthTokenManagementTest(TestCase):
 
 
 class OAuthUserDeletionTest(TestCase):
+    # sw: OAuth用户删除相关单元测试类
     """测试OAuth用户删除业务逻辑"""
 
     def setUp(self):
+        # sw: 准备博客测试用户
         """设置测试环境"""
         self.blog_user = BlogUser.objects.create_user(
             username='user',
@@ -427,6 +459,7 @@ class OAuthUserDeletionTest(TestCase):
         )
 
     def test_delete_oauth_user(self):
+        # sw: 测试直接删除OAuth绑定记录
         """测试删除OAuth用户"""
         oauth_user = OAuthUser.objects.create(
             author=self.blog_user,
@@ -446,6 +479,7 @@ class OAuthUserDeletionTest(TestCase):
             OAuthUser.objects.get(id=oauth_id)
 
     def test_delete_blog_user_cascade_oauth(self):
+        # sw: 测试级联删除：删除博客主用户，关联OAuth记录一并删除
         """测试删除博客用户级联删除OAuth用户"""
         oauth_user = OAuthUser.objects.create(
             author=self.blog_user,
@@ -467,9 +501,11 @@ class OAuthUserDeletionTest(TestCase):
 
 
 class OAuthMetadataTest(TestCase):
+    # sw: OAuth元数据相关单元测试类
     """测试OAuth元数据业务逻辑"""
 
     def setUp(self):
+        # sw: 准备博客测试用户
         """设置测试环境"""
         self.blog_user = BlogUser.objects.create_user(
             username='user',
@@ -478,6 +514,7 @@ class OAuthMetadataTest(TestCase):
         )
 
     def test_oauth_user_metadata_field(self):
+        # sw: 测试OAuth用户元数据字段存储，头像、简介、位置等附加信息
         """测试OAuth用户元数据字段"""
         metadata = {
             'avatar_url': 'http://example.com/avatar.jpg',
@@ -497,6 +534,7 @@ class OAuthMetadataTest(TestCase):
         self.assertIsNotNone(oauth_user.metadata)
 
     def test_oauth_user_email_field(self):
+        # sw: 测试OAuth返回的邮箱字段存储
         """测试OAuth用户邮箱字段"""
         oauth_email = 'oauth@example.com'
 

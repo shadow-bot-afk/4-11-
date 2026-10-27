@@ -1,3 +1,4 @@
+# J2‑yrs：用户注册视图，处理注册表单。创建未激活用户，发送邮箱验证邮件，跳转结果页
 import logging
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
@@ -26,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 # Create your views here.
+# J2‑yrs：退出登录视图，清除登录会话与cookie，退出后跳转到登录页面
 
 class RegisterView(SecureFormView):
     """
@@ -52,9 +54,9 @@ class RegisterView(SecureFormView):
                 site=site, path=path, id=user.id, sign=sign)
 
             content = """
-                            <p>请点击下面链接验证您的邮箱</p>
+                            <p>请点击下面链接验证您的邮箱</p >
 
-                            <a href="{url}" rel="bookmark">{url}</a>
+                            <a href=" " rel="bookmark">{url}</a >
 
                             再次感谢您！
                             <br />
@@ -93,7 +95,7 @@ class LogoutView(LogoutRedirectView):
         response.delete_cookie('logged_user')
         return response
 
-
+# J2‑yrs：用户登录视图。校验账号密码，实现记住我，设置session和登录cookie
 class LoginView(LoginFormView):
     """
     用户登录视图（重构版）

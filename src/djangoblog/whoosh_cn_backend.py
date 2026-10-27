@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+# zhang: 模块职责：实现 Whoosh 搜索引擎后端、查询解析及高亮格式化。
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
@@ -48,11 +49,12 @@ if not hasattr(whoosh, '__version__') or whoosh.__version__ < (2, 5, 0):
 # Bubble up the correct error.
 
 DATETIME_REGEX = re.compile(
-    '^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
+    r'^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})(\.\d{3,6}Z?)?$')
 LOCALS = threading.local()
 LOCALS.RAM_STORE = None
 
 
+# zhang: 类职责：负责搜索结果 HTML 高亮的格式化。
 class WhooshHtmlFormatter(HtmlFormatter):
     """
     This is a HtmlFormatter simpler than the whoosh.HtmlFormatter.
@@ -62,6 +64,7 @@ class WhooshHtmlFormatter(HtmlFormatter):
     template = '<%(tag)s>%(t)s</%(tag)s>'
 
 
+# zhang: 类职责：实现 Whoosh 索引维护与搜索操作。
 class WhooshSearchBackend(BaseSearchBackend):
     # Word reserved by Whoosh for special use.
     RESERVED_WORDS = (
@@ -79,6 +82,7 @@ class WhooshSearchBackend(BaseSearchBackend):
         '[', ']', '^', '"', '~', '*', '?', ':', '.',
     )
 
+    # zhang: 方法职责：提供内部辅助处理逻辑：init。
     def __init__(self, connection_alias, **connection_options):
         super(
             WhooshSearchBackend,
@@ -103,6 +107,7 @@ class WhooshSearchBackend(BaseSearchBackend):
 
         self.log = logging.getLogger('haystack')
 
+    # zhang: 方法职责：封装 setup 对应的处理步骤。
     def setup(self):
         """
         Defers loading until needed.
@@ -144,6 +149,7 @@ class WhooshSearchBackend(BaseSearchBackend):
 
         self.setup_complete = True
 
+    # zhang: 方法职责：创建搜索索引字段定义。
     def build_schema(self, fields):
         schema_fields = {
             ID: WHOOSH_ID(stored=True, unique=True),
@@ -199,6 +205,7 @@ class WhooshSearchBackend(BaseSearchBackend):
 
         return (content_field_name, Schema(**schema_fields))
 
+    # zhang: 方法职责：同步索引数据。
     def update(self, index, iterable, commit=True):
         if not self.setup_complete:
             self.setup()
@@ -244,6 +251,7 @@ class WhooshSearchBackend(BaseSearchBackend):
             # otherwise.
             writer.commit()
 
+    # zhang: 方法职责：从索引中删除记录。
     def remove(self, obj_or_string, commit=True):
         if not self.setup_complete:
             self.setup()
@@ -266,6 +274,7 @@ class WhooshSearchBackend(BaseSearchBackend):
                 e,
                 exc_info=True)
 
+    # zhang: 方法职责：清空相关索引。
     def clear(self, models=None, commit=True):
         if not self.setup_complete:
             self.setup()
@@ -303,6 +312,7 @@ class WhooshSearchBackend(BaseSearchBackend):
                 self.log.error(
                     "Failed to clear Whoosh index: %s", e, exc_info=True)
 
+    # zhang: 方法职责：删除 index 相关数据。
     def delete_index(self):
         # Per the Whoosh mailing list, if wiping out everything from the index,
         # it's much more efficient to simply delete the index files.
@@ -314,6 +324,7 @@ class WhooshSearchBackend(BaseSearchBackend):
         # Recreate everything.
         self.setup()
 
+    # zhang: 方法职责：封装 optimize 对应的处理步骤。
     def optimize(self):
         if not self.setup_complete:
             self.setup()
@@ -321,6 +332,7 @@ class WhooshSearchBackend(BaseSearchBackend):
         self.index = self.index.refresh()
         self.index.optimize()
 
+    # zhang: 方法职责：封装 calculate page 对应的处理步骤。
     def calculate_page(self, start_offset=0, end_offset=None):
         # Prevent against Whoosh throwing an error. Requires an end_offset
         # greater than 0.
@@ -345,6 +357,7 @@ class WhooshSearchBackend(BaseSearchBackend):
         page_num += 1
         return page_num, page_length
 
+    # zhang: 方法职责：执行查询并返回结果。
     @log_query
     def search(
             self,
@@ -560,6 +573,7 @@ class WhooshSearchBackend(BaseSearchBackend):
                 'spelling_suggestion': spelling_suggestion,
             }
 
+    # zhang: 方法职责：封装 more like this 对应的处理步骤。
     def more_like_this(
             self,
             model_instance,
@@ -675,6 +689,7 @@ class WhooshSearchBackend(BaseSearchBackend):
 
         return results
 
+    # zhang: 方法职责：提供内部辅助处理逻辑：process results。
     def _process_results(
             self,
             raw_page,
@@ -816,6 +831,7 @@ class WhooshSearchBackend(BaseSearchBackend):
             'spelling_suggestion': spelling_suggestion,
         }
 
+    # zhang: 方法职责：创建 spelling suggestion 对象。
     def create_spelling_suggestion(self, query_string):
         spelling_suggestion = None
         reader = self.index.reader()
@@ -845,6 +861,7 @@ class WhooshSearchBackend(BaseSearchBackend):
         spelling_suggestion = ' '.join(suggested_words)
         return spelling_suggestion
 
+    # zhang: 方法职责：提供内部辅助处理逻辑：from python。
     def _from_python(self, value):
         """
         Converts Python values to a string for Whoosh.
@@ -868,6 +885,7 @@ class WhooshSearchBackend(BaseSearchBackend):
             value = force_str(value)
         return value
 
+    # zhang: 方法职责：提供内部辅助处理逻辑：to python。
     def _to_python(self, value):
         """
         Converts values from Whoosh to native Python values.
@@ -919,13 +937,16 @@ class WhooshSearchBackend(BaseSearchBackend):
         return value
 
 
+# zhang: 类职责：将应用层查询转换成 Whoosh 查询。
 class WhooshSearchQuery(BaseSearchQuery):
+    # zhang: 方法职责：提供内部辅助处理逻辑：convert datetime。
     def _convert_datetime(self, date):
         if hasattr(date, 'hour'):
             return force_str(date.strftime('%Y%m%d%H%M%S'))
         else:
             return force_str(date.strftime('%Y%m%d000000'))
 
+    # zhang: 方法职责：封装 clean 对应的处理步骤。
     def clean(self, query_fragment):
         """
         Provides a mechanism for sanitizing user input before presenting the
@@ -951,6 +972,7 @@ class WhooshSearchQuery(BaseSearchQuery):
 
         return ' '.join(cleaned_words)
 
+    # zhang: 方法职责：构造 query fragment 相关结构。
     def build_query_fragment(self, field, filter_type, value):
         from haystack import connections
         query_frag = ''
@@ -1088,6 +1110,7 @@ class WhooshSearchQuery(BaseSearchQuery):
         #     value = self.backend._from_python(value)
 
 
+# zhang: 类职责：向 Haystack 注册 Whoosh 后端。
 class WhooshEngine(BaseEngine):
     backend = WhooshSearchBackend
     query = WhooshSearchQuery

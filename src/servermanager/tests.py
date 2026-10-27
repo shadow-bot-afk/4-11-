@@ -1,5 +1,4 @@
 from django.test import Client, RequestFactory, TestCase
-from django.utils import timezone
 from werobot.messages.messages import TextMessage
 
 from accounts.models import BlogUser

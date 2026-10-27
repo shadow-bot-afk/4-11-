@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+# zhang: 模块职责：集中定义缓存、HTTP 状态与分页配置常量。
 """
 Django Blog 全局常量定义
 包含缓存超时时间、缓存键模板等配置
@@ -8,6 +9,7 @@ Django Blog 全局常量定义
 
 
 # ===== 缓存过期时间（秒）=====
+# zhang: 类职责：组织 CacheTimeout 相关功能与状态。
 class CacheTimeout:
     """
     缓存超时时间常量
@@ -34,6 +36,7 @@ class CacheTimeout:
 
 
 # ===== 缓存键前缀 =====
+# zhang: 类职责：组织 CacheKey 相关功能与状态。
 class CacheKey:
     """
     缓存键模板
@@ -69,6 +72,7 @@ class CacheKey:
 
 
 # ===== HTTP 状态码 =====
+# zhang: 类职责：组织 HttpStatus 相关功能与状态。
 class HttpStatus:
     """HTTP 状态码常量"""
     OK = 200
@@ -86,6 +90,7 @@ class HttpStatus:
 
 
 # ===== 分页配置 =====
+# zhang: 类职责：组织 Pagination 相关功能与状态。
 class Pagination:
     """分页相关常量"""
     DEFAULT_PAGE_SIZE = 10

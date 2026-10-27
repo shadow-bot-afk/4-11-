@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class ArticleListView(CachedListViewMixin, PageNumberMixin, ListView):
+    # GJ: 核心视图类，负责处理文章列表查询、分页及缓存逻辑
     """
     文章列表视图基类（重构版）
 
@@ -50,8 +51,11 @@ class ArticleListView(CachedListViewMixin, PageNumberMixin, ListView):
     page_kwarg = 'page'
     link_type = LinkShowType.L
 
+    # GJ: 获取当前视图的缓存键，基于URL参数生成，用于提升页面加载速度
     def get_view_cache_key(self):
         return self.request.get['pages']
+
+        # GJ: 获取并组装传递给前端模板的上下文数据，额外注入链接类型参数
 
     def get_context_data(self, **kwargs):
         kwargs['linktype'] = self.link_type
@@ -144,31 +148,31 @@ class ArticleDetailView(DetailView):
 
         context = super(ArticleDetailView, self).get_context_data(**kwargs)
         article = self.object
-        
+
         # 添加基础SEO数据
         blog_setting = get_blog_setting()
         from django.utils.html import strip_tags
         from django.utils.text import Truncator
         from djangoblog.utils import CommonMarkdown
-        
+
         # 处理description：markdown -> HTML -> 纯文本，彻底去除格式
         html_content = CommonMarkdown.get_markdown(article.body)
         description = strip_tags(html_content)
         description = ' '.join(description.split())  # 规范化空白字符
         description = Truncator(description).chars(150, truncate='...')
-        
+
         # 处理keywords：去除空格，用逗号分隔
         tags = [tag.name.strip() for tag in article.tags.all()]
         keywords = ", ".join(tags) if tags else blog_setting.site_keywords
-        
+
         context['seo_title'] = f"{article.title} | {blog_setting.site_name}"
         context['seo_description'] = description
         context['seo_keywords'] = keywords
-        
+
         # 触发文章详情加载钩子，让插件可以添加额外的上下文数据
         from djangoblog.plugin_manage.hook_constants import ARTICLE_DETAIL_LOAD
         hooks.run_action(ARTICLE_DETAIL_LOAD, article=article, context=context, request=self.request)
-        
+
         # Action Hook, 通知插件"文章详情已获取"
         hooks.run_action('after_article_body_get', article=article, request=self.request)
         return context
@@ -210,14 +214,14 @@ class CategoryDetailView(SlugCachedMixin, OptimizedArticleQueryMixin, ArticleLis
 
         kwargs['page_type'] = CategoryDetailView.page_type
         kwargs['tag_name'] = categoryname
-        
+
         # 添加基础SEO数据
         blog_setting = get_blog_setting()
         article_count = self.get_queryset().count()
         kwargs['seo_title'] = f"{categoryname} | {blog_setting.site_name}"
         kwargs['seo_description'] = f"浏览 {categoryname} 分类下的所有文章，共 {article_count} 篇文章。"
         kwargs['seo_keywords'] = f"{categoryname}, {blog_setting.site_keywords}"
-        
+
         return super(CategoryDetailView, self).get_context_data(**kwargs)
 
 
@@ -244,14 +248,14 @@ class AuthorDetailView(OptimizedArticleQueryMixin, ArticleListView):
         author_name = self.kwargs['author_name']
         kwargs['page_type'] = AuthorDetailView.page_type
         kwargs['tag_name'] = author_name
-        
+
         # 添加基础SEO数据
         blog_setting = get_blog_setting()
         article_count = self.get_queryset().count()
         kwargs['seo_title'] = f"{author_name} 的文章 | {blog_setting.site_name}"
         kwargs['seo_description'] = f"浏览 {author_name} 发表的所有文章，共 {article_count} 篇。"
         kwargs['seo_keywords'] = f"{author_name}, {blog_setting.site_keywords}"
-        
+
         return super(AuthorDetailView, self).get_context_data(**kwargs)
 
 
@@ -282,14 +286,14 @@ class TagDetailView(SlugCachedMixin, OptimizedArticleQueryMixin, ArticleListView
         tag = self.get_slug_object()
         kwargs['page_type'] = TagDetailView.page_type
         kwargs['tag_name'] = tag.name
-        
+
         # 添加基础SEO数据
         blog_setting = get_blog_setting()
         article_count = self.get_queryset().count()
         kwargs['seo_title'] = f"{tag.name} | {blog_setting.site_name}"
         kwargs['seo_description'] = f"浏览所有关于 {tag.name} 的文章，共 {article_count} 篇内容。"
         kwargs['seo_keywords'] = f"{tag.name}, {blog_setting.site_keywords}"
-        
+
         return super(TagDetailView, self).get_context_data(**kwargs)
 
 
