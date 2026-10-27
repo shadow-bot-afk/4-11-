@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_redirecturl(request):
+    # sw: 获取登录成功后的跳转地址，做url安全校验，防止恶意跳转
     nexturl = request.GET.get('next_url', None)
     if not nexturl or nexturl == '/login/' or nexturl == '/login':
         return '/'
@@ -46,6 +47,7 @@ def get_redirecturl(request):
 
 
 def oauthlogin(request):
+    # sw: 第三方登录入口，获取对应平台管理器，跳转至第三方授权页面
     type = request.GET.get('type', None)
     if not type:
         return HttpResponseRedirect('/')
@@ -58,6 +60,7 @@ def oauthlogin(request):
 
 
 def authorize(request):
+    # sw: 第三方授权回调接口，接收授权码code，换取用户信息
     type = request.GET.get('type', None)
     if not type:
         return HttpResponseRedirect('/')
@@ -141,6 +144,7 @@ def authorize(request):
 
 
 def emailconfirm(request, id, sign):
+    # sw: 邮箱确认接口，校验签名，完成第三方账号绑定并登录
     if not sign:
         return HttpResponseForbidden()
     if not get_sha256(settings.SECRET_KEY +
@@ -198,10 +202,12 @@ def emailconfirm(request, id, sign):
 
 
 class RequireEmailView(FormView):
+    # sw: 第三方登录缺少邮箱时，展示填写邮箱表单页面
     form_class = RequireEmailForm
     template_name = 'oauth/require_email.html'
 
     def get(self, request, *args, **kwargs):
+        # sw: get方法，根据传入oauthid获取对应的第三方用户记录
         oauthid = self.kwargs['oauthid']
         oauthuser = get_object_or_404(OAuthUser, pk=oauthid)
         if oauthuser.email:
@@ -211,6 +217,7 @@ class RequireEmailView(FormView):
         return super(RequireEmailView, self).get(request, *args, **kwargs)
 
     def get_initial(self):
+        # sw: 给表单设置初始数据
         oauthid = self.kwargs['oauthid']
         return {
             'email': '',
@@ -218,6 +225,7 @@ class RequireEmailView(FormView):
         }
 
     def get_context_data(self, **kwargs):
+        # sw: 往模板上下文传入第三方用户头像
         oauthid = self.kwargs['oauthid']
         oauthuser = get_object_or_404(OAuthUser, pk=oauthid)
         if oauthuser.picture:
@@ -225,6 +233,7 @@ class RequireEmailView(FormView):
         return super(RequireEmailView, self).get_context_data(**kwargs)
 
     def form_valid(self, form):
+        # sw: 表单提交校验通过，保存邮箱、生成校验签名，构造确认链接
         email = form.cleaned_data['email']
         oauthid = form.cleaned_data['oauthid']
         oauthuser = get_object_or_404(OAuthUser, pk=oauthid)
@@ -261,6 +270,7 @@ class RequireEmailView(FormView):
 
 
 def bindsuccess(request, oauthid):
+    # sw: 账号绑定成功展示页面，区分邮箱待确认和绑定完成两种提示
     type = request.GET.get('type', None)
     oauthuser = get_object_or_404(OAuthUser, pk=oauthid)
     if type == 'email':

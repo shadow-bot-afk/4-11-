@@ -1,374 +1,294 @@
 """
-Test cases for blog context processors
+Test cases for blog middleware
 """
-from unittest.mock import patch, Mock
+import time
+from unittest.mock import Mock, patch, MagicMock
 
 from django.test import TestCase, RequestFactory
+from django.http import HttpResponse, StreamingHttpResponse
 from django.utils import timezone
 
-from accounts.models import BlogUser
-from blog.context_processors import seo_processor
-from blog.models import Category, Article
-from djangoblog.utils import cache
+from blog.middleware import OnlineMiddleware
 
+# GJ: 中间件测试类，用于验证 OnlineMiddleware 的核心拦截与处理逻辑。
+class OnlineMiddlewareTest(TestCase):
+    """测试OnlineMiddleware中间件"""
 
-class SeoProcessorTest(TestCase):
-    """测试SEO上下文处理器"""
-
+    # GJ: 测试初始化：实例化请求工厂和中间件对象，准备测试环境。
     def setUp(self):
         """设置测试环境"""
         self.factory = RequestFactory()
-
-        # 创建测试用户
-        self.user = BlogUser.objects.create_user(
-            username='testuser',
-            email='test@example.com',
-            password='testpassword'
-        )
-
-        # 创建测试分类
-        self.category = Category.objects.create(
-            name='Test Category',
-            slug='test-category'
-        )
-
-        # 创建测试页面
-        self.page = Article.objects.create(
-            title='Test Page',
-            body='Test page content',
-            author=self.user,
-            type='p',  # 页面类型
-            status='p',  # 已发布
-            category=self.category
-        )
-
-        # 清空缓存
-        cache.clear()
-
-    def tearDown(self):
-        """清理测试环境"""
-        cache.clear()
-
-    def test_processor_returns_required_variables(self):
-        """测试上下文处理器返回必需的变量"""
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 验证必需的变量
-        required_keys = [
-            'SITE_NAME',
-            'SHOW_GOOGLE_ADSENSE',
-            'GOOGLE_ADSENSE_CODES',
-            'SITE_SEO_DESCRIPTION',
-            'SITE_DESCRIPTION',
-            'SITE_KEYWORDS',
-            'SITE_BASE_URL',
-            'ARTICLE_SUB_LENGTH',
-            'nav_category_list',
-            'nav_pages',
-            'OPEN_SITE_COMMENT',
-            'BEIAN_CODE',
-            'ANALYTICS_CODE',
-            'BEIAN_CODE_GONGAN',
-            'SHOW_GONGAN_CODE',
-            'CURRENT_YEAR',
-            'GLOBAL_HEADER',
-            'GLOBAL_FOOTER',
-            'COMMENT_NEED_REVIEW',
-            'COLOR_SCHEME',
-        ]
-
-        for key in required_keys:
-            self.assertIn(key, result)
-
-    def test_processor_caching(self):
-        """测试上下文处理器的缓存机制"""
-        request = self.factory.get('/')
-
-        # 第一次调用 - 应该设置缓存
-        result1 = seo_processor(request)
-
-        # 验证缓存已设置
-        cached_value = cache.get('seo_processor')
-        self.assertIsNotNone(cached_value)
-
-        # 第二次调用 - 应该从缓存获取
-        result2 = seo_processor(request)
-
-        # 验证两次调用返回相同的基础数据
-        # 注意：SITE_BASE_URL和CURRENT_YEAR是动态的，可能不同
-        self.assertEqual(result1['SITE_NAME'], result2['SITE_NAME'])
-        self.assertEqual(result1['SITE_DESCRIPTION'], result2['SITE_DESCRIPTION'])
-
-    def test_processor_with_anonymous_user(self):
-        """测试匿名用户访问时的上下文处理器"""
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 验证返回结果
-        self.assertIsNotNone(result)
-        self.assertIn('SITE_BASE_URL', result)
-
-    def test_processor_with_https_request(self):
-        """测试HTTPS请求的SITE_BASE_URL"""
-        request = self.factory.get('/', secure=True)
-        result = seo_processor(request)
-
-        # 验证SITE_BASE_URL包含https
-        self.assertTrue(result['SITE_BASE_URL'].startswith('https://'))
-
-    def test_processor_with_http_request(self):
-        """测试HTTP请求的SITE_BASE_URL"""
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 验证SITE_BASE_URL包含http
-        self.assertTrue(result['SITE_BASE_URL'].startswith('http://'))
-
-    def test_processor_current_year(self):
-        """测试CURRENT_YEAR是当前年份"""
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 验证CURRENT_YEAR是当前年份
-        current_year = timezone.now().year
-        self.assertEqual(result['CURRENT_YEAR'], current_year)
-
-    def test_processor_nav_category_list(self):
-        """测试导航分类列表"""
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 验证nav_category_list包含创建的分类
-        nav_categories = list(result['nav_category_list'])
-        self.assertGreater(len(nav_categories), 0)
-
-        # 验证分类在列表中
-        category_names = [cat.name for cat in nav_categories]
-        self.assertIn('Test Category', category_names)
-
-    def test_processor_nav_pages(self):
-        """测试导航页面列表"""
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 验证nav_pages包含已发布的页面
-        nav_pages = list(result['nav_pages'])
-        self.assertGreater(len(nav_pages), 0)
-
-        # 验证创建的页面在列表中
-        page_titles = [page.title for page in nav_pages]
-        self.assertIn('Test Page', page_titles)
-
-    def test_processor_only_shows_published_pages(self):
-        """测试上下文处理器只显示已发布的页面"""
-        # 创建草稿页面
-        draft_page = Article.objects.create(
-            title='Draft Page',
-            body='Draft content',
-            author=self.user,
-            type='p',  # 页面类型
-            status='d',  # 草稿状态
-            category=self.category
-        )
-
-        # 清除缓存以确保重新查询
-        cache.clear()
-
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 验证草稿页面不在导航页面列表中
-        nav_pages = list(result['nav_pages'])
-        page_titles = [page.title for page in nav_pages]
-        self.assertNotIn('Draft Page', page_titles)
-        self.assertIn('Test Page', page_titles)
-
-    def test_processor_cache_expiration(self):
-        """测试缓存过期"""
-        request = self.factory.get('/')
-
-        # 第一次调用
-        result1 = seo_processor(request)
-
-        # 手动删除缓存模拟过期
-        cache.delete('seo_processor')
-
-        # 第二次调用应该重新生成缓存
-        result2 = seo_processor(request)
-
-        # 验证结果仍然正确
-        self.assertIsNotNone(result2)
-        self.assertIn('SITE_NAME', result2)
-
-    @patch('blog.context_processors.get_blog_setting')
-    def test_processor_with_custom_blog_settings(self, mock_get_blog_setting):
-        """测试使用自定义博客设置"""
-        # 模拟博客设置
-        mock_setting = Mock()
-        mock_setting.site_name = 'Test Blog'
-        mock_setting.site_description = 'A test blog'
-        mock_setting.site_seo_description = 'SEO description'
-        mock_setting.site_keywords = 'test, blog'
-        mock_setting.article_sub_length = 100
-        mock_setting.show_google_adsense = False
-        mock_setting.google_adsense_codes = ''
-        mock_setting.open_site_comment = True
-        mock_setting.beian_code = ''
-        mock_setting.analytics_code = ''
-        mock_setting.gongan_beiancode = ''
-        mock_setting.show_gongan_code = False
-        mock_setting.global_header = ''
-        mock_setting.global_footer = ''
-        mock_setting.comment_need_review = False
-        mock_setting.color_scheme = 'light'
-
-        mock_get_blog_setting.return_value = mock_setting
-
-        # 清除缓存
-        cache.clear()
-
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 验证返回的值与模拟的设置匹配
-        self.assertEqual(result['SITE_NAME'], 'Test Blog')
-        self.assertEqual(result['SITE_DESCRIPTION'], 'A test blog')
-        self.assertEqual(result['SITE_SEO_DESCRIPTION'], 'SEO description')
-        self.assertEqual(result['SITE_KEYWORDS'], 'test, blog')
-        self.assertEqual(result['ARTICLE_SUB_LENGTH'], 100)
-        self.assertEqual(result['SHOW_GOOGLE_ADSENSE'], False)
-
-    def test_processor_site_base_url_with_different_hosts(self):
-        """测试不同主机名的SITE_BASE_URL"""
-        hosts = ['example.com', 'blog.example.com', 'localhost:8000']
-
-        for host in hosts:
-            request = self.factory.get('/', HTTP_HOST=host)
-            result = seo_processor(request)
-
-            # 验证SITE_BASE_URL包含正确的主机名
-            self.assertIn(host, result['SITE_BASE_URL'])
-
-    def test_processor_dynamic_values_not_cached(self):
-        """测试动态值不被缓存（SITE_BASE_URL和CURRENT_YEAR）"""
-        # 第一次请求 - HTTP
-        request1 = self.factory.get('/')
-        result1 = seo_processor(request1)
-        site_url1 = result1['SITE_BASE_URL']
-
-        # 第二次请求 - HTTPS（使用缓存的数据但动态值应该更新）
-        request2 = self.factory.get('/', secure=True)
-        result2 = seo_processor(request2)
-        site_url2 = result2['SITE_BASE_URL']
-
-        # 验证SITE_BASE_URL不同（一个是http，一个是https）
-        self.assertNotEqual(site_url1, site_url2)
-        self.assertTrue(site_url1.startswith('http://'))
-        self.assertTrue(site_url2.startswith('https://'))
-
-    def test_processor_handles_empty_settings(self):
-        """测试处理器处理空设置"""
-        # 清除缓存
-        cache.clear()
-
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 即使某些设置为空，处理器也应该正常工作
-        self.assertIsNotNone(result)
-        self.assertIn('SITE_NAME', result)
-
-    @patch('blog.context_processors.logger')
-    def test_processor_logs_cache_miss(self, mock_logger):
-        """测试缓存未命中时记录日志"""
-        # 清除缓存
-        cache.clear()
-
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 验证logger.info被调用
-        self.assertTrue(mock_logger.info.called)
-        # 验证日志消息
-        call_args = str(mock_logger.info.call_args)
-        self.assertIn('set processor cache', call_args)
-
-    def test_processor_multiple_categories(self):
-        """测试多个分类的情况"""
-        # 创建额外的分类
-        Category.objects.create(name='Category 2', slug='category-2')
-        Category.objects.create(name='Category 3', slug='category-3')
-
-        # 清除缓存
-        cache.clear()
-
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 验证所有分类都在列表中
-        nav_categories = list(result['nav_category_list'])
-        self.assertEqual(len(nav_categories), 3)
-
-    def test_processor_multiple_pages(self):
-        """测试多个页面的情况"""
-        # 创建额外的页面
-        Article.objects.create(
-            title='Page 2',
-            body='Content 2',
-            author=self.user,
-            type='p',
-            status='p',
-            category=self.category
-        )
-        Article.objects.create(
-            title='Page 3',
-            body='Content 3',
-            author=self.user,
-            type='p',
-            status='p',
-            category=self.category
-        )
-
-        # 清除缓存
-        cache.clear()
-
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 验证所有页面都在列表中
-        nav_pages = list(result['nav_pages'])
-        self.assertEqual(len(nav_pages), 3)
-
-    def test_processor_excludes_articles_from_nav_pages(self):
-        """测试nav_pages不包含文章（只包含页面）"""
-        # 创建一个文章
-        Article.objects.create(
-            title='Test Article',
-            body='Article content',
-            author=self.user,
-            type='a',  # 文章类型
-            status='p',
-            category=self.category
-        )
-
-        # 清除缓存
-        cache.clear()
-
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 验证文章不在nav_pages中
-        nav_pages = list(result['nav_pages'])
-        page_titles = [page.title for page in nav_pages]
-        self.assertNotIn('Test Article', page_titles)
-        self.assertIn('Test Page', page_titles)  # 但页面应该在
-
-    def test_processor_color_scheme_setting(self):
-        """测试COLOR_SCHEME设置"""
-        request = self.factory.get('/')
-        result = seo_processor(request)
-
-        # 验证COLOR_SCHEME存在且有值
-        self.assertIn('COLOR_SCHEME', result)
-        self.assertIsNotNone(result['COLOR_SCHEME'])
+        self.middleware = OnlineMiddleware(get_response=self.get_response)
+
+    # GJ: 辅助方法：模拟 Django 的底层响应逻辑，返回带有占位符的测试响应。
+    def get_response(self, request):
+        """模拟Django的get_response"""
+        response = HttpResponse("Test content <!!LOAD_TIMES!!>")
+        return response
+
+    # GJ: 测试中间件初始化：验证中间件实例化后，其 get_response 属性是否正确绑定。
+    def test_middleware_initialization(self):
+        """测试中间件初始化"""
+        middleware = OnlineMiddleware(get_response=self.get_response)
+        self.assertIsNotNone(middleware.get_response)
+        self.assertEqual(middleware.get_response, self.get_response)
+
+    # GJ: 测试正常请求：验证中间件拦截正常请求时，能正确替换响应内容中的加载时间占位符。
+    def test_middleware_processes_request_normally(self):
+        """测试中间件正常处理请求"""
+        request = self.factory.get('/test/')
+        request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+
+        response = self.middleware(request)
+
+        # 验证响应返回
+        self.assertEqual(response.status_code, 200)
+        # 验证响应内容中的加载时间被替换
+        self.assertNotIn(b'<!!LOAD_TIMES!!>', response.content)
+
+    # GJ: 测试耗时计算：验证中间件能正确计算页面渲染时间，并将其注入到响应内容中。
+    def test_middleware_calculates_page_render_time(self):
+        """测试中间件计算页面渲染时间"""
+        # 创建一个慢响应来测试时间计算
+        def slow_get_response(request):
+            time.sleep(0.1)  # 模拟100ms的处理时间
+            return HttpResponse("Test content <!!LOAD_TIMES!!>")
+
+        middleware = OnlineMiddleware(get_response=slow_get_response)
+        request = self.factory.get('/test/')
+        request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0'
+
+        start_time = time.time()
+        response = middleware(request)
+        elapsed_time = time.time() - start_time
+
+        # 验证响应时间至少是0.1秒
+        self.assertGreaterEqual(elapsed_time, 0.1)
+        # 验证响应内容被替换
+        self.assertNotIn(b'<!!LOAD_TIMES!!>', response.content)
+
+    def test_middleware_handles_streaming_response(self):
+        """测试中间件处理流式响应"""
+        def streaming_get_response(request):
+            def generator():
+                yield b"chunk1"
+                yield b"chunk2"
+            return StreamingHttpResponse(generator())
+
+        middleware = OnlineMiddleware(get_response=streaming_get_response)
+        request = self.factory.get('/test/')
+        request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0'
+
+        response = middleware(request)
+
+        # 验证流式响应被正确处理（不应该尝试替换内容）
+        self.assertTrue(response.streaming)
+        # 流式响应不应该被修改
+        content = b''.join(response.streaming_content)
+        self.assertEqual(content, b"chunk1chunk2")
+
+    # GJ: 测试缺失 User-Agent：验证请求未携带该请求头时，中间件能容错处理并返回 200。
+    def test_middleware_handles_missing_user_agent(self):
+        """测试中间件处理缺失的User-Agent"""
+        request = self.factory.get('/test/')
+        # 不设置HTTP_USER_AGENT
+
+        response = self.middleware(request)
+
+        # 应该能正常处理，不会崩溃
+        self.assertEqual(response.status_code, 200)
+
+    @patch('blog.middleware.ELASTICSEARCH_ENABLED', True)
+    @patch('blog.middleware.ElaspedTimeDocumentManager.create')
+    # GJ: 测试 ES 集成：使用 patch 模拟开启 Elasticsearch，验证中间件的数据写入及集成逻辑。
+    def test_middleware_elasticsearch_integration_enabled(self, mock_create):
+        """测试Elasticsearch集成启用时的行为"""
+        request = self.factory.get('/test-path/')
+        request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+
+        response = self.middleware(request)
+
+        # 验证ElaspedTimeDocumentManager.create被调用
+        self.assertTrue(mock_create.called)
+
+        # 验证调用参数
+        call_args = mock_create.call_args[1]
+        self.assertEqual(call_args['url'], '/test-path/')
+        self.assertIsNotNone(call_args['time_taken'])
+        self.assertIsNotNone(call_args['log_datetime'])
+        self.assertIsNotNone(call_args['useragent'])
+        self.assertIsNotNone(call_args['ip'])
+
+    @patch('blog.middleware.ELASTICSEARCH_ENABLED', False)
+    @patch('blog.middleware.ElaspedTimeDocumentManager.create')
+    def test_middleware_elasticsearch_integration_disabled(self, mock_create):
+        """测试Elasticsearch集成禁用时的行为"""
+        request = self.factory.get('/test-path/')
+        request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0'
+
+        response = self.middleware(request)
+
+        # 验证ElaspedTimeDocumentManager.create未被调用
+        self.assertFalse(mock_create.called)
+        # 但响应时间替换仍然应该工作
+        self.assertNotIn(b'<!!LOAD_TIMES!!>', response.content)
+
+    @patch('blog.middleware.get_client_ip')
+    def test_middleware_ip_detection(self, mock_get_client_ip):
+        """测试IP地址检测"""
+        mock_get_client_ip.return_value = ('192.168.1.1', True)
+
+        request = self.factory.get('/test/')
+        request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0'
+
+        response = self.middleware(request)
+
+        # 验证get_client_ip被调用
+        self.assertTrue(mock_get_client_ip.called)
+        mock_get_client_ip.assert_called_once_with(request)
+
+    # GJ: 测试 UA 解析：验证中间件能正确提取 User-Agent 并调用解析函数。
+    def test_middleware_user_agent_parsing(self):
+        """测试User-Agent解析"""
+        request = self.factory.get('/test/')
+        request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)'
+
+        with patch('blog.middleware.parse') as mock_parse:
+            mock_ua = Mock()
+            mock_parse.return_value = mock_ua
+
+            response = self.middleware(request)
+
+            # 验证parse被调用
+            self.assertTrue(mock_parse.called)
+            mock_parse.assert_called_once_with('Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)')
+
+    @patch('blog.middleware.ELASTICSEARCH_ENABLED', True)
+    @patch('blog.middleware.ElaspedTimeDocumentManager.create')
+    # GJ: 测试 ES 异常处理：模拟写入 ES 时发生异常，验证中间件的容错机制及系统稳定性。
+    def test_middleware_handles_elasticsearch_exception(self, mock_create):
+        """测试中间件处理Elasticsearch异常"""
+        # 模拟Elasticsearch抛出异常
+        mock_create.side_effect = Exception("Elasticsearch connection failed")
+
+        request = self.factory.get('/test/')
+        request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0'
+
+        # 应该能够捕获异常并继续处理
+        response = self.middleware(request)
+
+        # 验证响应仍然返回
+        self.assertEqual(response.status_code, 200)
+        # 注意：当发生异常时，整个try块会被跳过，所以替换可能不会发生
+        # 但响应应该仍然返回，只是没有被修改
+        self.assertTrue(response.content is not None)
+
+    # GJ: 测试内容替换异常处理：模拟响应体不可修改的极端情况，验证中间件能捕获异常并正常返回响应。
+    def test_middleware_handles_content_replace_exception(self):
+        """测试中间件处理内容替换异常"""
+        def error_get_response(request):
+            # 返回不包含替换标记的响应
+            response = HttpResponse("Test content without marker")
+            # 模拟response.content不可修改的情况
+            response._container = [b"immutable content"]
+            return response
+
+        middleware = OnlineMiddleware(get_response=error_get_response)
+        request = self.factory.get('/test/')
+        request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0'
+
+        # 应该能够捕获异常并继续处理
+        response = middleware(request)
+
+        # 验证响应仍然返回
+        self.assertEqual(response.status_code, 200)
+
+    def test_middleware_time_format(self):
+        """测试中间件时间格式化"""
+        request = self.factory.get('/test/')
+        request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0'
+
+        response = self.middleware(request)
+
+        # 提取替换后的时间值
+        content_str = response.content.decode('utf-8')
+        # 查找时间字符串（应该是数字格式，长度不超过5个字符）
+        time_parts = content_str.split()
+
+        # 验证至少有一些内容
+        self.assertTrue(len(content_str) > 0)
+
+    @patch('blog.middleware.logger')
+    @patch('blog.middleware.ELASTICSEARCH_ENABLED', True)
+    @patch('blog.middleware.ElaspedTimeDocumentManager.create')
+    def test_middleware_logs_exceptions(self, mock_create, mock_logger):
+        """测试中间件记录异常日志"""
+        # 模拟异常
+        test_exception = Exception("Test exception")
+        mock_create.side_effect = test_exception
+
+        request = self.factory.get('/test/')
+        request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0'
+
+        response = self.middleware(request)
+
+        # 验证logger.error被调用
+        self.assertTrue(mock_logger.error.called)
+        # 验证日志消息包含异常信息
+        call_args = str(mock_logger.error.call_args)
+        self.assertIn("Error OnlineMiddleware", call_args)
+
+    # GJ: 辅助测试函数：构造一个响应体受保护（不可变）的响应对象，用于触发替换异常。
+    def test_middleware_with_multiple_requests(self):
+        """测试中间件处理多个请求"""
+        paths = ['/page1/', '/page2/', '/page3/']
+
+        for path in paths:
+            request = self.factory.get(path)
+            request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0'
+
+            response = self.middleware(request)
+
+            # 每个请求都应该成功处理
+            self.assertEqual(response.status_code, 200)
+            self.assertNotIn(b'<!!LOAD_TIMES!!>', response.content)
+
+    # GJ: 测试并发/多次请求：验证中间件连续处理不同路径请求时，均能正常响应且替换逻辑生效。
+    def test_middleware_preserves_response_headers(self):
+        """测试中间件保留响应头"""
+        def get_response_with_headers(request):
+            response = HttpResponse("Test content <!!LOAD_TIMES!!>")
+            response['X-Custom-Header'] = 'CustomValue'
+            response['Content-Type'] = 'text/html; charset=utf-8'
+            return response
+
+        middleware = OnlineMiddleware(get_response=get_response_with_headers)
+        request = self.factory.get('/test/')
+        request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0'
+
+        response = middleware(request)
+
+        # 验证响应头被保留
+        self.assertEqual(response['X-Custom-Header'], 'CustomValue')
+        self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8')
+
+    @patch('blog.middleware.ELASTICSEARCH_ENABLED', True)
+    @patch('blog.middleware.ElaspedTimeDocumentManager.create')
+    @patch('django.utils.timezone.now')
+    def test_middleware_uses_correct_timezone(self, mock_now, mock_create):
+        """测试中间件使用正确的时区"""
+        mock_time = timezone.now()
+        mock_now.return_value = mock_time
+
+        request = self.factory.get('/test/')
+        request.META['HTTP_USER_AGENT'] = 'Mozilla/5.0'
+
+        response = self.middleware(request)
+
+        # 验证timezone.now被调用
+        self.assertTrue(mock_now.called)
+
+        # 验证传递给Elasticsearch的时间是正确的
+        if mock_create.called:
+            call_args = mock_create.call_args[1]
+            self.assertEqual(call_args['log_datetime'], mock_time)

@@ -1,0 +1,16 @@
+﻿原文件,原始行数,新增zhang注释,输出文件,AST对比,语法检查
+test_plugins.py,249,35,test_plugins_zhang_注释版.txt,一致,通过
+tests.py,32,4,tests_zhang_注释版.txt,一致,通过
+whoosh_cn_backend.py,1093,23,whoosh_cn_backend_zhang_注释版.txt,一致,通过
+__init__.py,1,1,__init___zhang_注释版.txt,一致,通过
+admin_site.py,60,4,admin_site_zhang_注释版.txt,一致,通过
+constants.py,93,5,constants_zhang_注释版.txt,一致,通过
+elasticsearch_backend.py,206,22,elasticsearch_backend_zhang_注释版.txt,一致,通过
+feeds.py,40,10,feeds_zhang_注释版.txt,一致,通过
+logentryadmin.py,91,9,logentryadmin_zhang_注释版.txt,一致,通过
+mixins.py,285,16,mixins_zhang_注释版.txt,一致,通过
+sitemap.py,59,16,sitemap_zhang_注释版.txt,一致,通过
+spider_notify.py,21,4,spider_notify_zhang_注释版.txt,一致,通过
+test_base.py,284,7,test_base_zhang_注释版.txt,一致,通过
+test_email_integration.py,625,26,test_email_integration_zhang_注释版.txt,一致,通过
+test_email_integration_complete.py,605,16,test_email_integration_complete_zhang_注释版.txt,一致,通过

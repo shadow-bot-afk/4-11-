@@ -1,3 +1,4 @@
+# zhang: 模块职责：封装测试用例公共准备逻辑和外部服务模拟工具。
 """
 可复用的测试基类和工具
 提供通用的测试数据创建和断言方法
@@ -11,12 +12,14 @@ from blog.models import Article, Category, Tag, BlogSettings
 from comments.models import Comment
 
 
+# zhang: 类职责：提供测试公共初始化和辅助断言。
 class BaseTestCase(TestCase):
     """
     通用测试基类
     提供常用的测试数据创建方法
     """
 
+    # zhang: 方法职责：准备测试数据与依赖。
     def setUp(self):
         self.client = Client()
         self.factory = RequestFactory()
@@ -134,6 +137,7 @@ class BaseTestCase(TestCase):
         self.assertIn(response.status_code, [403, 302])
 
 
+# zhang: 类职责：复用视图请求的测试辅助逻辑。
 class ViewTestMixin:
     """
     视图测试混入类
@@ -177,6 +181,7 @@ class ViewTestMixin:
         return response
 
 
+# zhang: 类职责：复用后台页面的测试辅助逻辑。
 class AdminTestMixin:
     """
     Admin 测试混入类
@@ -212,6 +217,7 @@ class AdminTestMixin:
         return response
 
 
+# zhang: 类职责：复用插件功能的测试辅助逻辑。
 class PluginTestMixin:
     """
     插件测试混入类
@@ -244,6 +250,7 @@ class PluginTestMixin:
             os.environ[key] = str(value)
 
 
+# zhang: 类职责：模拟外部系统，隔离网络依赖。
 class MockExternalService:
     """
     外部服务 Mock 工具

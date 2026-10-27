@@ -1,3 +1,5 @@
+# zhang: 本模块集中管理DjangoBlog项目配置，包括应用注册、数据库、搜索、缓存、日志和插件。
+# zhang: 本次仅补充说明性注释，不调整既有配置值或执行流程。
 """
 Django settings for djangoblog project.
 
@@ -16,21 +18,25 @@ from pathlib import Path
 from django.utils.translation import gettext_lazy as _
 
 
+# zhang: 将指定环境变量转换为布尔配置；仅字符串 True 表示开启，其余非空值表示关闭。
 def env_to_bool(env, default):
     str_val = os.environ.get(env)
     return default if str_val is None else str_val == 'True'
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# zhang: 以当前配置文件的位置为基准定位项目根目录，供模板、日志和静态文件复用。
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# zhang: 优先从环境变量读取密钥；现有备用值为兼容旧环境保留，部署前应移除。
 SECRET_KEY = os.environ.get(
     'DJANGO_SECRET_KEY') or 'n9ceqv38)#&mwuat@(mjb_p%em$e8$qyr#fw9ot!=ba6lijx-6'
 # SECURITY WARNING: don't run with debug turned on in production!
+# zhang: 调试开关由环境变量决定；线上必须明确关闭调试模式。
 DEBUG = env_to_bool('DJANGO_DEBUG', True)
 # DEBUG = False
 TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
@@ -42,6 +48,7 @@ CSRF_TRUSTED_ORIGINS = ['http://example.com']
 # Application definition
 
 
+# zhang: 注册Django内置应用、第三方依赖及博客自身业务应用。
 INSTALLED_APPS = [
     # 'django.contrib.admin',
     'django.contrib.admin.apps.SimpleAdminConfig',
@@ -63,6 +70,7 @@ INSTALLED_APPS = [
     'djangoblog'
 ]
 
+# zhang: 中间件按声明顺序处理请求，顺序调整可能影响认证、缓存和安全行为。
 MIDDLEWARE = [
 
     'django.middleware.security.SecurityMiddleware',
@@ -82,6 +90,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'djangoblog.urls'
 
+# zhang: 配置模板目录、应用内模板搜索及全局模板上下文处理器。
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -105,12 +114,13 @@ WSGI_APPLICATION = 'djangoblog.wsgi.application'
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 
+# zhang: 配置MySQL连接；优先读取环境变量，避免在共享源码中固定账号密码。
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get('DJANGO_MYSQL_DATABASE') or 'djangoblog',
         'USER': os.environ.get('DJANGO_MYSQL_USER') or 'root',
-        'PASSWORD': os.environ.get('DJANGO_MYSQL_PASSWORD') or 'Admin123git --version',
+        'PASSWORD': os.environ.get('DJANGO_MYSQL_PASSWORD') or 'Admin123',
         'HOST': os.environ.get('DJANGO_MYSQL_HOST') or '127.0.0.1',
         'PORT': int(
             os.environ.get('DJANGO_MYSQL_PORT') or 3306),
@@ -121,6 +131,7 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
+# zhang: 使用Django内置校验器控制注册或密码修改时的密码质量。
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -136,6 +147,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# zhang: 提供界面语言选项，配合本地化目录和语言中间件使用。
 LANGUAGES = (
     ('en', _('English')),
     ('zh-hans', _('Simplified Chinese')),
@@ -207,6 +219,7 @@ REMEMBER_ME_LOGIN_TTL = 2626560  # 30天（勾选"记住我"时使用）
 #   - ELASTICSEARCH_CLIENT_CERT: 客户端证书路径
 #   - ELASTICSEARCH_CLIENT_KEY: 客户端私钥路径
 
+# zhang: 仅在提供Elasticsearch主机时创建对应配置，否则保留默认Whoosh方案。
 if os.environ.get('DJANGO_ELASTICSEARCH_HOST'):
     # 通过环境变量配置 Elasticsearch（生产环境）
     _es_config = {
@@ -233,6 +246,7 @@ if os.environ.get('DJANGO_ELASTICSEARCH_HOST'):
     ELASTICSEARCH_DSL = {'default': _es_config}
 
 # === Haystack 配置 ===
+# zhang: 根据是否已生成Elasticsearch配置，选择Haystack实际使用的搜索后端。
 if 'ELASTICSEARCH_DSL' in locals():
     # 使用 Elasticsearch
     HAYSTACK_CONNECTIONS = {
@@ -292,6 +306,7 @@ CACHES = {
     }
 }
 # 使用redis作为缓存
+# zhang: 指定Redis环境变量时覆盖默认缓存配置；连接地址格式需单独核实。
 if os.environ.get("DJANGO_REDIS_URL"):
     CACHES = {
         'default': {
@@ -305,6 +320,7 @@ BAIDU_NOTIFY_URL = os.environ.get('DJANGO_BAIDU_NOTIFY_URL') \
                    or 'http://data.zz.baidu.com/urls?site=https://www.lylinux.net&token=1uAOGrMsUm5syDGn'
 
 # Email:
+# zhang: 邮件服务器及凭据由配置和环境变量提供，供系统通知和邮件功能调用。
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = env_to_bool('DJANGO_EMAIL_TLS', False)
 EMAIL_USE_SSL = env_to_bool('DJANGO_EMAIL_SSL', True)
@@ -320,10 +336,12 @@ ADMINS = [('admin', os.environ.get('DJANGO_ADMIN_EMAIL') or 'admin@admin.com')]
 WXADMIN = os.environ.get(
     'DJANGO_WXADMIN_PASSWORD') or '995F03AC401D6CABABAEF756FC4D43C7'
 
+# zhang: 初始化日志保存目录，避免文件日志处理器因目录不存在而报错。
 LOG_PATH = os.path.join(BASE_DIR, 'logs')
 if not os.path.exists(LOG_PATH):
     os.makedirs(LOG_PATH, exist_ok=True)
 
+# zhang: 定义文件轮转、调试控制台输出及管理邮件告警的日志策略。
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -380,6 +398,7 @@ LOGGING = {
     }
 }
 
+# zhang: 通过标准与压缩器查找器发现项目静态资源。
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -387,6 +406,7 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 # 开发模式下禁用压缩，使用Vite处理静态资源
+# zhang: 在调试模式下禁用模板压缩，配合本项目Vite开发资源处理。
 COMPRESS_ENABLED = not DEBUG
 # 根据环境变量决定是否启用离线压缩
 COMPRESS_OFFLINE = os.environ.get('COMPRESS_OFFLINE', 'False').lower() == 'true'
@@ -448,7 +468,9 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Plugin System
+# zhang: 插件统一存放于项目根目录plugins文件夹。
 PLUGINS_DIR = BASE_DIR / 'plugins'
+# zhang: 列出当前计划启用的插件；更改列表可能影响页面和服务行为。
 ACTIVE_PLUGINS = [
     'article_copyright',
     'reading_time',

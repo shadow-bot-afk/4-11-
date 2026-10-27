@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 # Register your models here.
 from .models import Article, Category, Tag, Links, SideBar, BlogSettings
 
-
+# GJ: 文章表单类，用于后台管理界面中文章数据的校验和渲染。
 class ArticleForm(forms.ModelForm):
     # body = forms.CharField(widget=AdminPagedownWidget())
 
@@ -16,7 +16,7 @@ class ArticleForm(forms.ModelForm):
         model = Article
         fields = '__all__'
 
-
+# GJ: 批量操作函数，用于在后台将选中的多篇文章状态批量更新为“已发布(p)”。
 def makr_article_publish(modeladmin, request, queryset):
     queryset.update(status='p')
 

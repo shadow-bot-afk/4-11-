@@ -9,10 +9,11 @@ from django.utils import timezone
 from accounts.models import BlogUser
 from blog.models import Article, Category
 
-
+# GJ: 文章生命周期测试类，验证文章从创建、修改到发布的完整流程。
 class ArticleLifecycleTest(TestCase):
     """测试文章完整生命周期"""
 
+    # GJ: 初始化测试环境：实例化测试客户端，并预先创建测试所需的分类和作者数据。
     def setUp(self):
         """设置测试环境"""
         self.client = Client()
@@ -44,6 +45,7 @@ class ArticleLifecycleTest(TestCase):
             password='adminpassword'
         )
 
+    # GJ: 测试默认状态：验证直接创建的文章，其初始状态应默认为草稿（'d'）。
     def test_article_created_as_draft_by_default(self):
         """测试文章创建时默认为草稿状态"""
         article = Article.objects.create(
@@ -56,6 +58,7 @@ class ArticleLifecycleTest(TestCase):
         )
         self.assertEqual(article.status, 'd')
 
+    # GJ: 测试状态流转：验证文章能通过修改 status 字段成功从草稿状态切换为已发布状态。
     def test_article_draft_to_published_transition(self):
         """测试文章从草稿到发布的状态转换"""
         article = Article.objects.create(
@@ -101,6 +104,7 @@ class ArticleLifecycleTest(TestCase):
         article.refresh_from_db()
         self.assertEqual(article.status, 'd')
 
+    # GJ: 测试公开访问：验证状态为已发布（'p'）的文章，未登录的普通访客也能正常访问。
     def test_published_article_is_publicly_accessible(self):
         """测试已发布文章对所有人可见"""
         article = Article.objects.create(
@@ -117,6 +121,7 @@ class ArticleLifecycleTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Public Article')
 
+    # GJ: 测试隐藏草稿：验证状态为草稿（'d'）的文章不会出现在前端的公开文章列表中。
     def test_draft_article_not_in_public_list(self):
         """测试草稿文章不在公开列表中"""
         # 创建草稿文章
@@ -188,10 +193,11 @@ class ArticleLifecycleTest(TestCase):
         article.refresh_from_db()
         self.assertEqual(article.views, 10)
 
-
+# GJ: 文章评论状态测试类，用于验证不同文章配置下评论功能的可用性。
 class ArticleCommentStatusTest(TestCase):
     """测试文章评论状态控制"""
 
+    # GJ: 初始化测试环境：预先创建测试所需的分类和作者用户数据。
     def setUp(self):
         """设置测试环境"""
         self.category = Category.objects.create(
@@ -205,6 +211,7 @@ class ArticleCommentStatusTest(TestCase):
             password='password'
         )
 
+    # GJ: 测试默认开放：验证新建文章时，其评论功能默认处于开启（Open）状态。
     def test_article_comment_open_by_default(self):
         """测试文章评论默认开放"""
         article = Article.objects.create(
@@ -219,6 +226,7 @@ class ArticleCommentStatusTest(TestCase):
 
         self.assertEqual(article.comment_status, 'o')
 
+    # GJ: 测试关闭评论：验证文章创建后，可以通过修改 comment_status 字段成功关闭评论功能。
     def test_article_comment_can_be_closed(self):
         """测试可以关闭文章评论"""
         article = Article.objects.create(
@@ -238,6 +246,7 @@ class ArticleCommentStatusTest(TestCase):
         article.refresh_from_db()
         self.assertEqual(article.comment_status, 'c')
 
+    # GJ: 测试状态校验：验证评论已关闭的文章，其状态字段在数据库刷新后仍保持正确。
     def test_closed_comment_article_status(self):
         """测试关闭评论的文章状态正确"""
         article = Article.objects.create(
@@ -253,10 +262,11 @@ class ArticleCommentStatusTest(TestCase):
         # 验证评论已关闭
         self.assertEqual(article.comment_status, 'c')
 
-
+# GJ: 文章权限测试类，用于验证系统对不同用户（作者、非作者）的操作权限控制。
 class ArticlePermissionTest(TestCase):
     """测试文章权限控制"""
 
+    # GJ: 初始化测试环境：预先创建测试分类，以及作者和其他普通用户数据。
     def setUp(self):
         """设置测试环境"""
         self.category = Category.objects.create(
@@ -328,10 +338,11 @@ class ArticlePermissionTest(TestCase):
                    self.admin_user.is_superuser)
         self.assertTrue(can_edit)
 
-
+# GJ: 文章类型测试类，用于验证不同内容类型（如文章、独立页面）的业务逻辑。
 class ArticleTypeTest(TestCase):
     """测试文章类型业务逻辑"""
 
+    # GJ: 初始化测试环境：预先创建测试所需的分类和作者数据。
     def setUp(self):
         """设置测试环境"""
         self.category = Category.objects.create(
@@ -345,6 +356,7 @@ class ArticleTypeTest(TestCase):
             password='password'
         )
 
+    # GJ: 测试类型断言：验证创建时指定类型为 'a' 的文章，其类型字段准确无误。
     def test_article_type_is_article(self):
         """测试文章类型为article"""
         article = Article.objects.create(
@@ -358,6 +370,7 @@ class ArticleTypeTest(TestCase):
 
         self.assertEqual(article.type, 'a')
 
+    # GJ: 测试页面类型：验证创建时指定类型为 'p' 的独立页面，其类型字段准确无误。
     def test_article_type_is_page(self):
         """测试文章类型为page"""
         page = Article.objects.create(
@@ -371,6 +384,7 @@ class ArticleTypeTest(TestCase):
 
         self.assertEqual(page.type, 'p')
 
+    # GJ: 测试数据隔离：验证文章（'a'）和独立页面（'p'）在数据库查询时能被正确区分。
     def test_articles_and_pages_are_separate(self):
         """测试文章和页面分开查询"""
         # 创建文章
