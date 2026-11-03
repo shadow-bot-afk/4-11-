@@ -58,6 +58,13 @@
                                     {{ article.comment_set.count }}
                                 </span>
                             {% endif %}
+                            
+                            {# 收藏按钮 #}
+                            <span class="flex items-center gap-1 ml-auto">
+                                <button id="favorite-btn" data-id="{{ article.id }}" class="inline-flex items-center rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20">
+                                    ⭐ 收藏
+                                </button>
+                            </span>
                         </div>
 
                         <div class="mb-6 h-px bg-border/60"></div>
@@ -195,5 +202,38 @@
             </details>
         </div>
     </div>
-{% endblock %}
 
+    {# 收藏功能的 Ajax 交互脚本 #}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let favBtn = document.getElementById('favorite-btn');
+        if (favBtn) {
+            favBtn.addEventListener('click', function() {
+                let articleId = this.getAttribute('data-id');
+                fetch(`/favorites/toggle/${articleId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    }
+                }).then(res => res.json()).then(data => {
+                    if (data.status === 'success') {
+                        if(data.action === 'favorited') {
+                            alert('收藏成功！');
+                            this.innerHTML = '⭐ 已收藏';
+                        } else {
+                            alert('已取消收藏');
+                            this.innerHTML = '⭐ 收藏';
+                        }
+                    } else {
+                        alert('请先登录再收藏！');
+                    }
+                }).catch(err => {
+                    console.error('Error:', err);
+                    alert('请求出错，请稍后重试');
+                });
+            });
+        }
+    });
+    </script>
+{% endblock %}

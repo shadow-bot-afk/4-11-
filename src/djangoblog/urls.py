@@ -56,6 +56,7 @@ def health_check(request):
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('health/', health_check, name='health_check'),
+    path('favorites/', include('favorites.urls')),
 ]
 urlpatterns += i18n_patterns(
     re_path(r'^admin/', admin_site.urls),

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>我的收藏</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .fav-item { border-bottom: 1px solid #ccc; padding: 10px 0; }
+        .fav-item a { font-size: 18px; color: #0066cc; text-decoration: none; }
+        .fav-item a:hover { text-decoration: underline; }
+        .time { color: #666; font-size: 14px; margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <h1>我的电影收藏</h1>
+    <hr>
+    
+    {% if favorites %}
+        {% for fav in favorites %}
+            <div class="fav-item">
+                <a href="{{ fav.article.get_absolute_url }}">{{ fav.article.title }}</a>
+                <span class="time">收藏于 {{ fav.created_at|date:"Y-m-d H:i" }}</span>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>你还没有收藏任何电影，快去逛逛吧！</p>
+    {% endif %}
+    
+    <br>
+    <a href="/">返回首页</a>
+</body>
+</html>
