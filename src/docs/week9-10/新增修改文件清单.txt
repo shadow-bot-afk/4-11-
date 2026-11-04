@@ -1,0 +1,10 @@
+1. djangoblog/settings.py          修改：注册reading_progress应用
+2. djangoblog/urls.py              修改：添加阅读进度接口路由
+3. reading_progress/__init__.py    新增
+4. reading_progress/admin.py       新增
+5. reading_progress/apps.py        新增
+6. reading_progress/models.py      新增：阅读进度数据模型
+7. reading_progress/tests.py       新增：后端单元测试用例
+8. reading_progress/urls.py        新增：子路由配置
+9. reading_progress/views.py       新增：接口业务逻辑
+10. templates/blog/article_detail.html 修改：增加前端进度条、百分比、进度保存JS脚本
