@@ -59,9 +59,11 @@ INSTALLED_APPS = [
     'comments',
     'oauth',
     'servermanager',
+    'ratings',
     'compressor',
     'djangoblog'
 ]
+
 
 MIDDLEWARE = [
 

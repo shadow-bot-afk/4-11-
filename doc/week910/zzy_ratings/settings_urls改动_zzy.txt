@@ -1,0 +1,6 @@
+测试性修改三处（组长统辖区，整合时以组长为准）：
+1. djangoblog/settings.py：INSTALLED_APPS 列表末尾增加 'ratings',
+2. djangoblog/urls.py：i18n_patterns 内 oauth 路由后增加：
+   re_path(r'^ratings/', include('ratings.urls', namespace='ratings')),
+3. templates/blog/article_detail.html：标题 </h1> 后增加：
+   {% include 'ratings/widget.html' %}

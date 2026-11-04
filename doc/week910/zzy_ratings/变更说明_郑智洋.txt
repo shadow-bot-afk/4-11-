@@ -1,0 +1,34 @@
+# 电影评分功能(ratings)变更说明
+组员5：郑智洋 2415304401 软件工程4班（第9-10周）
+
+## 一、功能说明
+新增独立应用ratings：登录用户对电影文章提交1-5星整数评分，可修改本人评分；
+文章详情页标题下方显示平均分和评分人数，无评分时显示"暂无评分"；
+同一用户对同一文章仅维护一条记录（数据库层唯一约束保证）。
+
+## 二、文件清单
+新增 src/ratings/ 全部文件：
+- models.py：Rating模型（user/article外键、score校验、唯一约束、时间戳）
+- views.py：rate()提交或修改评分、stats()查询平均分/人数/我的评分
+- urls.py：rate/&lt;article_id&gt;/ 与 stats/&lt;article_id&gt;/ 两条路由
+- templates/ratings/widget.html：星级展示与点星提交组件（含CSRF处理）
+- migrations/0001_initial.py：建表迁移文件
+
+测试性修改三处（settings/urls/详情页模板，见 settings_urls改动_zzy.txt，
+组长统辖区，整合时以组长为准）。
+
+## 三、关键设计
+1. 防重复：models.UniqueConstraint(user, article) 数据库层唯一约束
+2. 防非法分值：视图层校验 1&lt;=score&lt;=5，否则返回 HTTP 400
+3. 修改评分：Rating.objects.update_or_create，首次创建、再次修改，不产生第二条
+4. 防除零：聚合查询 count=0 时返回 None，前端显示"暂无评分"，不做除法
+5. CSRF：组件内嵌 {% csrf_token %} 隐藏域，JS读取其值随请求提交
+   （开发中发现首次提交报403，定位为页面无csrftoken cookie，已修复）
+
+## 四、开发中发现的其他模块问题（仅记录未修复）
+- 首页/分类页文章标题无链接，无法进入详情页（疑似模板改动中导致）
+- admin"增加用户"页 FieldError: usable_password
+  （accounts模块自定义UserAdmin与Django5.2不兼容）
+
+## 五、测试情况
+8个测试场景全部通过，证据截图与步骤见 测试记录_郑智洋.md。

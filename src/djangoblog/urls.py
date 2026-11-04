@@ -64,14 +64,17 @@ urlpatterns += i18n_patterns(
     re_path(r'', include('comments.urls', namespace='comment')),
     re_path(r'', include('accounts.urls', namespace='account')),
     re_path(r'', include('oauth.urls', namespace='oauth')),
+    # zzy: 评分应用路由（组员5），整合时以组长为准
+    re_path(r'^ratings/', include('ratings.urls', namespace='ratings')),
     re_path(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps},
             name='django.contrib.sitemaps.views.sitemap'),
     re_path(r'^feed/$', DjangoBlogFeed()),
     re_path(r'^rss/$', DjangoBlogFeed()),
     re_path('^search', search_view_factory(view_class=EsSearchView, form_class=ElasticSearchModelSearchForm),
             name='search'),
-    re_path(r'', include('servermanager.urls', namespace='servermanager'))
-    , prefix_default_language=False) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    re_path(r'', include('servermanager.urls', namespace='servermanager')),
+    prefix_default_language=False) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
