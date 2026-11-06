@@ -94,6 +94,13 @@
                 归档
                 {% if nav_active == 'archives' %}<span class="absolute bottom-0 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full bg-primary"></span>{% endif %}
             </a>
+
+            {# zhang: 随机选片功能入口 #}
+            <a href="{% url 'movie_picker:index' %}"
+                class="relative rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-secondary hover:text-foreground">
+                🎬 随机选片
+            </a>
+
             {% for page in nav_pages %}
                 <a href="{{ page.get_absolute_url }}"
                    class="relative rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200 hover:bg-secondary hover:text-foreground {% if request.path == page.get_absolute_url %}text-primary bg-primary/5{% else %}text-muted-foreground{% endif %}"
@@ -256,6 +263,14 @@
                 </svg>
                 归档
             </a>
+
+            {# zhang: 移动端随机选片入口 #}
+            <a href="{% url 'movie_picker:index' %}"
+                @click="$store.nav.mobileOpen = false"
+                class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary">
+                🎬 随机选片
+            </a>
+
             {% for page in nav_pages %}
                 <a href="{{ page.get_absolute_url }}"
                    @click="$store.nav.mobileOpen = false"

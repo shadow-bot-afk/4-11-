@@ -1,0 +1,5289 @@
+[
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 34,
+      "row": 2
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\apps.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from django.apps import AppConfig\r\n\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 4
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 2,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "UP009",
+    "end_location": {
+      "column": 18,
+      "row": 2
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\base_views.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Remove unnecessary coding comment"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "UTF-8 encoding declaration is unnecessary",
+    "name": "utf8-encoding-declaration",
+    "noqa_row": 2,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/utf8-encoding-declaration"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 35,
+      "row": 18
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\blog_signals.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import _thread\r\nimport logging\r\n\r\nimport django.dispatch\r\nfrom django.conf import settings\r\nfrom django.contrib.admin.models import LogEntry\r\nfrom django.contrib.auth.signals import user_logged_in, user_logged_out\r\nfrom django.core.mail import EmailMultiAlternatives\r\nfrom django.db.models.signals import post_save\r\nfrom django.dispatch import receiver\r\n\r\nfrom comments.models import Comment\r\nfrom comments.utils import send_comment_email\r\nfrom djangoblog.spider_notify import SpiderNotify\r\nfrom djangoblog.utils import (\r\n    cache,\r\n    delete_sidebar_cache,\r\n    delete_view_cache,\r\n    expire_view_cache,\r\n    get_current_site,\r\n)\r\nfrom oauth.models import OAuthUser\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 20
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 2,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "BLE001",
+    "end_location": {
+      "column": 21,
+      "row": 53
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\blog_signals.py",
+    "fix": null,
+    "location": {
+      "column": 12,
+      "row": 53
+    },
+    "message": "Do not catch blind exception: `Exception`",
+    "name": "blind-except",
+    "noqa_row": 53,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/blind-except"
+  },
+  {
+    "cell": null,
+    "code": "SIM102",
+    "end_location": {
+      "column": 33,
+      "row": 97
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\blog_signals.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "    if 'get_full_url' in dir(instance) and not settings.TESTING:\r\n        try:\r\n            notify_url = instance.get_full_url()\r\n            SpiderNotify.baidu_notify([notify_url])\r\n        except Exception as ex:\r\n            logger.error(\"notify sipder\", ex)",
+          "end_location": {
+            "column": 50,
+            "row": 102
+          },
+          "location": {
+            "column": 1,
+            "row": 96
+          }
+        }
+      ],
+      "message": "Combine `if` statements using `and`"
+    },
+    "location": {
+      "column": 5,
+      "row": 96
+    },
+    "message": "Use a single `if` statement instead of nested `if` statements",
+    "name": "collapsible-if",
+    "noqa_row": 96,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/collapsible-if"
+  },
+  {
+    "cell": null,
+    "code": "BLE001",
+    "end_location": {
+      "column": 29,
+      "row": 101
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\blog_signals.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 101
+    },
+    "message": "Do not catch blind exception: `Exception`",
+    "name": "blind-except",
+    "noqa_row": 101,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/blind-except"
+  },
+  {
+    "cell": null,
+    "code": "PLE1205",
+    "end_location": {
+      "column": 29,
+      "row": 102
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\blog_signals.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 102
+    },
+    "message": "Too many arguments for `logging` format string",
+    "name": "logging-too-many-args",
+    "noqa_row": 102,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/logging-too-many-args"
+  },
+  {
+    "cell": null,
+    "code": "UP032",
+    "end_location": {
+      "column": 40,
+      "row": 121
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\blog_signals.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "f'article_comments_{instance.article.id}'",
+          "end_location": {
+            "column": 40,
+            "row": 121
+          },
+          "location": {
+            "column": 33,
+            "row": 120
+          }
+        }
+      ],
+      "message": "Convert to f-string"
+    },
+    "location": {
+      "column": 33,
+      "row": 120
+    },
+    "message": "Use f-string instead of `format` call",
+    "name": "f-string",
+    "noqa_row": 120,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/f-string"
+  },
+  {
+    "cell": null,
+    "code": "S110",
+    "end_location": {
+      "column": 21,
+      "row": 153
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\blog_signals.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 152
+    },
+    "message": "`try`-`except`-`pass` detected, consider logging the exception",
+    "name": "try-except-pass",
+    "noqa_row": 152,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/try-except-pass"
+  },
+  {
+    "cell": null,
+    "code": "BLE001",
+    "end_location": {
+      "column": 29,
+      "row": 152
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\blog_signals.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 152
+    },
+    "message": "Do not catch blind exception: `Exception`",
+    "name": "blind-except",
+    "noqa_row": 152,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/blind-except"
+  },
+  {
+    "cell": null,
+    "code": "UP009",
+    "end_location": {
+      "column": 18,
+      "row": 2
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\constants.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Remove unnecessary coding comment"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "UTF-8 encoding declaration is unnecessary",
+    "name": "utf8-encoding-declaration",
+    "noqa_row": 2,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/utf8-encoding-declaration"
+  },
+  {
+    "cell": null,
+    "code": "UP008",
+    "end_location": {
+      "column": 18,
+      "row": 21
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\elasticsearch_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 17,
+            "row": 21
+          },
+          "location": {
+            "column": 15,
+            "row": 19
+          }
+        }
+      ],
+      "message": "Remove `super()` parameters"
+    },
+    "location": {
+      "column": 14,
+      "row": 19
+    },
+    "message": "Use `super()` instead of `super(__class__, self)`",
+    "name": "super-call-with-parameters",
+    "noqa_row": 19,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/super-call-with-parameters"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 41,
+      "row": 188
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\elasticsearch_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "\"'{}'\".format(word)",
+          "end_location": {
+            "column": 41,
+            "row": 188
+          },
+          "location": {
+            "column": 28,
+            "row": 188
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 28,
+      "row": 188
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 188,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "UP008",
+    "end_location": {
+      "column": 49,
+      "row": 210
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\elasticsearch_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 48,
+            "row": 210
+          },
+          "location": {
+            "column": 24,
+            "row": 210
+          }
+        }
+      ],
+      "message": "Remove `super()` parameters"
+    },
+    "location": {
+      "column": 23,
+      "row": 210
+    },
+    "message": "Use `super()` instead of `super(__class__, self)`",
+    "name": "super-call-with-parameters",
+    "noqa_row": 210,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/super-call-with-parameters"
+  },
+  {
+    "cell": null,
+    "code": "UP009",
+    "end_location": {
+      "column": 18,
+      "row": 2
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\error_views.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Remove unnecessary coding comment"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "UTF-8 encoding declaration is unnecessary",
+    "name": "utf8-encoding-declaration",
+    "noqa_row": 2,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/utf8-encoding-declaration"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 55,
+      "row": 11
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\error_views.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import logging\r\n\r\nfrom django.shortcuts import render\r\nfrom django.utils.translation import gettext_lazy as _\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 13
+          },
+          "location": {
+            "column": 1,
+            "row": 9
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 9
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 9,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "LOG014",
+    "end_location": {
+      "column": 26,
+      "row": 41
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\error_views.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 13,
+            "row": 42
+          },
+          "location": {
+            "column": 13,
+            "row": 41
+          }
+        }
+      ],
+      "message": "Remove `exc_info=`"
+    },
+    "location": {
+      "column": 13,
+      "row": 41
+    },
+    "message": "`exc_info=` outside exception handlers",
+    "name": "exc-info-outside-except-handler",
+    "noqa_row": 41,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/exc-info-outside-except-handler"
+  },
+  {
+    "cell": null,
+    "code": "UP032",
+    "end_location": {
+      "column": 62,
+      "row": 42
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\feeds.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "f\"Copyright© {now.year} 且听风吟\"",
+          "end_location": {
+            "column": 62,
+            "row": 42
+          },
+          "location": {
+            "column": 16,
+            "row": 42
+          }
+        }
+      ],
+      "message": "Convert to f-string"
+    },
+    "location": {
+      "column": 16,
+      "row": 42
+    },
+    "message": "Use f-string instead of `format` call",
+    "name": "f-string",
+    "noqa_row": 42,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/f-string"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 55,
+      "row": 9
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\logentryadmin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from django.contrib import admin\r\nfrom django.contrib.admin.models import DELETION\r\nfrom django.contrib.contenttypes.models import ContentType\r\nfrom django.urls import NoReverseMatch, reverse\r\nfrom django.utils.encoding import force_str\r\nfrom django.utils.html import escape\r\nfrom django.utils.safestring import mark_safe\r\nfrom django.utils.translation import gettext_lazy as _\r\n\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 12
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 2,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "RUF012",
+    "end_location": {
+      "column": 6,
+      "row": 16
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\logentryadmin.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 14
+    },
+    "message": "Mutable default value for class attribute",
+    "name": "mutable-class-default",
+    "noqa_row": 14,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/mutable-class-default"
+  },
+  {
+    "cell": null,
+    "code": "RUF012",
+    "end_location": {
+      "column": 6,
+      "row": 21
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\logentryadmin.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 18
+    },
+    "message": "Mutable default value for class attribute",
+    "name": "mutable-class-default",
+    "noqa_row": 18,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/mutable-class-default"
+  },
+  {
+    "cell": null,
+    "code": "RUF012",
+    "end_location": {
+      "column": 6,
+      "row": 26
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\logentryadmin.py",
+    "fix": null,
+    "location": {
+      "column": 26,
+      "row": 23
+    },
+    "message": "Mutable default value for class attribute",
+    "name": "mutable-class-default",
+    "noqa_row": 23,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/mutable-class-default"
+  },
+  {
+    "cell": null,
+    "code": "RUF012",
+    "end_location": {
+      "column": 6,
+      "row": 33
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\logentryadmin.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 27
+    },
+    "message": "Mutable default value for class attribute",
+    "name": "mutable-class-default",
+    "noqa_row": 27,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/mutable-class-default"
+  },
+  {
+    "cell": null,
+    "code": "UP032",
+    "end_location": {
+      "column": 68,
+      "row": 60
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\logentryadmin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "f'admin:{content_type.app_label}_{content_type.model}_change'",
+          "end_location": {
+            "column": 68,
+            "row": 60
+          },
+          "location": {
+            "column": 21,
+            "row": 59
+          }
+        }
+      ],
+      "message": "Convert to f-string"
+    },
+    "location": {
+      "column": 21,
+      "row": 59
+    },
+    "message": "Use f-string instead of `format` call",
+    "name": "f-string",
+    "noqa_row": 59,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/f-string"
+  },
+  {
+    "cell": null,
+    "code": "UP032",
+    "end_location": {
+      "column": 77,
+      "row": 63
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\logentryadmin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "f'<a href=\"{url}\">{object_link}</a>'",
+          "end_location": {
+            "column": 77,
+            "row": 63
+          },
+          "location": {
+            "column": 31,
+            "row": 63
+          }
+        }
+      ],
+      "message": "Convert to f-string"
+    },
+    "location": {
+      "column": 31,
+      "row": 63
+    },
+    "message": "Use f-string instead of `format` call",
+    "name": "f-string",
+    "noqa_row": 63,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/f-string"
+  },
+  {
+    "cell": null,
+    "code": "UP032",
+    "end_location": {
+      "column": 64,
+      "row": 79
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\logentryadmin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "f'admin:{content_type.app_label}_{content_type.model}_change'",
+          "end_location": {
+            "column": 64,
+            "row": 79
+          },
+          "location": {
+            "column": 17,
+            "row": 78
+          }
+        }
+      ],
+      "message": "Convert to f-string"
+    },
+    "location": {
+      "column": 17,
+      "row": 78
+    },
+    "message": "Use f-string instead of `format` call",
+    "name": "f-string",
+    "noqa_row": 78,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/f-string"
+  },
+  {
+    "cell": null,
+    "code": "UP032",
+    "end_location": {
+      "column": 69,
+      "row": 82
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\logentryadmin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "f'<a href=\"{url}\">{user_link}</a>'",
+          "end_location": {
+            "column": 69,
+            "row": 82
+          },
+          "location": {
+            "column": 25,
+            "row": 82
+          }
+        }
+      ],
+      "message": "Convert to f-string"
+    },
+    "location": {
+      "column": 25,
+      "row": 82
+    },
+    "message": "Use f-string instead of `format` call",
+    "name": "f-string",
+    "noqa_row": 82,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/f-string"
+  },
+  {
+    "cell": null,
+    "code": "UP008",
+    "end_location": {
+      "column": 46,
+      "row": 92
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\logentryadmin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 45,
+            "row": 92
+          },
+          "location": {
+            "column": 26,
+            "row": 92
+          }
+        }
+      ],
+      "message": "Remove `super()` parameters"
+    },
+    "location": {
+      "column": 25,
+      "row": 92
+    },
+    "message": "Use `super()` instead of `super(__class__, self)`",
+    "name": "super-call-with-parameters",
+    "noqa_row": 92,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/super-call-with-parameters"
+  },
+  {
+    "cell": null,
+    "code": "UP008",
+    "end_location": {
+      "column": 45,
+      "row": 97
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\logentryadmin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 44,
+            "row": 97
+          },
+          "location": {
+            "column": 25,
+            "row": 97
+          }
+        }
+      ],
+      "message": "Remove `super()` parameters"
+    },
+    "location": {
+      "column": 24,
+      "row": 97
+    },
+    "message": "Use `super()` instead of `super(__class__, self)`",
+    "name": "super-call-with-parameters",
+    "noqa_row": 97,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/super-call-with-parameters"
+  },
+  {
+    "cell": null,
+    "code": "UP009",
+    "end_location": {
+      "column": 18,
+      "row": 2
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\mixins.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Remove unnecessary coding comment"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "UTF-8 encoding declaration is unnecessary",
+    "name": "utf8-encoding-declaration",
+    "noqa_row": 2,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/utf8-encoding-declaration"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 55,
+      "row": 14
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\mixins.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import logging\r\n\r\nfrom django.db import models\r\nfrom django.shortcuts import get_object_or_404\r\nfrom django.utils.timezone import now\r\nfrom django.utils.translation import gettext_lazy as _\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 16
+          },
+          "location": {
+            "column": 1,
+            "row": 10
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 10
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 10,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "RUF012",
+    "end_location": {
+      "column": 35,
+      "row": 48
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\mixins.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 48
+    },
+    "message": "Mutable default value for class attribute",
+    "name": "mutable-class-default",
+    "noqa_row": 48,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/mutable-class-default"
+  },
+  {
+    "cell": null,
+    "code": "SIM102",
+    "end_location": {
+      "column": 50,
+      "row": 62
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\mixins.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 60
+    },
+    "message": "Use a single `if` statement instead of nested `if` statements",
+    "name": "collapsible-if",
+    "noqa_row": 60,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/collapsible-if"
+  },
+  {
+    "cell": null,
+    "code": "PIE790",
+    "end_location": {
+      "column": 9,
+      "row": 301
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\mixins.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 302
+          },
+          "location": {
+            "column": 1,
+            "row": 301
+          }
+        }
+      ],
+      "message": "Remove unnecessary `pass`"
+    },
+    "location": {
+      "column": 5,
+      "row": 301
+    },
+    "message": "Unnecessary `pass` statement",
+    "name": "unnecessary-placeholder",
+    "noqa_row": 301,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-placeholder"
+  },
+  {
+    "cell": null,
+    "code": "RUF012",
+    "end_location": {
+      "column": 29,
+      "row": 18
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\plugin_manage\\base_plugin.py",
+    "fix": null,
+    "location": {
+      "column": 27,
+      "row": 18
+    },
+    "message": "Mutable default value for class attribute",
+    "name": "mutable-class-default",
+    "noqa_row": 18,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/mutable-class-default"
+  },
+  {
+    "cell": null,
+    "code": "RUF012",
+    "end_location": {
+      "column": 29,
+      "row": 20
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\plugin_manage\\base_plugin.py",
+    "fix": null,
+    "location": {
+      "column": 27,
+      "row": 20
+    },
+    "message": "Mutable default value for class attribute",
+    "name": "mutable-class-default",
+    "noqa_row": 20,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/mutable-class-default"
+  },
+  {
+    "cell": null,
+    "code": "PIE790",
+    "end_location": {
+      "column": 13,
+      "row": 55
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\plugin_manage\\base_plugin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 56
+          },
+          "location": {
+            "column": 1,
+            "row": 55
+          }
+        }
+      ],
+      "message": "Remove unnecessary `pass`"
+    },
+    "location": {
+      "column": 9,
+      "row": 55
+    },
+    "message": "Unnecessary `pass` statement",
+    "name": "unnecessary-placeholder",
+    "noqa_row": 55,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-placeholder"
+  },
+  {
+    "cell": null,
+    "code": "RET501",
+    "end_location": {
+      "column": 20,
+      "row": 109
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\plugin_manage\\base_plugin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "return",
+          "end_location": {
+            "column": 20,
+            "row": 109
+          },
+          "location": {
+            "column": 9,
+            "row": 109
+          }
+        }
+      ],
+      "message": "Remove explicit `return None`"
+    },
+    "location": {
+      "column": 9,
+      "row": 109
+    },
+    "message": "Do not explicitly `return None` in function if it is the only possible return value",
+    "name": "unnecessary-return-none",
+    "noqa_row": 109,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-return-none"
+  },
+  {
+    "cell": null,
+    "code": "RET501",
+    "end_location": {
+      "column": 20,
+      "row": 113
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\plugin_manage\\base_plugin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "return",
+          "end_location": {
+            "column": 20,
+            "row": 113
+          },
+          "location": {
+            "column": 9,
+            "row": 113
+          }
+        }
+      ],
+      "message": "Remove explicit `return None`"
+    },
+    "location": {
+      "column": 9,
+      "row": 113
+    },
+    "message": "Do not explicitly `return None` in function if it is the only possible return value",
+    "name": "unnecessary-return-none",
+    "noqa_row": 113,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-return-none"
+  },
+  {
+    "cell": null,
+    "code": "RET501",
+    "end_location": {
+      "column": 20,
+      "row": 117
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\plugin_manage\\base_plugin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "return",
+          "end_location": {
+            "column": 20,
+            "row": 117
+          },
+          "location": {
+            "column": 9,
+            "row": 117
+          }
+        }
+      ],
+      "message": "Remove explicit `return None`"
+    },
+    "location": {
+      "column": 9,
+      "row": 117
+    },
+    "message": "Do not explicitly `return None` in function if it is the only possible return value",
+    "name": "unnecessary-return-none",
+    "noqa_row": 117,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-return-none"
+  },
+  {
+    "cell": null,
+    "code": "RET501",
+    "end_location": {
+      "column": 20,
+      "row": 121
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\plugin_manage\\base_plugin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "return",
+          "end_location": {
+            "column": 20,
+            "row": 121
+          },
+          "location": {
+            "column": 9,
+            "row": 121
+          }
+        }
+      ],
+      "message": "Remove explicit `return None`"
+    },
+    "location": {
+      "column": 9,
+      "row": 121
+    },
+    "message": "Do not explicitly `return None` in function if it is the only possible return value",
+    "name": "unnecessary-return-none",
+    "noqa_row": 121,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-return-none"
+  },
+  {
+    "cell": null,
+    "code": "RET501",
+    "end_location": {
+      "column": 20,
+      "row": 125
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\plugin_manage\\base_plugin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "return",
+          "end_location": {
+            "column": 20,
+            "row": 125
+          },
+          "location": {
+            "column": 9,
+            "row": 125
+          }
+        }
+      ],
+      "message": "Remove explicit `return None`"
+    },
+    "location": {
+      "column": 9,
+      "row": 125
+    },
+    "message": "Do not explicitly `return None` in function if it is the only possible return value",
+    "name": "unnecessary-return-none",
+    "noqa_row": 125,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-return-none"
+  },
+  {
+    "cell": null,
+    "code": "RET501",
+    "end_location": {
+      "column": 20,
+      "row": 129
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\plugin_manage\\base_plugin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "return",
+          "end_location": {
+            "column": 20,
+            "row": 129
+          },
+          "location": {
+            "column": 9,
+            "row": 129
+          }
+        }
+      ],
+      "message": "Remove explicit `return None`"
+    },
+    "location": {
+      "column": 9,
+      "row": 129
+    },
+    "message": "Do not explicitly `return None` in function if it is the only possible return value",
+    "name": "unnecessary-return-none",
+    "noqa_row": 129,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-return-none"
+  },
+  {
+    "cell": null,
+    "code": "RET501",
+    "end_location": {
+      "column": 20,
+      "row": 133
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\plugin_manage\\base_plugin.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "return",
+          "end_location": {
+            "column": 20,
+            "row": 133
+          },
+          "location": {
+            "column": 9,
+            "row": 133
+          }
+        }
+      ],
+      "message": "Remove explicit `return None`"
+    },
+    "location": {
+      "column": 9,
+      "row": 133
+    },
+    "message": "Do not explicitly `return None` in function if it is the only possible return value",
+    "name": "unnecessary-return-none",
+    "noqa_row": 133,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-return-none"
+  },
+  {
+    "cell": null,
+    "code": "G201",
+    "end_location": {
+      "column": 29,
+      "row": 29
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\plugin_manage\\hooks.py",
+    "fix": null,
+    "location": {
+      "column": 24,
+      "row": 29
+    },
+    "message": "Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`",
+    "name": "logging-exc-info",
+    "noqa_row": 29,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/logging-exc-info"
+  },
+  {
+    "cell": null,
+    "code": "G201",
+    "end_location": {
+      "column": 29,
+      "row": 43
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\plugin_manage\\hooks.py",
+    "fix": null,
+    "location": {
+      "column": 24,
+      "row": 43
+    },
+    "message": "Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`",
+    "name": "logging-exc-info",
+    "noqa_row": 43,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/logging-exc-info"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 33,
+      "row": 3
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\plugin_manage\\loader.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import logging\r\nimport os\r\n\r\nfrom django.conf import settings\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 5
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 1,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "C417",
+    "end_location": {
+      "column": 72,
+      "row": 71
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\sitemap.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "{x.author for x in Article.objects.all()}",
+          "end_location": {
+            "column": 72,
+            "row": 71
+          },
+          "location": {
+            "column": 21,
+            "row": 71
+          }
+        }
+      ],
+      "message": "Replace `map()` with a set comprehension"
+    },
+    "location": {
+      "column": 21,
+      "row": 71
+    },
+    "message": "Unnecessary `map()` usage (rewrite using a set comprehension)",
+    "name": "unnecessary-map",
+    "noqa_row": 71,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-map"
+  },
+  {
+    "cell": null,
+    "code": "UP039",
+    "end_location": {
+      "column": 21,
+      "row": 11
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\spider_notify.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 21,
+            "row": 11
+          },
+          "location": {
+            "column": 19,
+            "row": 11
+          }
+        }
+      ],
+      "message": "Remove parentheses"
+    },
+    "location": {
+      "column": 19,
+      "row": 11
+    },
+    "message": "Unnecessary parentheses after class definition",
+    "name": "unnecessary-class-parentheses",
+    "noqa_row": 11,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-class-parentheses"
+  },
+  {
+    "cell": null,
+    "code": "BLE001",
+    "end_location": {
+      "column": 25,
+      "row": 19
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\spider_notify.py",
+    "fix": null,
+    "location": {
+      "column": 16,
+      "row": 19
+    },
+    "message": "Do not catch blind exception: `Exception`",
+    "name": "blind-except",
+    "noqa_row": 19,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/blind-except"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 36,
+      "row": 12
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_base.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from django.contrib.auth.models import Permission\r\nfrom django.test import Client, RequestFactory, TestCase\r\nfrom django.utils import timezone\r\n\r\nfrom accounts.models import BlogUser\r\nfrom blog.models import Article, BlogSettings, Category, Tag\r\nfrom comments.models import Comment\r\n\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 15
+          },
+          "location": {
+            "column": 1,
+            "row": 6
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 6,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 50,
+      "row": 6
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_base.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 7
+          },
+          "location": {
+            "column": 1,
+            "row": 6
+          }
+        }
+      ],
+      "message": "Remove unused import: `django.contrib.auth.models.Permission`"
+    },
+    "location": {
+      "column": 40,
+      "row": 6
+    },
+    "message": "`django.contrib.auth.models.Permission` imported but unused",
+    "name": "unused-import",
+    "noqa_row": 6,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "RUF059",
+    "end_location": {
+      "column": 26,
+      "row": 110
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_base.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "_created",
+          "end_location": {
+            "column": 26,
+            "row": 110
+          },
+          "location": {
+            "column": 19,
+            "row": 110
+          }
+        }
+      ],
+      "message": "Prefix it with an underscore or any other dummy variable pattern"
+    },
+    "location": {
+      "column": 19,
+      "row": 110
+    },
+    "message": "Unpacked variable `created` is never used",
+    "name": "unused-unpacked-variable",
+    "noqa_row": 110,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-unpacked-variable"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 36,
+      "row": 15
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import re\r\n\r\nfrom django.contrib.auth import authenticate\r\nfrom django.core import mail\r\nfrom django.test import Client, TestCase, override_settings\r\nfrom django.urls import reverse\r\n\r\nfrom accounts.models import BlogUser\r\nfrom accounts.utils import get_code, verify\r\nfrom blog.models import Article, BlogSettings, Category\r\nfrom comments.models import Comment\r\n\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 18
+          },
+          "location": {
+            "column": 1,
+            "row": 6
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 6,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 36,
+      "row": 13
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from accounts.utils import verify",
+          "end_location": {
+            "column": 44,
+            "row": 13
+          },
+          "location": {
+            "column": 1,
+            "row": 13
+          }
+        }
+      ],
+      "message": "Remove unused import: `accounts.utils.get_code`"
+    },
+    "location": {
+      "column": 28,
+      "row": 13
+    },
+    "message": "`accounts.utils.get_code` imported but unused",
+    "name": "unused-import",
+    "noqa_row": 13,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 149
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 149
+          },
+          "location": {
+            "column": 9,
+            "row": 149
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 149
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 149,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 19,
+      "row": 156
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 22,
+            "row": 156
+          },
+          "location": {
+            "column": 9,
+            "row": 156
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `user_count`"
+    },
+    "location": {
+      "column": 9,
+      "row": 156
+    },
+    "message": "Local variable `user_count` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 156,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 31,
+      "row": 216
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 34,
+            "row": 216
+          },
+          "location": {
+            "column": 17,
+            "row": 216
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `reset_response`"
+    },
+    "location": {
+      "column": 17,
+      "row": 216
+    },
+    "message": "Local variable `reset_response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 216,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 35,
+      "row": 229
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 38,
+            "row": 229
+          },
+          "location": {
+            "column": 17,
+            "row": 229
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `old_password_works`"
+    },
+    "location": {
+      "column": 17,
+      "row": 229
+    },
+    "message": "Local variable `old_password_works` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 229,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 263
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 263
+          },
+          "location": {
+            "column": 9,
+            "row": 263
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 263
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 263,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 345
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 345
+          },
+          "location": {
+            "column": 9,
+            "row": 345
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 345
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 345,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 35,
+      "row": 385
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 38,
+            "row": 385
+          },
+          "location": {
+            "column": 17,
+            "row": 385
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `article_link_match`"
+    },
+    "location": {
+      "column": 17,
+      "row": 385
+    },
+    "message": "Local variable `article_link_match` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 385,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 31,
+      "row": 406
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 34,
+            "row": 406
+          },
+          "location": {
+            "column": 17,
+            "row": 406
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `reply_response`"
+    },
+    "location": {
+      "column": 17,
+      "row": 406
+    },
+    "message": "Local variable `reply_response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 406,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "SIM102",
+    "end_location": {
+      "column": 45,
+      "row": 426
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 424
+    },
+    "message": "Use a single `if` statement instead of nested `if` statements",
+    "name": "collapsible-if",
+    "noqa_row": 424,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/collapsible-if"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 455
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 455
+          },
+          "location": {
+            "column": 9,
+            "row": 455
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 455
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 455,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 18,
+      "row": 481
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 21,
+            "row": 481
+          },
+          "location": {
+            "column": 13,
+            "row": 481
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `admin`"
+    },
+    "location": {
+      "column": 13,
+      "row": 481
+    },
+    "message": "Local variable `admin` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 481,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 26,
+      "row": 533
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 29,
+            "row": 533
+          },
+          "location": {
+            "column": 9,
+            "row": 533
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `register_response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 533
+    },
+    "message": "Local variable `register_response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 533,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 18,
+      "row": 579
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 21,
+            "row": 579
+          },
+          "location": {
+            "column": 9,
+            "row": 579
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `commenter`"
+    },
+    "location": {
+      "column": 9,
+      "row": 579
+    },
+    "message": "Local variable `commenter` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 579,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 28,
+      "row": 602
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 31,
+            "row": 602
+          },
+          "location": {
+            "column": 13,
+            "row": 602
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `author_notified`"
+    },
+    "location": {
+      "column": 13,
+      "row": 602
+    },
+    "message": "Local variable `author_notified` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 602,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 36,
+      "row": 15
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import re\r\n\r\nfrom django.core import mail\r\nfrom django.test import Client, TestCase, override_settings\r\nfrom django.urls import reverse\r\nfrom django.utils import timezone\r\n\r\nfrom accounts.models import BlogUser\r\nfrom blog.models import Article, BlogSettings, Category\r\nfrom comments.models import Comment\r\n\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 18
+          },
+          "location": {
+            "column": 1,
+            "row": 7
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 7
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 7,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 82
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 82
+          },
+          "location": {
+            "column": 9,
+            "row": 82
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 82
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 82,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 197
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 197
+          },
+          "location": {
+            "column": 9,
+            "row": 197
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 197
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 197,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 218
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 218
+          },
+          "location": {
+            "column": 9,
+            "row": 218
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 218
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 218,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 28,
+      "row": 227
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 31,
+            "row": 227
+          },
+          "location": {
+            "column": 9,
+            "row": 227
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `sent_to_nonexistent`"
+    },
+    "location": {
+      "column": 9,
+      "row": 227
+    },
+    "message": "Local variable `sent_to_nonexistent` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 227,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 298
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 298
+          },
+          "location": {
+            "column": 9,
+            "row": 298
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 298
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 298,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 28,
+      "row": 319
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 31,
+            "row": 319
+          },
+          "location": {
+            "column": 13,
+            "row": 319
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `author_notified`"
+    },
+    "location": {
+      "column": 13,
+      "row": 319
+    },
+    "message": "Local variable `author_notified` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 319,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 16,
+      "row": 338
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 19,
+            "row": 338
+          },
+          "location": {
+            "column": 9,
+            "row": 338
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `replier`"
+    },
+    "location": {
+      "column": 9,
+      "row": 338
+    },
+    "message": "Local variable `replier` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 338,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 351
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 351
+          },
+          "location": {
+            "column": 9,
+            "row": 351
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 351
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 351,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "SIM102",
+    "end_location": {
+      "column": 37,
+      "row": 371
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 369
+    },
+    "message": "Use a single `if` statement instead of nested `if` statements",
+    "name": "collapsible-if",
+    "noqa_row": 369,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/collapsible-if"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 35,
+      "row": 372
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 38,
+            "row": 372
+          },
+          "location": {
+            "column": 17,
+            "row": 372
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `commenter_notified`"
+    },
+    "location": {
+      "column": 17,
+      "row": 372
+    },
+    "message": "Local variable `commenter_notified` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 372,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 392
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 392
+          },
+          "location": {
+            "column": 9,
+            "row": 392
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 392
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 392,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 18,
+      "row": 484
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 21,
+            "row": 484
+          },
+          "location": {
+            "column": 9,
+            "row": 484
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `commenter`"
+    },
+    "location": {
+      "column": 9,
+      "row": 484
+    },
+    "message": "Local variable `commenter` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 484,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 496
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 496
+          },
+          "location": {
+            "column": 9,
+            "row": 496
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 496
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 496,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 16,
+      "row": 507
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 19,
+            "row": 507
+          },
+          "location": {
+            "column": 9,
+            "row": 507
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `comment`"
+    },
+    "location": {
+      "column": 9,
+      "row": 507
+    },
+    "message": "Local variable `comment` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 507,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 523
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 523
+          },
+          "location": {
+            "column": 9,
+            "row": 523
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 523
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 523,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 569
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 569
+          },
+          "location": {
+            "column": 9,
+            "row": 569
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 569
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 569,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 597
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 597
+          },
+          "location": {
+            "column": 9,
+            "row": 597
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 597
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 597,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 619
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 619
+          },
+          "location": {
+            "column": 9,
+            "row": 619
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 619
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 619,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 17,
+      "row": 642
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_email_integration_complete.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 20,
+            "row": 642
+          },
+          "location": {
+            "column": 9,
+            "row": 642
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `response`"
+    },
+    "location": {
+      "column": 9,
+      "row": 642
+    },
+    "message": "Local variable `response` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 642,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 93,
+      "row": 18
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_plugins.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import os\r\nfrom unittest.mock import Mock, patch\r\n\r\nfrom django.test import TestCase\r\n\r\nfrom djangoblog.plugin_manage import hooks\r\nfrom djangoblog.plugin_manage.base_plugin import BasePlugin\r\nfrom djangoblog.plugin_manage.hook_constants import *\r\n\r\n# 导入钩子常量\r\nfrom djangoblog.plugin_manage.hook_constants import (\r\n    BODY_RESOURCES_HOOK,\r\n    HEAD_RESOURCES_HOOK,\r\n)\r\nfrom djangoblog.plugin_manage.loader import load_plugins\r\nfrom djangoblog.test_base import BaseTestCase, PluginTestMixin\r\n\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 21
+          },
+          "location": {
+            "column": 1,
+            "row": 6
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 6
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 6,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 10,
+      "row": 6
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_plugins.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 7
+          },
+          "location": {
+            "column": 1,
+            "row": 6
+          }
+        }
+      ],
+      "message": "Remove unused import: `os`"
+    },
+    "location": {
+      "column": 8,
+      "row": 6
+    },
+    "message": "`os` imported but unused",
+    "name": "unused-import",
+    "noqa_row": 6,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 31,
+      "row": 7
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_plugins.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from unittest.mock import patch",
+          "end_location": {
+            "column": 38,
+            "row": 7
+          },
+          "location": {
+            "column": 1,
+            "row": 7
+          }
+        }
+      ],
+      "message": "Remove unused import: `unittest.mock.Mock`"
+    },
+    "location": {
+      "column": 27,
+      "row": 7
+    },
+    "message": "`unittest.mock.Mock` imported but unused",
+    "name": "unused-import",
+    "noqa_row": 7,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 72,
+      "row": 18
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_plugins.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 19
+          },
+          "location": {
+            "column": 1,
+            "row": 18
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 53,
+      "row": 18
+    },
+    "message": "`djangoblog.plugin_manage.hook_constants.HEAD_RESOURCES_HOOK` imported but unused",
+    "name": "unused-import",
+    "noqa_row": 18,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 93,
+      "row": 18
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_plugins.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 19
+          },
+          "location": {
+            "column": 1,
+            "row": 18
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 74,
+      "row": 18
+    },
+    "message": "`djangoblog.plugin_manage.hook_constants.BODY_RESOURCES_HOOK` imported but unused",
+    "name": "unused-import",
+    "noqa_row": 18,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "TRY002",
+    "end_location": {
+      "column": 42,
+      "row": 89
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_plugins.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 89
+    },
+    "message": "Create your own exception",
+    "name": "raise-vanilla-class",
+    "noqa_row": 89,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/raise-vanilla-class"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 15,
+      "row": 237
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_plugins.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 18,
+            "row": 237
+          },
+          "location": {
+            "column": 9,
+            "row": 237
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `plugin`"
+    },
+    "location": {
+      "column": 9,
+      "row": 237
+    },
+    "message": "Local variable `plugin` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 237,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 16,
+      "row": 282
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\test_plugins.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 283
+          },
+          "location": {
+            "column": 1,
+            "row": 282
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `content`"
+    },
+    "location": {
+      "column": 9,
+      "row": 282
+    },
+    "message": "Local variable `content` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 282,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 107,
+      "row": 32
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\urls.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import time\r\n\r\nfrom django.conf import settings\r\nfrom django.conf.urls.i18n import i18n_patterns\r\nfrom django.conf.urls.static import static\r\nfrom django.contrib.sitemaps.views import sitemap\r\nfrom django.http import JsonResponse\r\nfrom django.urls import include, path, re_path\r\nfrom haystack.views import search_view_factory\r\n\r\n# zhang: 引入各业务模块的视图、管理后台、搜索表单、订阅和站点地图组件。\r\nfrom blog.views import EsSearchView\r\nfrom djangoblog.admin_site import admin_site\r\nfrom djangoblog.elasticsearch_backend import ElasticSearchModelSearchForm\r\nfrom djangoblog.feeds import DjangoBlogFeed\r\nfrom djangoblog.sitemap import (\r\n    ArticleSiteMap,\r\n    CategorySiteMap,\r\n    StaticViewSitemap,\r\n    TagSiteMap,\r\n    UserSiteMap,\r\n)\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 34
+          },
+          "location": {
+            "column": 1,
+            "row": 17
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 17
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 17,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "UP009",
+    "end_location": {
+      "column": 18,
+      "row": 2
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\utils.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Remove unnecessary coding comment"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "UTF-8 encoding declaration is unnecessary",
+    "name": "utf8-encoding-declaration",
+    "noqa_row": 2,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/utf8-encoding-declaration"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 46,
+      "row": 19
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\utils.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import hashlib\r\nimport hmac\r\nimport logging\r\nimport os\r\nimport random\r\nimport string\r\nimport uuid\r\n\r\nimport bleach\r\nimport markdown\r\nimport requests\r\nfrom django.conf import settings\r\nfrom django.contrib.sites.models import Site\r\nfrom django.core.cache import cache\r\nfrom django.templatetags.static import static\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 21
+          },
+          "location": {
+            "column": 1,
+            "row": 5
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 5
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 5,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E722",
+    "end_location": {
+      "column": 19,
+      "row": 46
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\utils.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 46
+    },
+    "message": "Do not use bare `except`",
+    "name": "bare-except",
+    "noqa_row": 46,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/bare-except"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 41,
+      "row": 63
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\utils.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "'cache_decorator set cache:{} key:{}'.format(func.__name__, key)",
+          "end_location": {
+            "column": 41,
+            "row": 63
+          },
+          "location": {
+            "column": 21,
+            "row": 62
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 21,
+      "row": 62
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 62,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "UP032",
+    "end_location": {
+      "column": 73,
+      "row": 95
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\utils.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "f'expire_view_cache:get key:{path}'",
+          "end_location": {
+            "column": 73,
+            "row": 95
+          },
+          "location": {
+            "column": 21,
+            "row": 95
+          }
+        }
+      ],
+      "message": "Convert to f-string"
+    },
+    "location": {
+      "column": 21,
+      "row": 95
+    },
+    "message": "Use f-string instead of `format` call",
+    "name": "f-string",
+    "noqa_row": 95,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/f-string"
+  },
+  {
+    "cell": null,
+    "code": "RUF059",
+    "end_location": {
+      "column": 18,
+      "row": 133
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\utils.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "_toc",
+          "end_location": {
+            "column": 18,
+            "row": 133
+          },
+          "location": {
+            "column": 15,
+            "row": 133
+          }
+        }
+      ],
+      "message": "Prefix it with an underscore or any other dummy variable pattern"
+    },
+    "location": {
+      "column": 15,
+      "row": 133
+    },
+    "message": "Unpacked variable `toc` is never used",
+    "name": "unused-unpacked-variable",
+    "noqa_row": 133,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-unpacked-variable"
+  },
+  {
+    "cell": null,
+    "code": "BLE001",
+    "end_location": {
+      "column": 21,
+      "row": 214
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\utils.py",
+    "fix": null,
+    "location": {
+      "column": 12,
+      "row": 214
+    },
+    "message": "Do not catch blind exception: `Exception`",
+    "name": "blind-except",
+    "noqa_row": 214,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/blind-except"
+  },
+  {
+    "cell": null,
+    "code": "UP009",
+    "end_location": {
+      "column": 18,
+      "row": 1
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 2
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Remove unnecessary coding comment"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "UTF-8 encoding declaration is unnecessary",
+    "name": "utf8-encoding-declaration",
+    "noqa_row": 1,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/utf8-encoding-declaration"
+  },
+  {
+    "cell": null,
+    "code": "UP010",
+    "end_location": {
+      "column": 83,
+      "row": 4
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 5
+          },
+          "location": {
+            "column": 1,
+            "row": 4
+          }
+        }
+      ],
+      "message": "Remove unnecessary `__future__` import"
+    },
+    "location": {
+      "column": 1,
+      "row": 4
+    },
+    "message": "Unnecessary `__future__` imports `absolute_import`, `division`, `print_function`, `unicode_literals` for target Python version",
+    "name": "unnecessary-future-import",
+    "noqa_row": 4,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-future-import"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 39,
+      "row": 36
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from __future__ import absolute_import, division, print_function, unicode_literals\r\n\r\nimport json\r\nimport os\r\nimport re\r\nimport shutil\r\nimport threading\r\nimport warnings\r\nfrom datetime import datetime\r\n\r\nimport six\r\nfrom django.conf import settings\r\nfrom django.core.exceptions import ImproperlyConfigured\r\nfrom django.utils.encoding import force_str\r\nfrom haystack.backends import (\r\n    BaseEngine,\r\n    BaseSearchBackend,\r\n    BaseSearchQuery,\r\n    EmptyResults,\r\n    log_query,\r\n)\r\nfrom haystack.constants import DJANGO_CT, DJANGO_ID, ID\r\nfrom haystack.exceptions import MissingDependency, SearchBackendError, SkipDocument\r\nfrom haystack.inputs import Clean, Exact, PythonData, Raw\r\nfrom haystack.models import SearchResult\r\nfrom haystack.utils import get_identifier, get_model_ct\r\nfrom haystack.utils import log as logging\r\nfrom haystack.utils.app_loading import haystack_get_model\r\nfrom jieba.analyse import ChineseAnalyzer\r\nfrom whoosh import index\r\nfrom whoosh.analysis import StemmingAnalyzer\r\nfrom whoosh.fields import (\r\n    BOOLEAN,\r\n    DATETIME,\r\n    IDLIST,\r\n    KEYWORD,\r\n    NGRAM,\r\n    NGRAMWORDS,\r\n    NUMERIC,\r\n    TEXT,\r\n    Schema,\r\n)\r\nfrom whoosh.fields import ID as WHOOSH_ID\r\nfrom whoosh.filedb.filestore import FileStorage, RamStorage\r\nfrom whoosh.highlight import ContextFragmenter, HtmlFormatter\r\nfrom whoosh.highlight import highlight as whoosh_highlight\r\nfrom whoosh.qparser import QueryParser\r\nfrom whoosh.searching import ResultsPage\r\nfrom whoosh.writing import AsyncWriter\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 38
+          },
+          "location": {
+            "column": 1,
+            "row": 4
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 4
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 4,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 45,
+      "row": 28
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 29
+          },
+          "location": {
+            "column": 1,
+            "row": 28
+          }
+        }
+      ],
+      "message": "Remove unused import: `whoosh.analysis.StemmingAnalyzer`"
+    },
+    "location": {
+      "column": 29,
+      "row": 28
+    },
+    "message": "`whoosh.analysis.StemmingAnalyzer` imported but unused",
+    "name": "unused-import",
+    "noqa_row": 28,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 47,
+      "row": 32
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from whoosh.highlight import HtmlFormatter",
+          "end_location": {
+            "column": 62,
+            "row": 32
+          },
+          "location": {
+            "column": 1,
+            "row": 32
+          }
+        }
+      ],
+      "message": "Remove unused import: `whoosh.highlight.ContextFragmenter`"
+    },
+    "location": {
+      "column": 30,
+      "row": 32
+    },
+    "message": "`whoosh.highlight.ContextFragmenter` imported but unused",
+    "name": "unused-import",
+    "noqa_row": 32,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 59,
+      "row": 33
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 34
+          },
+          "location": {
+            "column": 1,
+            "row": 33
+          }
+        }
+      ],
+      "message": "Remove unused import: `whoosh.highlight.highlight`"
+    },
+    "location": {
+      "column": 43,
+      "row": 33
+    },
+    "message": "`whoosh.highlight.highlight` imported but unused",
+    "name": "unused-import",
+    "noqa_row": 33,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "W605",
+    "end_location": {
+      "column": 18,
+      "row": 52
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "r",
+          "end_location": {
+            "column": 5,
+            "row": 52
+          },
+          "location": {
+            "column": 5,
+            "row": 52
+          }
+        }
+      ],
+      "message": "Use a raw string literal"
+    },
+    "location": {
+      "column": 16,
+      "row": 52
+    },
+    "message": "Invalid escape sequence: `\\d`",
+    "name": "invalid-escape-sequence",
+    "noqa_row": 52,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/invalid-escape-sequence"
+  },
+  {
+    "cell": null,
+    "code": "W605",
+    "end_location": {
+      "column": 35,
+      "row": 52
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "r",
+          "end_location": {
+            "column": 5,
+            "row": 52
+          },
+          "location": {
+            "column": 5,
+            "row": 52
+          }
+        }
+      ],
+      "message": "Use a raw string literal"
+    },
+    "location": {
+      "column": 33,
+      "row": 52
+    },
+    "message": "Invalid escape sequence: `\\d`",
+    "name": "invalid-escape-sequence",
+    "noqa_row": 52,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/invalid-escape-sequence"
+  },
+  {
+    "cell": null,
+    "code": "W605",
+    "end_location": {
+      "column": 50,
+      "row": 52
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "r",
+          "end_location": {
+            "column": 5,
+            "row": 52
+          },
+          "location": {
+            "column": 5,
+            "row": 52
+          }
+        }
+      ],
+      "message": "Use a raw string literal"
+    },
+    "location": {
+      "column": 48,
+      "row": 52
+    },
+    "message": "Invalid escape sequence: `\\d`",
+    "name": "invalid-escape-sequence",
+    "noqa_row": 52,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/invalid-escape-sequence"
+  },
+  {
+    "cell": null,
+    "code": "W605",
+    "end_location": {
+      "column": 66,
+      "row": 52
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "r",
+          "end_location": {
+            "column": 5,
+            "row": 52
+          },
+          "location": {
+            "column": 5,
+            "row": 52
+          }
+        }
+      ],
+      "message": "Use a raw string literal"
+    },
+    "location": {
+      "column": 64,
+      "row": 52
+    },
+    "message": "Invalid escape sequence: `\\d`",
+    "name": "invalid-escape-sequence",
+    "noqa_row": 52,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/invalid-escape-sequence"
+  },
+  {
+    "cell": null,
+    "code": "W605",
+    "end_location": {
+      "column": 84,
+      "row": 52
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "r",
+          "end_location": {
+            "column": 5,
+            "row": 52
+          },
+          "location": {
+            "column": 5,
+            "row": 52
+          }
+        }
+      ],
+      "message": "Use a raw string literal"
+    },
+    "location": {
+      "column": 82,
+      "row": 52
+    },
+    "message": "Invalid escape sequence: `\\d`",
+    "name": "invalid-escape-sequence",
+    "noqa_row": 52,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/invalid-escape-sequence"
+  },
+  {
+    "cell": null,
+    "code": "W605",
+    "end_location": {
+      "column": 102,
+      "row": 52
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "r",
+          "end_location": {
+            "column": 5,
+            "row": 52
+          },
+          "location": {
+            "column": 5,
+            "row": 52
+          }
+        }
+      ],
+      "message": "Use a raw string literal"
+    },
+    "location": {
+      "column": 100,
+      "row": 52
+    },
+    "message": "Invalid escape sequence: `\\d`",
+    "name": "invalid-escape-sequence",
+    "noqa_row": 52,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/invalid-escape-sequence"
+  },
+  {
+    "cell": null,
+    "code": "W605",
+    "end_location": {
+      "column": 109,
+      "row": 52
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "r",
+          "end_location": {
+            "column": 5,
+            "row": 52
+          },
+          "location": {
+            "column": 5,
+            "row": 52
+          }
+        }
+      ],
+      "message": "Use a raw string literal"
+    },
+    "location": {
+      "column": 107,
+      "row": 52
+    },
+    "message": "Invalid escape sequence: `\\.`",
+    "name": "invalid-escape-sequence",
+    "noqa_row": 52,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/invalid-escape-sequence"
+  },
+  {
+    "cell": null,
+    "code": "W605",
+    "end_location": {
+      "column": 111,
+      "row": 52
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "r",
+          "end_location": {
+            "column": 5,
+            "row": 52
+          },
+          "location": {
+            "column": 5,
+            "row": 52
+          }
+        }
+      ],
+      "message": "Use a raw string literal"
+    },
+    "location": {
+      "column": 109,
+      "row": 52
+    },
+    "message": "Invalid escape sequence: `\\d`",
+    "name": "invalid-escape-sequence",
+    "noqa_row": 52,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/invalid-escape-sequence"
+  },
+  {
+    "cell": null,
+    "code": "UP008",
+    "end_location": {
+      "column": 18,
+      "row": 89
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 17,
+            "row": 89
+          },
+          "location": {
+            "column": 15,
+            "row": 87
+          }
+        }
+      ],
+      "message": "Remove `super()` parameters"
+    },
+    "location": {
+      "column": 14,
+      "row": 87
+    },
+    "message": "Use `super()` instead of `super(__class__, self)`",
+    "name": "super-call-with-parameters",
+    "noqa_row": 87,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/super-call-with-parameters"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 33,
+      "row": 106
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "\"You must specify a 'PATH' in your settings for connection '{}'.\".format(connection_alias)",
+          "end_location": {
+            "column": 33,
+            "row": 106
+          },
+          "location": {
+            "column": 17,
+            "row": 105
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 17,
+      "row": 105
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 105,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "UP024",
+    "end_location": {
+      "column": 26,
+      "row": 124
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "OSError",
+          "end_location": {
+            "column": 26,
+            "row": 124
+          },
+          "location": {
+            "column": 19,
+            "row": 124
+          }
+        }
+      ],
+      "message": "Replace `IOError` with builtin `OSError`"
+    },
+    "location": {
+      "column": 19,
+      "row": 124
+    },
+    "message": "Replace aliased errors with `OSError`",
+    "name": "os-error-alias",
+    "noqa_row": 124,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/os-error-alias"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 26,
+      "row": 126
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "\"The path to your Whoosh index '{}' is not writable for the current user/group.\".format(self.path)",
+          "end_location": {
+            "column": 26,
+            "row": 126
+          },
+          "location": {
+            "column": 17,
+            "row": 125
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 17,
+      "row": 125
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 125,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "PLW0602",
+    "end_location": {
+      "column": 26,
+      "row": 131
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 131
+    },
+    "message": "Using global for `LOCALS` but no assignment is done",
+    "name": "global-variable-not-assigned",
+    "noqa_row": 131,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/global-variable-not-assigned"
+  },
+  {
+    "cell": null,
+    "code": "PERF102",
+    "end_location": {
+      "column": 52,
+      "row": 164
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "field_class",
+          "end_location": {
+            "column": 36,
+            "row": 164
+          },
+          "location": {
+            "column": 13,
+            "row": 164
+          }
+        },
+        {
+          "content": "values",
+          "end_location": {
+            "column": 52,
+            "row": 164
+          },
+          "location": {
+            "column": 47,
+            "row": 164
+          }
+        }
+      ],
+      "message": "Replace `.items()` with `.values()`"
+    },
+    "location": {
+      "column": 40,
+      "row": 164
+    },
+    "message": "When using only the values of a dict use the `values()` method",
+    "name": "incorrect-dict-iterator",
+    "noqa_row": 164,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/incorrect-dict-iterator"
+  },
+  {
+    "cell": null,
+    "code": "UP025",
+    "end_location": {
+      "column": 67,
+      "row": 220
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 33,
+            "row": 220
+          },
+          "location": {
+            "column": 32,
+            "row": 220
+          }
+        }
+      ],
+      "message": "Remove unicode prefix"
+    },
+    "location": {
+      "column": 32,
+      "row": 220
+    },
+    "message": "Remove unicode literals from strings",
+    "name": "unicode-kind-prefix",
+    "noqa_row": 220,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unicode-kind-prefix"
+  },
+  {
+    "cell": null,
+    "code": "G201",
+    "end_location": {
+      "column": 35,
+      "row": 240
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": null,
+    "location": {
+      "column": 30,
+      "row": 240
+    },
+    "message": "Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`",
+    "name": "logging-exc-info",
+    "noqa_row": 240,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/logging-exc-info"
+  },
+  {
+    "cell": null,
+    "code": "UP025",
+    "end_location": {
+      "column": 64,
+      "row": 241
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 26,
+            "row": 241
+          },
+          "location": {
+            "column": 25,
+            "row": 241
+          }
+        }
+      ],
+      "message": "Remove unicode prefix"
+    },
+    "location": {
+      "column": 25,
+      "row": 241
+    },
+    "message": "Remove unicode literals from strings",
+    "name": "unicode-kind-prefix",
+    "noqa_row": 241,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unicode-kind-prefix"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 45,
+      "row": 242
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "u\"{} while preparing object for update\".format(e.__class__.__name__)",
+          "end_location": {
+            "column": 45,
+            "row": 242
+          },
+          "location": {
+            "column": 25,
+            "row": 241
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 25,
+      "row": 241
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 241,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "UP025",
+    "end_location": {
+      "column": 31,
+      "row": 265
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 22,
+            "row": 265
+          },
+          "location": {
+            "column": 21,
+            "row": 265
+          }
+        }
+      ],
+      "message": "Remove unicode prefix"
+    },
+    "location": {
+      "column": 21,
+      "row": 265
+    },
+    "message": "Remove unicode literals from strings",
+    "name": "unicode-kind-prefix",
+    "noqa_row": 265,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unicode-kind-prefix"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 36,
+      "row": 266
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "u'{}:\"{}\"'.format(ID, whoosh_id)",
+          "end_location": {
+            "column": 36,
+            "row": 266
+          },
+          "location": {
+            "column": 21,
+            "row": 265
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 21,
+      "row": 265
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 265,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "G201",
+    "end_location": {
+      "column": 27,
+      "row": 271
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": null,
+    "location": {
+      "column": 22,
+      "row": 271
+    },
+    "message": "Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`",
+    "name": "logging-exc-info",
+    "noqa_row": 271,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/logging-exc-info"
+  },
+  {
+    "cell": null,
+    "code": "UP025",
+    "end_location": {
+      "column": 33,
+      "row": 295
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 26,
+            "row": 295
+          },
+          "location": {
+            "column": 25,
+            "row": 295
+          }
+        }
+      ],
+      "message": "Remove unicode prefix"
+    },
+    "location": {
+      "column": 25,
+      "row": 295
+    },
+    "message": "Remove unicode literals from strings",
+    "name": "unicode-kind-prefix",
+    "noqa_row": 295,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unicode-kind-prefix"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 57,
+      "row": 296
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "u\"{}:{}\".format(DJANGO_CT, get_model_ct(model))",
+          "end_location": {
+            "column": 57,
+            "row": 296
+          },
+          "location": {
+            "column": 25,
+            "row": 295
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 25,
+      "row": 295
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 295,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "UP025",
+    "end_location": {
+      "column": 32,
+      "row": 300
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 26,
+            "row": 300
+          },
+          "location": {
+            "column": 25,
+            "row": 300
+          }
+        }
+      ],
+      "message": "Remove unicode prefix"
+    },
+    "location": {
+      "column": 25,
+      "row": 300
+    },
+    "message": "Remove unicode literals from strings",
+    "name": "unicode-kind-prefix",
+    "noqa_row": 300,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unicode-kind-prefix"
+  },
+  {
+    "cell": null,
+    "code": "G201",
+    "end_location": {
+      "column": 31,
+      "row": 306
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": null,
+    "location": {
+      "column": 26,
+      "row": 306
+    },
+    "message": "Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`",
+    "name": "logging-exc-info",
+    "noqa_row": 306,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/logging-exc-info"
+  },
+  {
+    "cell": null,
+    "code": "G201",
+    "end_location": {
+      "column": 31,
+      "row": 312
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": null,
+    "location": {
+      "column": 26,
+      "row": 312
+    },
+    "message": "Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`",
+    "name": "logging-exc-info",
+    "noqa_row": 312,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/logging-exc-info"
+  },
+  {
+    "cell": null,
+    "code": "UP025",
+    "end_location": {
+      "column": 59,
+      "row": 396
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 56,
+            "row": 396
+          },
+          "location": {
+            "column": 55,
+            "row": 396
+          }
+        }
+      ],
+      "message": "Remove unicode prefix"
+    },
+    "location": {
+      "column": 55,
+      "row": 396
+    },
+    "message": "Remove unicode literals from strings",
+    "name": "unicode-kind-prefix",
+    "noqa_row": 396,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unicode-kind-prefix"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 43,
+      "row": 472
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "'{}:{}'.format(DJANGO_CT, rm)",
+          "end_location": {
+            "column": 43,
+            "row": 472
+          },
+          "location": {
+            "column": 18,
+            "row": 472
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 18,
+      "row": 472
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 472,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 20,
+      "row": 592
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 593
+          },
+          "location": {
+            "column": 1,
+            "row": 592
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `model_klass`"
+    },
+    "location": {
+      "column": 9,
+      "row": 592
+    },
+    "message": "Local variable `model_klass` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 592,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 43,
+      "row": 617
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "'{}:{}'.format(DJANGO_CT, rm)",
+          "end_location": {
+            "column": 43,
+            "row": 617
+          },
+          "location": {
+            "column": 18,
+            "row": 617
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 18,
+      "row": 617
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 617,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 67,
+      "row": 650
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "\"{}:{}\".format(ID, get_identifier(model_instance))",
+          "end_location": {
+            "column": 67,
+            "row": 650
+          },
+          "location": {
+            "column": 21,
+            "row": 650
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 21,
+      "row": 650
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 650,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 23,
+      "row": 746
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 26,
+            "row": 746
+          },
+          "location": {
+            "column": 21,
+            "row": 746
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `ca`"
+    },
+    "location": {
+      "column": 21,
+      "row": 746
+    },
+    "message": "Local variable `ca` is assigned to but never used",
+    "name": "unused-variable",
+    "noqa_row": 746,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "RUF019",
+    "end_location": {
+      "column": 83,
+      "row": 751
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "additional_fields.get('title')",
+          "end_location": {
+            "column": 83,
+            "row": 751
+          },
+          "location": {
+            "column": 24,
+            "row": 751
+          }
+        }
+      ],
+      "message": "Replace with `dict.get`"
+    },
+    "location": {
+      "column": 24,
+      "row": 751
+    },
+    "message": "Unnecessary key check before dictionary access",
+    "name": "unnecessary-key-check",
+    "noqa_row": 751,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-key-check"
+  },
+  {
+    "cell": null,
+    "code": "RUF019",
+    "end_location": {
+      "column": 81,
+      "row": 768
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "additional_fields.get('body')",
+          "end_location": {
+            "column": 81,
+            "row": 768
+          },
+          "location": {
+            "column": 24,
+            "row": 768
+          }
+        }
+      ],
+      "message": "Replace with `dict.get`"
+    },
+    "location": {
+      "column": 24,
+      "row": 768
+    },
+    "message": "Unnecessary key check before dictionary access",
+    "name": "unnecessary-key-check",
+    "noqa_row": 768,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-key-check"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 68,
+      "row": 770
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "                        import re\r\n\r\n                        from djangoblog.utils import CommonMarkdown\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 771
+          },
+          "location": {
+            "column": 1,
+            "row": 769
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 25,
+      "row": 769
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 769,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "UP025",
+    "end_location": {
+      "column": 25,
+      "row": 880
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 22,
+            "row": 880
+          },
+          "location": {
+            "column": 21,
+            "row": 880
+          }
+        }
+      ],
+      "message": "Remove unicode prefix"
+    },
+    "location": {
+      "column": 21,
+      "row": 880
+    },
+    "message": "Remove unicode literals from strings",
+    "name": "unicode-kind-prefix",
+    "noqa_row": 880,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unicode-kind-prefix"
+  },
+  {
+    "cell": null,
+    "code": "S110",
+    "end_location": {
+      "column": 17,
+      "row": 935
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 932
+    },
+    "message": "`try`-`except`-`pass` detected, consider logging the exception",
+    "name": "try-except-pass",
+    "noqa_row": 932,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/try-except-pass"
+  },
+  {
+    "cell": null,
+    "code": "BLE001",
+    "end_location": {
+      "column": 29,
+      "row": 932
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": null,
+    "location": {
+      "column": 16,
+      "row": 932
+    },
+    "message": "Do not catch blind exception: `BaseException`",
+    "name": "blind-except",
+    "noqa_row": 932,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/blind-except"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 41,
+      "row": 968
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "\"'{}'\".format(word)",
+          "end_location": {
+            "column": 41,
+            "row": 968
+          },
+          "location": {
+            "column": 28,
+            "row": 968
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 28,
+      "row": 968
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 968,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "UP025",
+    "end_location": {
+      "column": 37,
+      "row": 1007
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 32,
+            "row": 1007
+          },
+          "location": {
+            "column": 31,
+            "row": 1007
+          }
+        }
+      ],
+      "message": "Remove unicode prefix"
+    },
+    "location": {
+      "column": 31,
+      "row": 1007
+    },
+    "message": "Remove unicode literals from strings",
+    "name": "unicode-kind-prefix",
+    "noqa_row": 1007,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unicode-kind-prefix"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 41,
+      "row": 1008
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "u'{}:'.format(connections[self._using].get_unified_index(\r\n            ).get_index_fieldname(field))",
+          "end_location": {
+            "column": 41,
+            "row": 1008
+          },
+          "location": {
+            "column": 31,
+            "row": 1007
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 31,
+      "row": 1007
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 1007,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "UP025",
+    "end_location": {
+      "column": 28,
+      "row": 1020
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 23,
+            "row": 1020
+          },
+          "location": {
+            "column": 22,
+            "row": 1020
+          }
+        }
+      ],
+      "message": "Remove unicode prefix"
+    },
+    "location": {
+      "column": 22,
+      "row": 1020
+    },
+    "message": "Remove unicode literals from strings",
+    "name": "unicode-kind-prefix",
+    "noqa_row": 1020,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unicode-kind-prefix"
+  },
+  {
+    "cell": null,
+    "code": "UP025",
+    "end_location": {
+      "column": 45,
+      "row": 1056
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 39,
+            "row": 1056
+          },
+          "location": {
+            "column": 38,
+            "row": 1056
+          }
+        }
+      ],
+      "message": "Remove unicode prefix"
+    },
+    "location": {
+      "column": 38,
+      "row": 1056
+    },
+    "message": "Remove unicode literals from strings",
+    "name": "unicode-kind-prefix",
+    "noqa_row": 1056,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unicode-kind-prefix"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 67,
+      "row": 1056
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "u\"({})\".format(\" AND \".join(terms))",
+          "end_location": {
+            "column": 67,
+            "row": 1056
+          },
+          "location": {
+            "column": 38,
+            "row": 1056
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 38,
+      "row": 1056
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 1056,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 54,
+      "row": 1072
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "'\"{}\"'.format(pv)",
+          "end_location": {
+            "column": 54,
+            "row": 1072
+          },
+          "location": {
+            "column": 43,
+            "row": 1072
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 43,
+      "row": 1072
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 1072,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 52,
+      "row": 1074
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "'{}'.format(pv)",
+          "end_location": {
+            "column": 52,
+            "row": 1074
+          },
+          "location": {
+            "column": 43,
+            "row": 1074
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 43,
+      "row": 1074
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 1074,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 62,
+      "row": 1076
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "\"({})\".format(\" OR \".join(in_options))",
+          "end_location": {
+            "column": 62,
+            "row": 1076
+          },
+          "location": {
+            "column": 30,
+            "row": 1076
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 30,
+      "row": 1076
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 1076,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "UP025",
+    "end_location": {
+      "column": 43,
+      "row": 1087
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 31,
+            "row": 1087
+          },
+          "location": {
+            "column": 30,
+            "row": 1087
+          }
+        }
+      ],
+      "message": "Remove unicode prefix"
+    },
+    "location": {
+      "column": 30,
+      "row": 1087
+    },
+    "message": "Remove unicode literals from strings",
+    "name": "unicode-kind-prefix",
+    "noqa_row": 1087,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unicode-kind-prefix"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 58,
+      "row": 1087
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "u\"[{} to {}]\".format(start, end)",
+          "end_location": {
+            "column": 58,
+            "row": 1087
+          },
+          "location": {
+            "column": 30,
+            "row": 1087
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 30,
+      "row": 1087
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 1087,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "SIM102",
+    "end_location": {
+      "column": 80,
+      "row": 1101
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 1100
+    },
+    "message": "Use a single `if` statement instead of nested `if` statements",
+    "name": "collapsible-if",
+    "noqa_row": 1100,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/collapsible-if"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 49,
+      "row": 1102
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "\"({})\".format(query_frag)",
+          "end_location": {
+            "column": 49,
+            "row": 1102
+          },
+          "location": {
+            "column": 30,
+            "row": 1102
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 30,
+      "row": 1102
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 1102,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  },
+  {
+    "cell": null,
+    "code": "UP025",
+    "end_location": {
+      "column": 23,
+      "row": 1104
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 17,
+            "row": 1104
+          },
+          "location": {
+            "column": 16,
+            "row": 1104
+          }
+        }
+      ],
+      "message": "Remove unicode prefix"
+    },
+    "location": {
+      "column": 16,
+      "row": 1104
+    },
+    "message": "Remove unicode literals from strings",
+    "name": "unicode-kind-prefix",
+    "noqa_row": 1104,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unicode-kind-prefix"
+  },
+  {
+    "cell": null,
+    "code": "UP031",
+    "end_location": {
+      "column": 55,
+      "row": 1104
+    },
+    "filename": "D:\\4班11组\\4-11-\\src\\djangoblog\\whoosh_cn_backend.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "u\"{}{}\".format(index_fieldname, query_frag)",
+          "end_location": {
+            "column": 55,
+            "row": 1104
+          },
+          "location": {
+            "column": 16,
+            "row": 1104
+          }
+        }
+      ],
+      "message": "Replace with format specifiers"
+    },
+    "location": {
+      "column": 16,
+      "row": 1104
+    },
+    "message": "Use format specifiers instead of percent format",
+    "name": "printf-string-formatting",
+    "noqa_row": 1104,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting"
+  }
+]

@@ -1,0 +1,145 @@
+
+{% extends 'share_layout/base.html' %}
+
+{% block header %}
+    <title>随机选片 | {{ SITE_NAME }}</title>
+    <meta name="description"
+          content="不知道今天看什么电影？使用随机选片功能，发现值得观看的电影。"/>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-4 py-6 lg:py-10">
+
+    <!-- 页面标题 -->
+    <div class="mb-8 text-center">
+        <h1 class="mb-3 text-3xl font-bold text-foreground">
+            🎬 今天看什么？
+        </h1>
+        <p class="text-muted-foreground">
+            选择喜欢的电影类型，让随机选片帮你做决定！
+        </p>
+    </div>
+
+    <!-- 随机选片操作区域 -->
+    <div class="mb-6 rounded-xl border border-border bg-card p-6">
+
+        <h2 class="mb-5 text-xl font-bold text-foreground">
+            🎲 随机选片
+        </h2>
+
+        <form method="get" action="{% url 'movie_picker:index' %}">
+
+            <!-- 电影分类 -->
+            <div class="mb-6">
+                <label for="category"
+                       class="mb-2 block font-medium text-foreground">
+                    选择电影类型
+                </label>
+
+                <select id="category"
+                        name="category"
+                        class="w-full rounded-lg border border-border bg-background p-3 text-foreground">
+
+                    <option value=""
+                        {% if selected_category == None %}selected{% endif %}>
+                        全部电影
+                    </option>
+
+                    {% for category in categories %}
+                        <option value="{{ category.id }}"
+                            {% if selected_category == category.id %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+            </div>
+
+            <!-- 触发随机抽取 -->
+            <input type="hidden" name="pick" value="1">
+
+            <button type="submit"
+                    class="w-full rounded-lg bg-primary px-6 py-3 font-bold text-primary-foreground transition-opacity hover:opacity-90">
+                🎲 {% if has_picked %}再抽一次{% else %}开始随机选片{% endif %}
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- 推荐结果区域 -->
+    {% if has_picked %}
+
+        {% if movie %}
+
+            <div class="rounded-xl border border-border bg-card p-6">
+
+                <p class="mb-3 text-sm font-medium text-primary">
+                    ✨ 为你随机抽取的电影
+                </p>
+
+                <!-- 电影标题 -->
+                <h2 class="mb-4 text-2xl font-bold text-foreground">
+                    {{ movie.title }}
+                </h2>
+
+                <!-- 电影基本信息 -->
+                <div class="mb-5 flex flex-wrap gap-4 text-sm text-muted-foreground">
+                    <span>📂 {{ movie.category.name }}</span>
+                    <span>👁 {{ movie.views }} 次浏览</span>
+                    <span>📅 {{ movie.pub_time|date:"Y-m-d" }}</span>
+                </div>
+
+                <!-- 电影介绍 -->
+                <div class="mb-6 text-foreground">
+                    <p class="mb-2 font-semibold">电影简介</p>
+
+                    <p class="leading-7 text-muted-foreground">
+                        {{ movie.body|striptags|truncatechars:220 }}
+                    </p>
+                </div>
+
+                <!-- 详情页入口 -->
+                <a href="{{ movie.get_absolute_url }}"
+                   class="inline-block rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:opacity-90">
+                    查看电影详情 →
+                </a>
+
+            </div>
+
+        {% else %}
+
+            <!-- 没有符合条件的电影 -->
+            <div class="rounded-xl border border-border bg-card p-8 text-center">
+                <p class="mb-3 text-2xl">😢</p>
+
+                <h2 class="mb-2 text-xl font-bold text-foreground">
+                    暂时没有找到符合条件的电影
+                </h2>
+
+                <p class="text-muted-foreground">
+                    请尝试选择其他电影分类。
+                </p>
+            </div>
+
+        {% endif %}
+
+    {% else %}
+
+        <!-- 首次进入页面 -->
+        <div class="rounded-xl border border-border bg-card p-8 text-center">
+            <p class="mb-4 text-4xl">🍿</p>
+
+            <h2 class="mb-3 text-xl font-bold text-foreground">
+                准备好发现下一部电影了吗？
+            </h2>
+
+            <p class="text-muted-foreground">
+                点击上方按钮，随机抽取一部电影吧！
+            </p>
+        </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}

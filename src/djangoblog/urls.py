@@ -68,6 +68,10 @@ urlpatterns = [
 # zhang: 保留原有顺序，避免通用匹配规则影响既有URL解析。
 urlpatterns += i18n_patterns(
     re_path(r'^admin/', admin_site.urls),
+
+    # zhang: 新增随机选片功能入口
+    path('movie-picker/', include('movie_picker.urls')),
+
     re_path(r'', include('blog.urls', namespace='blog')),
     re_path(r'mdeditor/', include('mdeditor.urls')),
     re_path(r'', include('comments.urls', namespace='comment')),

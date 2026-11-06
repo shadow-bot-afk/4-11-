@@ -1,0 +1,21 @@
+[
+  {
+    "cell": null,
+    "code": "E902",
+    "end_location": {
+      "column": 1,
+      "row": 1
+    },
+    "filename": "D:\\4班11组\\4-11-\\djangoblog",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "系统找不到指定的文件。 (os error 2)",
+    "name": "io-error",
+    "noqa_row": null,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/io-error"
+  }
+]
