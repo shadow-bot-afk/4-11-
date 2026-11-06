@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class ArticleListView(CachedListViewMixin, PageNumberMixin, ListView):
+    # GJ: 核心视图类，负责处理文章列表查询、分页及缓存逻辑
     """
     文章列表视图基类（重构版）
 
@@ -50,9 +51,11 @@ class ArticleListView(CachedListViewMixin, PageNumberMixin, ListView):
     page_kwarg = 'page'
     link_type = LinkShowType.L
 
+    # GJ: 获取当前视图的缓存键，基于URL参数生成，用于提升页面加载速度
     def get_view_cache_key(self):
         return self.request.get['pages']
 
+        # GJ: 获取并组装传递给前端模板的上下文数据，额外注入链接类型参数
     def get_context_data(self, **kwargs):
         kwargs['linktype'] = self.link_type
         return super(ArticleListView, self).get_context_data(**kwargs)

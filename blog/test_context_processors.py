@@ -11,10 +11,11 @@ from blog.context_processors import seo_processor
 from blog.models import Category, Article
 from djangoblog.utils import cache
 
-
+# GJ: SEO 上下文处理器测试类，验证 SEO 相关数据在各页面中的全局注入逻辑。
 class SeoProcessorTest(TestCase):
     """测试SEO上下文处理器"""
 
+    # GJ: 测试环境初始化：实例化请求工厂，并创建测试所需的用户与分类数据。
     def setUp(self):
         """设置测试环境"""
         self.factory = RequestFactory()
@@ -45,10 +46,12 @@ class SeoProcessorTest(TestCase):
         # 清空缓存
         cache.clear()
 
+    # GJ: 测试环境清理：在每个测试用例执行完毕后，清空缓存以保证测试独立性。
     def tearDown(self):
         """清理测试环境"""
         cache.clear()
 
+    # GJ: 测试变量返回：验证 SEO 上下文处理器能正确返回前端页面所需的全部必需变量键名。
     def test_processor_returns_required_variables(self):
         """测试上下文处理器返回必需的变量"""
         request = self.factory.get('/')
@@ -100,6 +103,7 @@ class SeoProcessorTest(TestCase):
         self.assertEqual(result1['SITE_NAME'], result2['SITE_NAME'])
         self.assertEqual(result1['SITE_DESCRIPTION'], result2['SITE_DESCRIPTION'])
 
+    # GJ: 测试匿名访问：验证未登录用户请求时，上下文处理器仍能返回基础 SEO 变量。
     def test_processor_with_anonymous_user(self):
         """测试匿名用户访问时的上下文处理器"""
         request = self.factory.get('/')
@@ -109,6 +113,7 @@ class SeoProcessorTest(TestCase):
         self.assertIsNotNone(result)
         self.assertIn('SITE_BASE_URL', result)
 
+    # GJ: 测试 HTTPS 请求：验证安全请求下生成的 SITE_BASE_URL 是否自动以 https 开头。
     def test_processor_with_https_request(self):
         """测试HTTPS请求的SITE_BASE_URL"""
         request = self.factory.get('/', secure=True)
@@ -117,6 +122,7 @@ class SeoProcessorTest(TestCase):
         # 验证SITE_BASE_URL包含https
         self.assertTrue(result['SITE_BASE_URL'].startswith('https://'))
 
+    # GJ: 测试 HTTP 请求：验证普通请求下生成的 SITE_BASE_URL 前缀是否正确。
     def test_processor_with_http_request(self):
         """测试HTTP请求的SITE_BASE_URL"""
         request = self.factory.get('/')
@@ -125,6 +131,7 @@ class SeoProcessorTest(TestCase):
         # 验证SITE_BASE_URL包含http
         self.assertTrue(result['SITE_BASE_URL'].startswith('http://'))
 
+    # GJ: 测试当前年份：验证上下文处理器全局注入的 CURRENT_YEAR 变量是否与系统当前年份一致。
     def test_processor_current_year(self):
         """测试CURRENT_YEAR是当前年份"""
         request = self.factory.get('/')
@@ -134,6 +141,7 @@ class SeoProcessorTest(TestCase):
         current_year = timezone.now().year
         self.assertEqual(result['CURRENT_YEAR'], current_year)
 
+    # GJ: 测试导航分类：验证注入的导航栏分类列表（nav_category_list）不为空且包含测试数据。
     def test_processor_nav_category_list(self):
         """测试导航分类列表"""
         request = self.factory.get('/')
@@ -147,6 +155,7 @@ class SeoProcessorTest(TestCase):
         category_names = [cat.name for cat in nav_categories]
         self.assertIn('Test Category', category_names)
 
+    # GJ: 测试导航页面列表：验证上下文处理器返回的 nav_pages 包含系统已发布的页面。
     def test_processor_nav_pages(self):
         """测试导航页面列表"""
         request = self.factory.get('/')
@@ -160,6 +169,7 @@ class SeoProcessorTest(TestCase):
         page_titles = [page.title for page in nav_pages]
         self.assertIn('Test Page', page_titles)
 
+    # GJ: 测试页面可见性：验证上下文处理器在导航列表中严格过滤了草稿状态的页面。
     def test_processor_only_shows_published_pages(self):
         """测试上下文处理器只显示已发布的页面"""
         # 创建草稿页面
@@ -239,6 +249,7 @@ class SeoProcessorTest(TestCase):
         self.assertEqual(result['ARTICLE_SUB_LENGTH'], 100)
         self.assertEqual(result['SHOW_GOOGLE_ADSENSE'], False)
 
+    # GJ: 测试多主机名场景：验证遍历不同域名请求时，生成的 SITE_BASE_URL 能动态匹配对应主机。
     def test_processor_site_base_url_with_different_hosts(self):
         """测试不同主机名的SITE_BASE_URL"""
         hosts = ['example.com', 'blog.example.com', 'localhost:8000']
@@ -250,6 +261,7 @@ class SeoProcessorTest(TestCase):
             # 验证SITE_BASE_URL包含正确的主机名
             self.assertIn(host, result['SITE_BASE_URL'])
 
+    # GJ: 测试动态值：验证 SITE_BASE_URL 和 CURRENT_YEAR 等动态变量在连续请求中不会被错误缓存。
     def test_processor_dynamic_values_not_cached(self):
         """测试动态值不被缓存（SITE_BASE_URL和CURRENT_YEAR）"""
         # 第一次请求 - HTTP
@@ -267,6 +279,7 @@ class SeoProcessorTest(TestCase):
         self.assertTrue(site_url1.startswith('http://'))
         self.assertTrue(site_url2.startswith('https://'))
 
+    # GJ: 测试空配置容错：验证即使系统某些设置为空，上下文处理器依然能安全返回基础变量。
     def test_processor_handles_empty_settings(self):
         """测试处理器处理空设置"""
         # 清除缓存
@@ -279,6 +292,7 @@ class SeoProcessorTest(TestCase):
         self.assertIsNotNone(result)
         self.assertIn('SITE_NAME', result)
 
+    # GJ: 测试缓存未命中：利用 mock 模拟日志记录器，验证缓存为空时处理器能正确触发日志记录逻辑。
     @patch('blog.context_processors.logger')
     def test_processor_logs_cache_miss(self, mock_logger):
         """测试缓存未命中时记录日志"""
@@ -294,6 +308,7 @@ class SeoProcessorTest(TestCase):
         call_args = str(mock_logger.info.call_args)
         self.assertIn('set processor cache', call_args)
 
+    # GJ: 测试多分类场景：批量创建分类数据，验证上下文处理器返回的导航分类列表完整性。
     def test_processor_multiple_categories(self):
         """测试多个分类的情况"""
         # 创建额外的分类
@@ -310,6 +325,7 @@ class SeoProcessorTest(TestCase):
         nav_categories = list(result['nav_category_list'])
         self.assertEqual(len(nav_categories), 3)
 
+    # GJ: 测试多页面场景：验证包含多篇已发布页面时，导航页面列表的渲染与加载逻辑。
     def test_processor_multiple_pages(self):
         """测试多个页面的情况"""
         # 创建额外的页面

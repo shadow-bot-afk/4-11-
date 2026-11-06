@@ -10,26 +10,30 @@ from django.utils import timezone
 
 from blog.middleware import OnlineMiddleware
 
-
+# GJ: 中间件测试类，用于验证 OnlineMiddleware 的核心拦截与处理逻辑。
 class OnlineMiddlewareTest(TestCase):
     """测试OnlineMiddleware中间件"""
 
+    # GJ: 测试初始化：实例化请求工厂和中间件对象，准备测试环境。
     def setUp(self):
         """设置测试环境"""
         self.factory = RequestFactory()
         self.middleware = OnlineMiddleware(get_response=self.get_response)
 
+    # GJ: 辅助方法：模拟 Django 的底层响应逻辑，返回带有占位符的测试响应。
     def get_response(self, request):
         """模拟Django的get_response"""
         response = HttpResponse("Test content <!!LOAD_TIMES!!>")
         return response
 
+    # GJ: 测试中间件初始化：验证中间件实例化后，其 get_response 属性是否正确绑定。
     def test_middleware_initialization(self):
         """测试中间件初始化"""
         middleware = OnlineMiddleware(get_response=self.get_response)
         self.assertIsNotNone(middleware.get_response)
         self.assertEqual(middleware.get_response, self.get_response)
 
+    # GJ: 测试正常请求：验证中间件拦截正常请求时，能正确替换响应内容中的加载时间占位符。
     def test_middleware_processes_request_normally(self):
         """测试中间件正常处理请求"""
         request = self.factory.get('/test/')
@@ -42,6 +46,7 @@ class OnlineMiddlewareTest(TestCase):
         # 验证响应内容中的加载时间被替换
         self.assertNotIn(b'<!!LOAD_TIMES!!>', response.content)
 
+    # GJ: 测试耗时计算：验证中间件能正确计算页面渲染时间，并将其注入到响应内容中。
     def test_middleware_calculates_page_render_time(self):
         """测试中间件计算页面渲染时间"""
         # 创建一个慢响应来测试时间计算
@@ -82,6 +87,7 @@ class OnlineMiddlewareTest(TestCase):
         content = b''.join(response.streaming_content)
         self.assertEqual(content, b"chunk1chunk2")
 
+    # GJ: 测试缺失 User-Agent：验证请求未携带该请求头时，中间件能容错处理并返回 200。
     def test_middleware_handles_missing_user_agent(self):
         """测试中间件处理缺失的User-Agent"""
         request = self.factory.get('/test/')
@@ -94,6 +100,7 @@ class OnlineMiddlewareTest(TestCase):
 
     @patch('blog.middleware.ELASTICSEARCH_ENABLED', True)
     @patch('blog.middleware.ElaspedTimeDocumentManager.create')
+    # GJ: 测试 ES 集成：使用 patch 模拟开启 Elasticsearch，验证中间件的数据写入及集成逻辑。
     def test_middleware_elasticsearch_integration_enabled(self, mock_create):
         """测试Elasticsearch集成启用时的行为"""
         request = self.factory.get('/test-path/')
@@ -140,6 +147,7 @@ class OnlineMiddlewareTest(TestCase):
         self.assertTrue(mock_get_client_ip.called)
         mock_get_client_ip.assert_called_once_with(request)
 
+    # GJ: 测试 UA 解析：验证中间件能正确提取 User-Agent 并调用解析函数。
     def test_middleware_user_agent_parsing(self):
         """测试User-Agent解析"""
         request = self.factory.get('/test/')
@@ -157,6 +165,7 @@ class OnlineMiddlewareTest(TestCase):
 
     @patch('blog.middleware.ELASTICSEARCH_ENABLED', True)
     @patch('blog.middleware.ElaspedTimeDocumentManager.create')
+    # GJ: 测试 ES 异常处理：模拟写入 ES 时发生异常，验证中间件的容错机制及系统稳定性。
     def test_middleware_handles_elasticsearch_exception(self, mock_create):
         """测试中间件处理Elasticsearch异常"""
         # 模拟Elasticsearch抛出异常
@@ -174,6 +183,7 @@ class OnlineMiddlewareTest(TestCase):
         # 但响应应该仍然返回，只是没有被修改
         self.assertTrue(response.content is not None)
 
+    # GJ: 测试内容替换异常处理：模拟响应体不可修改的极端情况，验证中间件能捕获异常并正常返回响应。
     def test_middleware_handles_content_replace_exception(self):
         """测试中间件处理内容替换异常"""
         def error_get_response(request):
@@ -228,6 +238,7 @@ class OnlineMiddlewareTest(TestCase):
         call_args = str(mock_logger.error.call_args)
         self.assertIn("Error OnlineMiddleware", call_args)
 
+    # GJ: 辅助测试函数：构造一个响应体受保护（不可变）的响应对象，用于触发替换异常。
     def test_middleware_with_multiple_requests(self):
         """测试中间件处理多个请求"""
         paths = ['/page1/', '/page2/', '/page3/']
@@ -242,6 +253,7 @@ class OnlineMiddlewareTest(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertNotIn(b'<!!LOAD_TIMES!!>', response.content)
 
+    # GJ: 测试并发/多次请求：验证中间件连续处理不同路径请求时，均能正常响应且替换逻辑生效。
     def test_middleware_preserves_response_headers(self):
         """测试中间件保留响应头"""
         def get_response_with_headers(request):

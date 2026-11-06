@@ -16,6 +16,14 @@ class LoginForm(AuthenticationForm):
         self.fields['password'].widget = widgets.PasswordInput(
             attrs={'placeholder': "password", "class": "form-control"})
 
+        self.fields['username'].error_messages = {
+            'required': '请输入用户名',
+            'invalid': '用户名格式不正确'
+        }
+        self.fields['password'].error_messages = {
+            'required': '请输入密码'
+        }
+
 
 class RegisterForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
@@ -30,10 +38,25 @@ class RegisterForm(UserCreationForm):
         self.fields['password2'].widget = widgets.PasswordInput(
             attrs={'placeholder': "repeat password", "class": "form-control"})
 
+        self.fields['username'].error_messages = {
+        'required': '请填写用户名',
+    }
+        self.fields['email'].error_messages = {
+        'required': '请填写邮箱',
+        'invalid': '请输入正确的邮箱格式（例如：xxx@xx.com）'
+    }
+        self.fields['password1'].error_messages = {
+        'required': '请填写密码',
+    }
+        self.fields['password2'].error_messages = {
+        'required': '请再次输入密码',
+        'password_mismatch': '两次输入的密码不一致',
+    }
+
     def clean_email(self):
         email = self.cleaned_data['email']
         if get_user_model().objects.filter(email=email).exists():
-            raise ValidationError(_("email already exists"))
+            raise ValidationError(_("该邮箱已被注册，请更换其他邮箱"))
         return email
 
     class Meta:
