@@ -220,51 +220,66 @@
 <div id="read-progress-bar"></div>
 <div id="progress-text">0%</div>
 
+
 <script>
-let timer = null;
-const progressBar = document.getElementById("read-progress-bar");
-const progressText = document.getElementById("progress-text");
-
-window.addEventListener("scroll", ()=>{
-    const scrollTop = window.scrollY;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    let p = docHeight > 0 ? scrollTop / docHeight : 0;
-    p = Math.max(0, Math.min(1, p));
-
-    progressBar.style.width = p*100 + "%";
-    progressText.innerText = Math.round(p*100)+"%";
-
-    clearTimeout(timer);
-    timer = setTimeout(()=>{
-        // 登录才提交后端
-        const isLogin = {{ user.is_authenticated|lower }};
-        if(!isLogin) return;
-        const aid = {{ article.id }};
-        fetch("/api/reading-progress/", {
-            method:"POST",
-            headers:{
-                "Content-Type":"application/x-www-form-urlencoded",
-                "X-CSRFToken":"{{ csrf_token }}"
-            },
-            body:`article_id=${aid}&progress=${p}`
-        })
-    },300)
-})
-
-// 加载读取历史进度
-window.onload = async function(){
-    const isLogin = {{ user.is_authenticated|lower }};
-    if(!isLogin) return;
-    const aid = {{ article.id }};
-    const res = await fetch(`/api/reading-progress/?article_id=${aid}`);
-    const data = await res.json();
-    const p = data.progress;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    if(docHeight>0){
-        window.scrollTo(0, p * docHeight);
-        progressBar.style.width = p*100+"%";
-        progressText.innerText = Math.round(p*100)+"%";
+(function () {
+    // 防止 HTMX 切换页面后残留旧的滚动监听器
+    if (window.readProgressController) {
+        window.readProgressController.abort();
     }
-}
+
+    const controller = new AbortController();
+    window.readProgressController = controller;
+
+    let timer = null;
+    const progressBar = document.getElementById("read-progress-bar");
+    const progressText = document.getElementById("progress-text");
+
+    if (!progressBar || !progressText) return;
+
+    const isLogin = {{ user.is_authenticated|lower }};
+    const aid = {{ article.id }};
+
+    window.addEventListener("scroll", () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        let p = docHeight > 0 ? scrollTop / docHeight : 0;
+        p = Math.max(0, Math.min(1, p));
+
+        progressBar.style.width = p * 100 + "%";
+        progressText.innerText = Math.round(p * 100) + "%";
+
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            if (!isLogin) return;
+
+            fetch("/api/reading-progress/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: `article_id=${aid}&progress=${p}`
+            });
+        }, 300);
+    }, { signal: controller.signal });
+
+    async function loadProgress() {
+        if (!isLogin) return;
+
+        const res = await fetch(`/api/reading-progress/?article_id=${aid}`);
+        const data = await res.json();
+        const p = data.progress;
+
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (docHeight > 0) {
+            window.scrollTo(0, p * docHeight);
+            progressBar.style.width = p * 100 + "%";
+            progressText.innerText = Math.round(p * 100) + "%";
+        }
+    }
+
+    loadProgress();
+})();
 </script>
 {% endblock %}
