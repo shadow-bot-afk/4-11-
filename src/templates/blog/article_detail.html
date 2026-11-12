@@ -58,6 +58,12 @@
                                     {{ article.comment_set.count }}
                                 </span>
                             {% endif %}
+                            {# 收藏按钮 #}
+                            <span class="flex items-center gap-1 ml-auto">
+                                <button id="favorite-btn" data-id="{{ article.id }}" class="inline-flex items-center rounded-md bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20">
+                                    ⭐ 收藏
+                                </button>
+                            </span>
                         </div>
 
                         <div class="mb-6 h-px bg-border/60"></div>
@@ -85,6 +91,8 @@
                                 {% render_article_content article False %}
                             </div>
                         </div>
+
+                        {% include 'ratings/widget.html' %}
 
                         {# Tags #}
                         <div class="mt-8 flex flex-wrap items-center gap-2 border-t border-border pt-6">
@@ -195,5 +203,146 @@
             </details>
         </div>
     </div>
+
+{# 收藏功能的 Ajax 交互脚本 #}
+<script>
+(function () {
+    // 避免页面多次加载时重复注册事件
+    if (window.favoriteClickHandlerRegistered) {
+        return;
+    }
+    window.favoriteClickHandlerRegistered = true;
+
+    document.addEventListener('click', function(event) {
+        let favBtn = event.target.closest('#favorite-btn');
+        if (!favBtn) return;
+
+        event.preventDefault();
+
+        let articleId = favBtn.getAttribute('data-id');
+
+        // 获取当前页面的 CSRF Token
+        let csrfToken = document.querySelector(
+            '[name="csrfmiddlewaretoken"]'
+        )?.value || '';
+
+        fetch(`/favorites/toggle/${articleId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            }
+        }).then(res => res.json()).then(data => {
+            if (data.status === 'success') {
+                if (data.action === 'favorited') {
+                    alert('收藏成功！');
+                    favBtn.innerHTML = '⭐ 已收藏';
+                } else {
+                    alert('已取消收藏');
+                    favBtn.innerHTML = '⭐ 收藏';
+                }
+            } else {
+                alert('请先登录再收藏！');
+            }
+        }).catch(err => {
+            console.error('Error:', err);
+            alert('请求出错，请稍后重试');
+        });
+    });
+})();
+</script>
+
+
+
+<style>
+#read-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: #409eff;
+    width: 0%;
+    z-index: 99999;
+}
+#progress-text {
+    position: fixed;
+    top:10px;
+    right:20px;
+    background:rgba(0,0,0,0.5);
+    color:#fff;
+    padding:2px 8px;
+    border-radius:4px;
+    font-size:12px;
+    z-index:99999;
+}
+</style>
+<div id="read-progress-bar"></div>
+<div id="progress-text">0%</div>
+
+
+<script>
+(function () {
+    // 防止 HTMX 切换页面后残留旧的滚动监听器
+    if (window.readProgressController) {
+        window.readProgressController.abort();
+    }
+
+    const controller = new AbortController();
+    window.readProgressController = controller;
+
+    let timer = null;
+    const progressBar = document.getElementById("read-progress-bar");
+    const progressText = document.getElementById("progress-text");
+
+    if (!progressBar || !progressText) return;
+
+    const isLogin = {{ user.is_authenticated|lower }};
+    const aid = {{ article.id }};
+
+    window.addEventListener("scroll", () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        let p = docHeight > 0 ? scrollTop / docHeight : 0;
+        p = Math.max(0, Math.min(1, p));
+
+        progressBar.style.width = p * 100 + "%";
+        progressText.innerText = Math.round(p * 100) + "%";
+
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            if (!isLogin) return;
+
+            fetch("/api/reading-progress/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: `article_id=${aid}&progress=${p}`
+            });
+        }, 300);
+    }, { signal: controller.signal });
+
+    async function loadProgress() {
+        if (!isLogin) return;
+
+        const res = await fetch(`/api/reading-progress/?article_id=${aid}`);
+        const data = await res.json();
+        const p = data.progress;
+
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (docHeight > 0) {
+            window.scrollTo(0, p * docHeight);
+            progressBar.style.width = p * 100 + "%";
+            progressText.innerText = Math.round(p * 100) + "%";
+        }
+    }
+
+    loadProgress();
+})();
+</script>
+
+
+
 {% endblock %}
 
