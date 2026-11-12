@@ -1,0 +1,18 @@
+新增
+    {# zhang: 随机选片功能入口 #}
+            <a href="{% url 'movie_picker:index' %}"
+                class="relative rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-secondary hover:text-foreground">
+                🎬 随机选片
+            </a>
+
+
+
+新增
+{# zhang: 移动端随机选片入口 #}
+<a href="{% url 'movie_picker:index' %}"
+   @click="$store.nav.mobileOpen = false"
+   class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary">
+    🎬 随机选片
+</a>
+
+
