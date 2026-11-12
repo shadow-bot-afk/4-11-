@@ -8,7 +8,7 @@
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[200] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:shadow-lg">
         {% trans 'Skip to content' %}
     </a>
-    <div class="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3 lg:px-6">
+    <div class="mx-auto flex max-w-[1800px] items-center gap-3 px-4 py-3 lg:px-6">
 
         {# Logo #}
         <a href="/" class="group flex flex-col items-end leading-none">
@@ -23,7 +23,7 @@
         </a>
 
         {# Desktop Nav #}
-        <nav class="hidden flex-1 items-center gap-0.5 lg:flex"
+       <nav class="hidden min-w-0 flex-1 items-center gap-1 lg:flex"
              aria-label="{% trans 'Primary' %}"
              hx-boost="true"
              hx-target="#main"
@@ -103,6 +103,19 @@
                 </a>
             {% endfor %}
 
+           {# zhang: 随机选片功能入口 #}
+            <a href="{% url 'movie_picker:index' %}"
+                class="relative rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-secondary hover:text-foreground">
+                🎬 随机选片
+            </a>
+
+            {# My Favorites - Desktop #}
+            <a href="{% url 'my_favorites' %}"
+               hx-boost="false"
+               class="relative rounded-lg px-2 py-2 text-sm font-medium transition-all duration-200 hover:bg-secondary hover:text-foreground {% if request.path == '/favorites/my/' %}text-primary bg-primary/5{% else %}text-muted-foreground{% endif %}">
+                ⭐ 我的收藏
+            </a>
+
             {# External: tools site #}
             <span class="mx-2 h-4 w-px bg-border"></span>
             <a href="https://tools.lylinux.net/" target="_blank" rel="noopener"
@@ -114,7 +127,7 @@
 
         {# Desktop inline search bar #}
         <form action="{% url 'search' %}" method="get"
-              class="hidden lg:flex items-center gap-2 h-9 w-44 rounded-lg border border-border bg-secondary/60 px-3 transition-all duration-300 focus-within:w-56 focus-within:border-primary/40 focus-within:bg-background focus-within:ring-2 focus-within:ring-primary/20">
+              class="hidden lg:flex shrink-0 items-center gap-2 h-9 w-44 rounded-lg border border-border bg-secondary/60 px-3 transition-all duration-300 focus-within:w-56 focus-within:border-primary/40 focus-within:bg-background focus-within:ring-2 focus-within:ring-primary/20">
             <svg class="size-4 shrink-0 text-muted-foreground pointer-events-none"
                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -129,7 +142,35 @@
         </form>
 
         {# Right: theme toggle + mobile menu #}
-        <div class="ml-auto flex items-center gap-0.5 lg:ml-0">
+        <div class="ml-auto flex shrink-0 items-center gap-0.5 lg:ml-0">
+
+            {# 用户登录状态导航 #}
+            <div class="hidden lg:flex items-center gap-2 text-sm">
+                {% if user.is_authenticated %}
+                    <span class="text-muted-foreground">
+                        {{ user.username }}
+                    </span>
+                    <form method="post" action="{% url 'account:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="rounded-lg px-3 py-2 font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
+                            退出
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'account:login' %}"
+                       hx-boost="false"
+                       class="rounded-lg px-3 py-2 font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
+                        登录
+                    </a>
+                    <a href="{% url 'account:register' %}"
+                       hx-boost="false"
+                       class="rounded-lg bg-primary px-3 py-2 font-medium text-primary-foreground transition-colors hover:opacity-90">
+                        注册
+                    </a>
+                {% endif %}
+            </div>
+
             {# Theme toggle #}
             <button class="size-9 rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                     @click="window.themeManager && window.themeManager.toggle()"
@@ -266,6 +307,51 @@
                     {{ page.title }}
                 </a>
             {% endfor %}
+
+            <a href="{% url 'movie_picker:index' %}"
+               @click="$store.nav.mobileOpen = false"
+               class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary">
+                🎬 随机选片
+            </a>
+
+            {# My Favorites - Mobile #}
+            <a href="{% url 'my_favorites' %}"
+               hx-boost="false"
+               @click="$store.nav.mobileOpen = false"
+               class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary">
+                ⭐ 我的收藏
+            </a>
+
+            {# Mobile: 用户登录状态导航 #}
+            <div class="my-1 border-t border-border/60"></div>
+
+            {% if user.is_authenticated %}
+                <div class="px-3 py-2 text-sm text-muted-foreground">
+                    当前用户：{{ user.username }}
+                </div>
+                <form method="post"
+                      action="{% url 'account:logout' %}"
+                      hx-boost="false">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-foreground transition-colors hover:bg-secondary">
+                        退出登录
+                    </button>
+                </form>
+            {% else %}
+                <a href="{% url 'account:login' %}"
+                   hx-boost="false"
+                   @click="$store.nav.mobileOpen = false"
+                   class="flex items-center rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary">
+                    登录
+                </a>
+                <a href="{% url 'account:register' %}"
+                   hx-boost="false"
+                   @click="$store.nav.mobileOpen = false"
+                   class="flex items-center rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary">
+                    注册
+                </a>
+            {% endif %}
 
             {# External: tools site #}
             <div class="my-1 border-t border-border/60"></div>

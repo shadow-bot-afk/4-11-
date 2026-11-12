@@ -67,7 +67,11 @@ INSTALLED_APPS = [
     'oauth',
     'servermanager',
     'compressor',
-    'djangoblog'
+    'djangoblog',
+    'favorites',
+    'reading_progress',
+    'ratings',
+    'movie_picker',
 ]
 
 # zhang: 中间件按声明顺序处理请求，顺序调整可能影响认证、缓存和安全行为。

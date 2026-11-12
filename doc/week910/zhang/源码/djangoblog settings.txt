@@ -1,0 +1,4 @@
+在
+INSTALLED_APPS = [
+中添加一行
+'movie_picker',

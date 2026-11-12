@@ -1,0 +1,19 @@
+增加我的收藏入口
+
+电脑端
+{# My Favorites - Desktop #}
+<a href="{% url 'my_favorites' %}"
+   hx-boost="false"
+   class="relative rounded-lg px-2 py-2 text-sm font-medium transition-all duration-200 hover:bg-secondary hover:text-foreground {% if request.path == '/favorites/my/' %}text-primary bg-primary/5{% else %}text-muted-foreground{% endif %}">
+    ⭐ 我的收藏
+</a>
+
+
+移动端
+{# My Favorites - Mobile #}
+<a href="{% url 'my_favorites' %}"
+   hx-boost="false"
+   @click="$store.nav.mobileOpen = false"
+   class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary">
+    ⭐ 我的收藏
+</a>

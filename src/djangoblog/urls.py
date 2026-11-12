@@ -63,6 +63,10 @@ def health_check(request):
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('health/', health_check, name='health_check'),
+    path('favorites/', include('favorites.urls')),
+    path('api/reading-progress/', include('reading_progress.urls')),
+    path('ratings/', include('ratings.urls')),
+    path('movie-picker/', include('movie_picker.urls')),
 ]
 # zhang: 将后台、文章、评论、账户、第三方登录和管理功能接入多语言路由。
 # zhang: 保留原有顺序，避免通用匹配规则影响既有URL解析。

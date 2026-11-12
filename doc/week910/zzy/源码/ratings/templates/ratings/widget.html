@@ -1,0 +1,49 @@
+<!-- zzy: 电影评分组件：展示平均分和人数，登录用户可点星提交/修改 -->
+<div id="rating-widget" data-article-id="{{ article.pk }}" class="my-3">
+  {% csrf_token %}
+  <span id="rating-stars" style="font-size:1.4rem;color:#f5a623;cursor:pointer;">
+    {% for i in "12345" %}<span class="star" data-score="{{ i }}">★</span>{% endfor %}
+  </span>
+  <span id="rating-info" style="margin-left:8px;">暂无评分</span>
+</div>
+
+<script>
+(function () {
+  var box = document.getElementById('rating-widget');
+  var aid = box.getAttribute('data-article-id');
+  var info = document.getElementById('rating-info');
+  var stars = document.querySelectorAll('#rating-stars .star');
+
+  function render(avg, count, my) {
+    stars.forEach(function (s) {
+      s.style.color = (my && +s.getAttribute('data-score') <= my) ? '#f5a623' : '#ddd';
+    });
+    info.textContent = (count > 0) ? (avg + ' 分（' + count + '人评分）' + (my ? ' 我的评分：' + my + '星' : '')) : '暂无评分';
+  }
+
+  // zzy: 从组件内嵌的csrf_token隐藏域读取令牌(修复cookie不存在导致的403)
+  function csrf() {
+    var el = document.querySelector('#rating-widget [name="csrfmiddlewaretoken"]');
+    return el ? el.value : '';
+  }
+
+  fetch('/ratings/stats/' + aid + '/').then(r => r.json()).then(d => render(d.avg, d.count, d.my_score));
+
+  stars.forEach(function (s) {
+    s.addEventListener('click', function () {
+      fetch('/ratings/rate/' + aid + '/', {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrf(), 'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'score=' + s.getAttribute('data-score')
+      }).then(function (r) {
+        // zzy: 未登录时服务器会302跳转登录页，fetch跟随跳转后r.redirected为true
+        if (r.redirected) { alert('请先登录后再评分'); return null; }
+        if (!r.ok) { alert('提交失败(' + r.status + ')'); return null; }
+        return r.json();
+      }).then(function (d) {
+        if (d && d.success) { render(d.avg, d.count, d.score); }
+      }).catch(function () { alert('网络错误，请稍后重试'); });
+    });
+  });
+})();
+</script>
